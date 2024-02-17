@@ -36,11 +36,11 @@ class BuyTicketState extends State<BuyTicket> {
   List<Vehicle> _busList = [];
   List<String> destinationList = [];
   List<String> departureList = [];
+  List<String> tariff_list = [];
   // intial value variables
   Vehicle? selectedVehicle;
   String? selectedDestination;
   String? selectedDeparture;
-  
 
   // Future<void> _loadBusList() async {
   //   SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -66,12 +66,21 @@ class BuyTicketState extends State<BuyTicket> {
     _loadDestinationList();
     _loadDepartureList();
     _loadTailerData();
+    _loadTariffData();
     date.text = currentDate;
   }
+
+  void _loadTariffData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String tarifListJson = prefs.getString('tariff_list') ?? '[]';
+    List<dynamic> decodedList = json.decode(tarifListJson);
+    tariff_list.addAll(decodedList.cast<String>());
+    setState(() {});
+  }
+
   void _loadTailerData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String tailorpref = prefs.getString('username') ?? '[]';
-
 
     if (tailorpref.isNotEmpty) {
       Tailure.text = tailorpref!;
@@ -80,7 +89,6 @@ class BuyTicketState extends State<BuyTicket> {
     }
     setState(() {});
   }
-
 
   void _loadDepartureList() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -233,7 +241,7 @@ class BuyTicketState extends State<BuyTicket> {
                   ),
                   Column(
                     children: [
-                       Text(
+                      Text(
                         "No of ticket".tr(),
                         style: const TextStyle(
                           color: MyColors.grey_60,
@@ -515,6 +523,13 @@ class BuyTicketState extends State<BuyTicket> {
                             setState(() {
                               selectedDestination = newValue ?? '';
                               destination.text = newValue!;
+
+                              // since the destination and tariff list are in the same order, we can use the index of the selected destination to get the corresponding tariff
+                              int selectedIndex = destinationList.indexWhere(
+                                  (destination) => destination == newValue);
+
+                              tariff.text =
+                                  tariff_list[selectedIndex];
                             });
                           },
                           underline: Container(), // Removes the underline
@@ -629,25 +644,25 @@ class BuyTicketState extends State<BuyTicket> {
                       tariff: double.parse(tariff.text),
                       charge: double.parse(serviceCharge.text),
                     );
-                    Vehicle busInfo = Vehicle(
-                      plateNumber: 'ET 1234',
-                      totalCapacity: 50,
-                    );
 
                     // Retrieve existing user list from SharedPreferences
-                    SharedPreferences prefs = await SharedPreferences.getInstance();
-                    String userJson = prefs.getString('user_registration') ?? '[]';
+                    SharedPreferences prefs =
+                        await SharedPreferences.getInstance();
+                    String userJson =
+                        prefs.getString('user_registration') ?? '[]';
 
                     // Parse the JSON string to a List of Users
                     List<Ticket> ticketList =
                         (json.decode(userJson) as List<dynamic>)
-                            .map((item) => Ticket.fromJson(item)).toList();
+                            .map((item) => Ticket.fromJson(item))
+                            .toList();
 
                     // Add the new user to the list
                     ticketList.add(ticket);
 
                     // Store the updated user list back to SharedPreferences
-                    prefs.setString('user_registration', json.encode(ticketList));
+                    prefs.setString(
+                        'user_registration', json.encode(ticketList));
 
                     // ----------------==============================================
                     // Retrieve existing bus list from SharedPreferences
@@ -656,7 +671,8 @@ class BuyTicketState extends State<BuyTicket> {
                     // Parse the JSON string to a List of Buses
                     List<Vehicle> busList =
                         (json.decode(busJson) as List<dynamic>)
-                            .map((item) => Vehicle.fromJson(item)).toList();
+                            .map((item) => Vehicle.fromJson(item))
+                            .toList();
 
                     // Update the current capacity of the appropriate bus (you need to implement logic to find the correct bus to update)
 

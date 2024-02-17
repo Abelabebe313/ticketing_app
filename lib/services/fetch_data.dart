@@ -11,7 +11,7 @@ import 'package:transport_app/models/queue_model.dart';
 
 class DataService {
   static const String baseUrl =
-      "https://api.horansoftware.com/api/public/api/updates";
+      "https://api.noraticket.com/v1/public/api/updates";
 
   Future<void> fetchData() async {
     // hive box implementation
@@ -41,6 +41,8 @@ class DataService {
         final destinationList =
             await responseData['data']['data'][0]['destination'];
         final departure = await responseData['data']['data'][0]['departure'];
+        final tarifListJson = await responseData['data']['data'][0]['tariff'];
+        //
         // Check if the response has a 'vehicle_list' key
         if (vehicleListJson != null) {
           // ==========  convert String to List<Vehicle>  ========== //
@@ -75,12 +77,20 @@ class DataService {
             );
           }
         }
+        //
         // check if the response has Destination List and add to sharedpreference
         if (destinationList != null) {
           List<String> destination =
               convertRegexToDestinationList(destinationList);
           String destinationString = json.encode(destination);
           await prefs.setString('destination_list', destinationString);
+        }
+
+        // check if the response has Tariff List and add to sharedpreference
+        if (tarifListJson != null) {
+          List<String> tariff = convertRegexToTariffList(tarifListJson);
+          String tariffString = json.encode(tariff);
+          await prefs.setString('tariff_list', tariffString);
         }
         // check departure add to sharedpreference
         if (departure != null) {
@@ -134,4 +144,18 @@ List<String> convertRegexToDestinationList(String regexString) {
   }
 
   return destinations;
+}
+
+List<String> convertRegexToTariffList(String regexString) {
+  List<String> tariff = [];
+
+  // Extract plate numbers from the regex string
+  RegExp destinationRegex = RegExp(r'"([^"]*)"');
+  Iterable<Match> matches = destinationRegex.allMatches(regexString);
+
+  for (Match match in matches) {
+    tariff.add(match.group(1)!);
+  }
+
+  return tariff;
 }
