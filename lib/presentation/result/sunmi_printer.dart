@@ -1,6 +1,5 @@
 import 'dart:typed_data';
 import 'package:barcode_widget/barcode_widget.dart' as Bbar;
-import 'package:esc_pos_utils/esc_pos_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:sunmi_printer_plus/column_maker.dart';
@@ -8,11 +7,17 @@ import 'package:sunmi_printer_plus/enums.dart';
 import 'dart:async';
 
 import 'package:sunmi_printer_plus/sunmi_printer_plus.dart';
-import 'package:sunmi_printer_plus/sunmi_style.dart';
-import 'package:transport_app/models/ticket.dart';
 
 class SunmiPrinterPage extends StatefulWidget {
-  const SunmiPrinterPage({Key? key}) : super(key: key);
+  final String plateNo;
+  final String distance;
+  final String destination;
+  const SunmiPrinterPage(
+      {Key? key,
+      required this.plateNo,
+      required this.distance,
+      required this.destination})
+      : super(key: key);
 
   @override
   _SunmiPrinterPageState createState() => _SunmiPrinterPageState();
@@ -73,9 +78,9 @@ class _SunmiPrinterPageState extends State<SunmiPrinterPage> {
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Column(
+                child: Column(
                   children: [
-                     Row(
+                    const Row(
                       children: [
                         Text(
                           "Queue Information",
@@ -87,10 +92,10 @@ class _SunmiPrinterPageState extends State<SunmiPrinterPage> {
                         ),
                       ],
                     ),
-                     SizedBox(height: 10),
-                    Row(
+                    SizedBox(height: 10),
+                    const Row(
                       children: [
-                         Text(
+                        Text(
                           "Sa'aatii itti seene: ",
                           style: TextStyle(
                               color: Colors.black,
@@ -99,24 +104,24 @@ class _SunmiPrinterPageState extends State<SunmiPrinterPage> {
                         ),
                         Text(
                           '12/12/1221',
-                          style:  TextStyle(
+                          style: TextStyle(
                               color: Colors.black,
                               fontSize: 16,
                               fontWeight: FontWeight.normal),
                         ),
                       ],
                     ),
-
-                    Row(
+                    const Row(
                       children: [
-                         Text(
+                        Text(
                           "Sa'aatii itti bahe",
                           style: TextStyle(
                               color: Colors.black,
                               fontSize: 16,
                               fontWeight: FontWeight.bold),
                         ),
-                        Text('12/12/1221',
+                        Text(
+                          '12/12/1221',
                           style: const TextStyle(
                               color: Colors.black,
                               fontSize: 16,
@@ -124,10 +129,9 @@ class _SunmiPrinterPageState extends State<SunmiPrinterPage> {
                         ),
                       ],
                     ),
-
                     Row(
                       children: [
-                         Text(
+                        const Text(
                           "Plate No: ",
                           style: TextStyle(
                             color: Colors.black,
@@ -136,8 +140,8 @@ class _SunmiPrinterPageState extends State<SunmiPrinterPage> {
                           ),
                         ),
                         Text(
-                          'A23456',
-                          style:  TextStyle(
+                          widget.plateNo,
+                          style: const TextStyle(
                             color: Colors.black,
                             fontSize: 16,
                             fontWeight: FontWeight.normal,
@@ -147,24 +151,25 @@ class _SunmiPrinterPageState extends State<SunmiPrinterPage> {
                     ),
                     Row(
                       children: [
-                         Text(
+                        const Text(
                           "Buufata: ",
                           style: TextStyle(
                               color: Colors.black,
                               fontSize: 16,
                               fontWeight: FontWeight.bold),
                         ),
-                        Text('Addis Ababa',
-                          style:  TextStyle(
+                        Text(
+                          widget.destination,
+                          style: const TextStyle(
                               color: Colors.black,
                               fontSize: 16,
                               fontWeight: FontWeight.normal),
                         ),
                       ],
                     ),
-                    Row(
+                    const Row(
                       children: [
-                         Text(
+                        Text(
                           "Magaalaa Gahumsaa",
                           style: TextStyle(
                               color: Colors.black,
@@ -173,7 +178,7 @@ class _SunmiPrinterPageState extends State<SunmiPrinterPage> {
                         ),
                         Text(
                           'Addis Ababa',
-                          style:  TextStyle(
+                          style: TextStyle(
                               color: Colors.black,
                               fontSize: 16,
                               fontWeight: FontWeight.normal),
@@ -182,15 +187,16 @@ class _SunmiPrinterPageState extends State<SunmiPrinterPage> {
                     ),
                     Row(
                       children: [
-                         Text(
+                        const Text(
                           "Fageenya",
                           style: TextStyle(
                               color: Colors.black,
                               fontSize: 16,
                               fontWeight: FontWeight.bold),
                         ),
-                        Text('77 km',
-                          style:  TextStyle(
+                        Text(
+                          widget.distance,
+                          style: const TextStyle(
                               color: Colors.black,
                               fontSize: 16,
                               fontWeight: FontWeight.normal),
