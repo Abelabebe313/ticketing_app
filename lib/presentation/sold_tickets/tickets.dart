@@ -32,19 +32,6 @@ class SoldTicketsState extends State<SoldTickets> {
     _loadReportList();
   }
 
-  // Future<void> _loadBusList() async {
-  //   SharedPreferences prefs = await SharedPreferences.getInstance();
-  //   String userJson = prefs.getString('user_registration') ?? '[]';
-  //   List<dynamic> userData = json.decode(userJson);
-  //   List<Ticket> users = userData.map((data) => Ticket.fromJson(data)).toList();
-  //   // reverse the list to show the latest user first
-  //   users = users.reversed.toList();
-
-  //   setState(() {
-  //     _ticketList = users;
-  //     _filteredTicket = users; // Initialize filtered list with all users
-  //   });
-  // }
   Future<void> _loadReportList() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     List<String> reportJsonList = prefs.getStringList('reports') ?? [];
@@ -114,7 +101,7 @@ class SoldTicketsState extends State<SoldTickets> {
       builder: (context, state) {
         return Scaffold(
           appBar: AppBar(
-            title:  Text(
+            title: Text(
               'Sold tickets'.tr(),
               style: const TextStyle(
                 fontSize: 18,

@@ -11,9 +11,9 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     on<LoginUserEvent>((event, emit) async {
       emit(UserLoading());
       try {
-        print('========> inside try bloc');
+        // print('========> inside try bloc');
         final response = await userService.login(event.phone, event.password);
-        print('response: $response');
+        // print('response: $response');
         
         if (response) {
           emit(LoadedUserState(event.phone, event.password));

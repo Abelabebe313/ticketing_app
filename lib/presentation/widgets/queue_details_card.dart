@@ -1,15 +1,26 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:sunmi_printer_plus/column_maker.dart';
+import 'package:sunmi_printer_plus/enums.dart';
+import 'package:sunmi_printer_plus/sunmi_printer_plus.dart';
 import 'package:transport_app/core/my_colors.dart';
 import 'package:transport_app/core/my_text.dart';
 import 'package:transport_app/models/queue_model.dart';
 import 'package:transport_app/presentation/result/queue_printer.dart';
+import 'package:transport_app/presentation/result/sunmi_printer.dart';
 
-class BusDetailsPopup extends StatelessWidget {
+class BusDetailsPopup extends StatefulWidget {
   final QueueModel busDetails;
 
   BusDetailsPopup({required this.busDetails});
 
+  @override
+  State<BusDetailsPopup> createState() => _BusDetailsPopupState();
+}
+
+TextEditingController distanceController = TextEditingController();
+
+class _BusDetailsPopupState extends State<BusDetailsPopup> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -19,10 +30,29 @@ class BusDetailsPopup extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text('Plate No: ${busDetails.plateNumber}'),
-         
-          Text('Date: ${busDetails.date}'),
-          Text('Time: ${busDetails.time}'),
+          Text('Plate No: ${widget.busDetails.plateNumber}'),
+          Text('Date: ${widget.busDetails.date}'),
+          Text('Time: ${widget.busDetails.time}'),
+          Container(
+            height: 50,
+            width: MediaQuery.of(context).size.width * 0.55,
+            alignment: Alignment.topRight,
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: TextField(
+              maxLines: 1,
+              keyboardType: TextInputType.number,
+              controller: distanceController,
+              style: const TextStyle(
+                fontSize: 16,
+                fontFamily: 'Poppins-Light',
+                fontWeight: FontWeight.bold,
+              ),
+              decoration: const InputDecoration(
+                hintText: 'Enter Distance',
+                contentPadding: EdgeInsets.all(-12),
+              ),
+            ),
+          ),
         ],
       ),
       actions: [
@@ -34,29 +64,13 @@ class BusDetailsPopup extends StatelessWidget {
                 backgroundColor: MyColors.primary, elevation: 0),
             child: Text("Print".tr(),
                 style: MyText.subhead(context)!.copyWith(color: Colors.white)),
-            onPressed: () async {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => QueuePrinter(
-                    arrivalTime: '6/4/2023 12:18:16PM',
-                    departureTime: '6/4/2023 12:18:16PM',
-                    plate: 'ET 1234',
-                    route: 'Adama Peacock Station',
-                    departure: 'Addis Ababa',
-                    distance: 77.0,
-                  ), //
-                ),
-              );
+            onPressed: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) {
+                return SunmiPrinterPage();
+              }));
             },
           ),
         ),
-        // TextButton(
-        //   onPressed: () {
-        //     Navigator.of(context).pop(); // Close the popup
-        //   },
-        //   child: Text('Close'),
-        // ),
       ],
     );
   }

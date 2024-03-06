@@ -9,29 +9,24 @@
 // import 'package:flutter/material.dart';
 // import 'package:flutter/services.dart';
 // import 'package:shared_preferences/shared_preferences.dart';
-// import 'package:transport_app/models/queue_model.dart';
+// import 'package:transport_app/models/report.dart';
+// import 'package:transport_app/models/ticket.dart';
 
-// class QueuePrinter extends StatefulWidget {
-//   String arrivalTime;
-//   String departureTime;
-//   String plate;
-//   String route;
-//   String departure;
-//   double distance;
-//   QueuePrinter({
+// class TicketPrintingPage extends StatefulWidget {
+//   final int totalCapacity;
+//   final int numberOfTickets;
+//   final Ticket ticket;
+//   TicketPrintingPage({
 //     Key? key,
-//     required this.arrivalTime,
-//     required this.departureTime,
-//     required this.plate,
-//     required this.route,
-//     required this.departure,
-//     required this.distance,
+//     required this.totalCapacity,
+//     required this.numberOfTickets,
+//     required this.ticket,
 //   }) : super(key: key);
 //   @override
-//   _QueuePrinterState createState() => _QueuePrinterState();
+//   _TicketPrintingPageState createState() => _TicketPrintingPageState();
 // }
 
-// class _QueuePrinterState extends State<QueuePrinter> {
+// class _TicketPrintingPageState extends State<TicketPrintingPage> {
 //   final BluePrintPos _bluePrintPos = BluePrintPos.instance;
 //   List<BlueDevice> _blueDevices = <BlueDevice>[];
 //   BlueDevice? _selectedDevice;
@@ -49,7 +44,7 @@
 //           onPressed: () => Navigator.pop(context),
 //         ),
 //         title: const Text(
-//           'መውጫ ቲኬት ማተሚያ',
+//           'የጉዞ ቲኬት ማተሚያ',
 //           style: TextStyle(
 //             color: Colors.white,
 //           ),
@@ -180,7 +175,7 @@
 //       ),
 //       floatingActionButton: FloatingActionButton(
 //         onPressed: _isLoading ? null : _onScanPressed,
-//         child: const Icon(Icons.search),
+//         child: Icon(Icons.search),
 //         backgroundColor: _isLoading ? Colors.grey : Colors.blue,
 //       ),
 //     );
@@ -210,6 +205,12 @@
 //     });
 //   }
 
+//   void _saveReportLocally(ReportModel report) async {
+//     SharedPreferences prefs = await SharedPreferences.getInstance();
+//     List<String> reportsJson = prefs.getStringList('reports') ?? [];
+//     reportsJson.add(jsonEncode(report.toJson()));
+//     prefs.setStringList('reports', reportsJson);
+//   }
 //   void _onSelectDevice(int index) {
 //     setState(() {
 //       _isLoading = true;
@@ -229,50 +230,70 @@
 //   }
 
 //   Future<void> _onPrintReceipt() async {
+//     SharedPreferences prefs = await SharedPreferences.getInstance();
+//     String tailorpref = prefs.getString('username') ?? '[]';
 //     /// Example for Print Text
 //     final ReceiptSectionText receiptText = ReceiptSectionText();
 
 //     receiptText.addSpacer();
 //     receiptText.addText(
-//       'Tikeetii Bahumsaa/የመውጫ ቲኬት',
+//       'Tikeetii imaltootaa/የተጓዥ ቲኬት',
 //       size: ReceiptTextSizeType.large,
 //       style: ReceiptTextStyleType.bold,
-//       alignment: ReceiptAlignment.center,
+//       // alignment: ReceiptAlignment.center,
 //     );
 //     receiptText.addSpacer(useDashed: true);
 //     receiptText.addLeftRightText(
-//       "የገባበት ሰዓት/sa'aatii itti seene",
-//       "${widget.arrivalTime}",
+//       "የትኬት ቁጥር/Lakkoofsa tikkeettii:-",
+//       "${widget.ticket.uniqueId}",
 //       leftSize: ReceiptTextSizeType.medium,
 //       rightSize: ReceiptTextSizeType.medium,
 //     );
 //     receiptText.addLeftRightText(
-//       "የወጣበት ሰዓት/sa'aatii itti bahe",
-//       "${widget.departureTime}",
+//       "ታርጋ/ gabatee:-",
+//       "${widget.ticket.plate}",
 //       leftSize: ReceiptTextSizeType.medium,
 //       rightSize: ReceiptTextSizeType.medium,
 //     );
 //     receiptText.addLeftRightText(
-//       "ታርጋ/Lakkoofa:",
-//       "${widget.plate}",
+//       "ትኬት ቆራጭ/Tikeetii kan fudhatu:-",
+//       "${widget.ticket.tailure}",
 //       leftSize: ReceiptTextSizeType.medium,
 //       rightSize: ReceiptTextSizeType.medium,
 //     );
 //     receiptText.addLeftRightText(
-//       "ስምሪት/Buufata:",
-//       "${widget.route}",
+//       "የጉዞ ቀን/Guyyaa imala:-",
+//       "${widget.ticket.date}",
 //       leftSize: ReceiptTextSizeType.medium,
 //       rightSize: ReceiptTextSizeType.medium,
 //     );
 //     receiptText.addLeftRightText(
-//       "መዳረሻ ከተማ/Magaalaa Gahumsaa:",
-//       "${widget.departure}",
+//       "መነሻ ከተማ/Magaalaa Kaa'umsa:-",
+//       "${widget.ticket.departure}",
 //       leftSize: ReceiptTextSizeType.medium,
 //       rightSize: ReceiptTextSizeType.medium,
 //     );
 //     receiptText.addLeftRightText(
-//       "ርቀት/Fageenya:",
-//       "${widget.distance.toString()}",
+//       "መዳረሻ ከተማ/Magaalaa itti geessan:-",
+//       "${widget.ticket.destination}",
+//       leftSize: ReceiptTextSizeType.medium,
+//       rightSize: ReceiptTextSizeType.medium,
+//     );
+//     receiptText.addLeftRightText(
+//       "ደረጃ/Sadarkaa:-",
+//       "${widget.ticket.level}",
+//       leftSize: ReceiptTextSizeType.medium,
+//       rightSize: ReceiptTextSizeType.medium,
+//     );
+//     receiptText.addLeftRightText(
+//       "ታሪፍ/Taarifa:-",
+//       "${widget.ticket.tariff}",
+//       leftSize: ReceiptTextSizeType.medium,
+//       rightSize: ReceiptTextSizeType.medium,
+//     );
+//     receiptText.addLeftRightText(
+//       "የአገልግሎት ክፍያ/Kaffaltii Tajaajilaa:-",
+//       "${widget.ticket.charge}",
 //       leftSize: ReceiptTextSizeType.medium,
 //       rightSize: ReceiptTextSizeType.medium,
 //     );
@@ -286,34 +307,34 @@
 //         "ማሳሰቢያ:", "ይህ የመውጫ ትኬት ለአንድ ጉዞ ብቻ የሚያገለግል ነው!");
 //     receiptText.addText('Powered by Dalex Import',
 //         size: ReceiptTextSizeType.small);
-//     await _bluePrintPos.printReceiptText(receiptText);
-//     _removeBusFromQueueByPlateNumber(widget.plate);
-//   }
 
-//   void _removeBusFromQueueByPlateNumber(String plateNumber) async {
-//     SharedPreferences prefs = await SharedPreferences.getInstance();
-//     String busQueueJson = prefs.getString('bus_queue') ?? '[]';
-//     List<dynamic> busQueueJsonList = json.decode(busQueueJson);
-//     List<QueueModel> _busQueueList =
-//         busQueueJsonList.map((json) => QueueModel.fromJson(json)).toList();
+//     for (int i = 0; i < widget.numberOfTickets; i++) {
+//       String plateNumber = widget.ticket.plate;
+//       int currentCount = prefs.getInt(plateNumber) ?? 0;
+//       prefs.setInt(plateNumber, currentCount + 1);
 
-//     // Find the bus in the list with the specified plateNumber
-//     QueueModel? busToRemove = _busQueueList.firstWhere(
-//       (bus) => bus.plateNumber == plateNumber,
-//       orElse: () => throw StateError('Bus not found'),
-//     );
-
-//     // If the bus is found, remove it from the list
-//     if (busToRemove != null) {
-//       _busQueueList.remove(busToRemove);
-
-//       // Save the updated list to SharedPreferences
-//       await prefs.setString(
-//         'bus_queue',
-//         json.encode(_busQueueList.map((bus) => bus.toJson()).toList()),
-//       );
-//       // Refresh the UI
-//       setState(() {});
+//       int count = prefs.getInt(widget.ticket.plate) ?? 0;
+//       if (widget.totalCapacity == count) {
+//         String currentDate = DateTime.now().toLocal().toString().split(' ')[0];
+//         // Create a ReportModel
+//         ReportModel report = ReportModel(
+//           name: tailorpref, // Add the actual name
+//           amount: count, // Add the actual amount
+//           date: currentDate, // Add the actual date
+//           plate: plateNumber,
+//         );
+//         // Save the ReportModel locally using shared_preferences
+//         _saveReportLocally(report);
+//         ScaffoldMessenger.of(context).showSnackBar(
+//           const SnackBar(
+//             content: Text("የትኬት ቁጥሩ ስለሞላ አባኮትን መውጫ ይቁረጡለት"),
+//             backgroundColor: Colors.blue,
+//             duration: const Duration(seconds: 2),
+//           ),
+//         );
+//       }
+//       // final that print receipt
+//       await _bluePrintPos.printReceiptText(receiptText);
 //     }
 //   }
 // }

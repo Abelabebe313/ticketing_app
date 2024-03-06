@@ -1,10 +1,14 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:transport_app/presentation/result/printer_page.dart';
+import 'package:sunmi_printer_plus/column_maker.dart';
+import 'package:sunmi_printer_plus/enums.dart';
+import 'package:sunmi_printer_plus/sunmi_printer_plus.dart';
+import 'package:transport_app/models/report.dart';
 import '../../core/my_colors.dart';
 import '../../core/my_text.dart';
-import 'package:qr_flutter/qr_flutter.dart';
-
+import 'package:barcode_widget/barcode_widget.dart';
 import '../../models/ticket.dart';
 
 class ResultPage extends StatefulWidget {
@@ -116,20 +120,6 @@ class ResultPageState extends State<ResultPage> {
                         ),
                       ],
                     ),
-                    // Row(
-                    //   children: [
-                    //     const Text("Bus Number: ",
-                    //         style: TextStyle(
-                    //             color: Colors.black,
-                    //             fontSize: 16,
-                    //             fontWeight: FontWeight.bold)),
-                    //     Text(widget.user.busNumber,
-                    //         style: const TextStyle(
-                    //             color: Colors.black,
-                    //             fontSize: 16,
-                    //             fontWeight: FontWeight.normal)),
-                    //   ],
-                    // ),
                     Row(
                       children: [
                         const Text(
@@ -263,20 +253,22 @@ class ResultPageState extends State<ResultPage> {
               // QR Code
               const SizedBox(height: 20),
               Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.only(
-                      left: 10, right: 10, top: 40, bottom: 40),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10),
+                width: double.infinity,
+                padding: const EdgeInsets.only(
+                    left: 10, right: 10, top: 40, bottom: 40),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Center(
+                  child: BarcodeWidget(
+                    barcode: Barcode.code128(),
+                    data: widget.ticket.uniqueId.toString(),
+                    width: 200,
+                    height: 100,
                   ),
-                  child: Center(
-                    child: QrImageView(
-                      data: widget.ticket.uniqueId.toString(),
-                      version: QrVersions.auto,
-                      size: 200.0,
-                    ),
-                  )),
+                ),
+              ),
 
               const SizedBox(height: 10),
               Container(height: 15),
@@ -294,21 +286,47 @@ class ResultPageState extends State<ResultPage> {
                         MyText.subhead(context)!.copyWith(color: Colors.white),
                   ),
                   onPressed: () async {
-                    // ignore: use_build_context_synchronously
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => PrinterPage(
-                          totalCapacity: widget.totalCapacity,
-                          ticket: widget.ticket,
-                          numberOfTickets: widget.numberOfTickets,
-                        ),
-                      ),
-                    );
+                    SharedPreferences prefs =
+                        await SharedPreferences.getInstance();
+                    for (int i = 0; i < widget.numberOfTickets; i++) {
+                      await printMultipleTickets();
+                      // Store vehicle ticket count
+                      String plateNumber = widget.ticket.plate;
+                      int currentCount = prefs.getInt(plateNumber) ?? 0;
+                      prefs.setInt(plateNumber, currentCount + 1);
+
+                      int count = prefs.getInt(widget.ticket.plate) ?? 0;
+                      print(
+                          'Selected vehicle ticket current count ========>$count');
+
+                      if (widget.totalCapacity == count) {
+                        String currentDate =
+                            DateTime.now().toLocal().toString().split(' ')[0];
+                        // Create a ReportModel
+                        ReportModel report = ReportModel(
+                          name: widget.ticket.tailure, // Add the actual name
+                          amount: count, // Add the actual amount
+                          date: currentDate, // Add the actual date
+                          plate: plateNumber,
+                        );
+                        // Save the ReportModel locally using shared_preferences
+                        _saveReportLocally(report);
+
+                        // prefs.remove(plateNumber);
+                        // _removeBusFromQueueByPlateNumber(plateNumber);
+                        // prefs.setInt(plateNumber, 0);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text("የትኬት ቁጥሩ ስለሞላ አባኮትን መውጫ ይቁረጡለት"),
+                            backgroundColor: Colors.blue,
+                            duration: const Duration(seconds: 2),
+                          ),
+                        );
+                      }
+                    }
                   },
                 ),
               )
-
             ],
           ),
         ),
@@ -316,4 +334,149 @@ class ResultPageState extends State<ResultPage> {
     );
   }
 
+  void _saveReportLocally(ReportModel report) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String> reportsJson = prefs.getStringList('reports') ?? [];
+    reportsJson.add(jsonEncode(report.toJson()));
+    prefs.setStringList('reports', reportsJson);
+  }
+
+  Future<void> printMultipleTickets() async {
+    await SunmiPrinter.initPrinter();
+
+    await SunmiPrinter.startTransactionPrint(true);
+    await SunmiPrinter.setAlignment(SunmiPrintAlign.CENTER);
+    await SunmiPrinter.bold();
+    await SunmiPrinter.printText('Tikeetii imaltootaa!');
+    await SunmiPrinter.line();
+    await SunmiPrinter.setAlignment(SunmiPrintAlign.CENTER);
+
+    await SunmiPrinter.printRow(cols: [
+      ColumnMaker(text: "Ka'unsaa", width: 18, align: SunmiPrintAlign.LEFT),
+      ColumnMaker(
+          text: '${widget.ticket.departure}',
+          width: 12,
+          align: SunmiPrintAlign.RIGHT),
+    ]);
+
+    await SunmiPrinter.printRow(cols: [
+      ColumnMaker(text: "Gahunsaa", width: 18, align: SunmiPrintAlign.LEFT),
+      ColumnMaker(
+          text: '${widget.ticket.destination}',
+          width: 12,
+          align: SunmiPrintAlign.RIGHT),
+    ]);
+
+    await SunmiPrinter.printRow(cols: [
+      ColumnMaker(
+          text: "Tikeetii Lakk", width: 18, align: SunmiPrintAlign.LEFT),
+      ColumnMaker(
+          text: '${widget.ticket.uniqueId}',
+          width: 12,
+          align: SunmiPrintAlign.RIGHT),
+    ]);
+
+    await SunmiPrinter.printRow(cols: [
+      ColumnMaker(
+          text: "Lakkoofsa gabatee", width: 18, align: SunmiPrintAlign.LEFT),
+      ColumnMaker(
+          text: '${widget.ticket.plate}',
+          width: 12,
+          align: SunmiPrintAlign.RIGHT),
+    ]);
+
+    await SunmiPrinter.printRow(cols: [
+      ColumnMaker(text: "Sadarkaa", width: 18, align: SunmiPrintAlign.LEFT),
+      ColumnMaker(
+          text: '${widget.ticket.level}',
+          width: 12,
+          align: SunmiPrintAlign.RIGHT),
+    ]);
+
+    await SunmiPrinter.printRow(cols: [
+      ColumnMaker(text: "Teessoo", width: 18, align: SunmiPrintAlign.LEFT),
+      ColumnMaker(text: '24', width: 12, align: SunmiPrintAlign.RIGHT),
+    ]);
+
+    await SunmiPrinter.printRow(cols: [
+      ColumnMaker(
+        text: "Guyyoo",
+        width: 18,
+        align: SunmiPrintAlign.LEFT,
+      ),
+      ColumnMaker(
+          text:
+              '${widget.ticket.date.day}/${widget.ticket.date.month}/${widget.ticket.date.year}',
+          width: 12,
+          align: SunmiPrintAlign.RIGHT),
+    ]);
+
+    await SunmiPrinter.printRow(cols: [
+      ColumnMaker(
+        text: "Agent",
+        width: 18,
+        align: SunmiPrintAlign.LEFT,
+      ),
+      ColumnMaker(
+          text: '${widget.ticket.tailure}',
+          width: 12,
+          align: SunmiPrintAlign.RIGHT),
+    ]);
+
+    await SunmiPrinter.printRow(cols: [
+      ColumnMaker(
+        text: "Taarifa",
+        width: 18,
+        align: SunmiPrintAlign.LEFT,
+      ),
+      ColumnMaker(
+          text: '${widget.ticket.tariff} Birr',
+          width: 12,
+          align: SunmiPrintAlign.RIGHT),
+    ]);
+
+    await SunmiPrinter.printRow(cols: [
+      ColumnMaker(
+        text: "Kaffaltii tajaajilaa",
+        width: 18,
+        align: SunmiPrintAlign.LEFT,
+      ),
+      ColumnMaker(
+        text: '${widget.ticket.charge} Birr',
+        width: 12,
+        align: SunmiPrintAlign.RIGHT,
+      ),
+    ]);
+
+    await SunmiPrinter.printRow(cols: [
+      ColumnMaker(
+        text: "Ida'ama",
+        width: 18,
+        align: SunmiPrintAlign.LEFT,
+      ),
+      ColumnMaker(
+        text: '${widget.ticket.tariff + widget.ticket.charge} Birr',
+        width: 12,
+        align: SunmiPrintAlign.RIGHT,
+      ),
+    ]);
+
+    await SunmiPrinter.setAlignment(SunmiPrintAlign.CENTER);
+
+    await SunmiPrinter.bold();
+
+    await SunmiPrinter.resetBold();
+    await SunmiPrinter.printBarCode('${widget.ticket.uniqueId}',
+        barcodeType: SunmiBarcodeType.CODE128,
+        // textPosition: SunmiBarcodeTextPos.TEXT_UNDER,
+        height: 30);
+    await SunmiPrinter.printText('Nagahee dijitaalaa wajjiraan');
+    await SunmiPrinter.setAlignment(SunmiPrintAlign.CENTER);
+    await SunmiPrinter.printText('Alatti Hin Kafalinaa');
+    await SunmiPrinter.setAlignment(SunmiPrintAlign.CENTER);
+    await SunmiPrinter.printText('Inala gaarii!!');
+    await SunmiPrinter.lineWrap(2);
+
+    await SunmiPrinter.exitTransactionPrint(true);
+  }
 }

@@ -42,6 +42,8 @@ class DataService {
             await responseData['data']['data'][0]['destination'];
         final departure = await responseData['data']['data'][0]['departure'];
         final tarifListJson = await responseData['data']['data'][0]['tariff'];
+        final capacityListJson =
+            await responseData['data']['data'][0]['capacity_list'];
         //
         // Check if the response has a 'vehicle_list' key
         if (vehicleListJson != null) {
@@ -88,9 +90,15 @@ class DataService {
 
         // check if the response has Tariff List and add to sharedpreference
         if (tarifListJson != null) {
-          List<String> tariff = convertRegexToTariffList(tarifListJson);
+          List<int> tariff = convertRegexToTariffList(tarifListJson);
           String tariffString = json.encode(tariff);
           await prefs.setString('tariff_list', tariffString);
+        }
+
+        if (capacityListJson != null) {
+          List<int> tariff = convertRegexToCapacityList(capacityListJson);
+          String capacityString = json.encode(tariff);
+          await prefs.setString('capacity_list', capacityString);
         }
         // check departure add to sharedpreference
         if (departure != null) {
@@ -146,16 +154,30 @@ List<String> convertRegexToDestinationList(String regexString) {
   return destinations;
 }
 
-List<String> convertRegexToTariffList(String regexString) {
-  List<String> tariff = [];
+List<int> convertRegexToTariffList(String regexString) {
+  List<int> tariff = [];
 
   // Extract plate numbers from the regex string
-  RegExp destinationRegex = RegExp(r'"([^"]*)"');
-  Iterable<Match> matches = destinationRegex.allMatches(regexString);
+  RegExp tariffRegex = RegExp(r'"(\d+)"');
+  Iterable<Match> matches = tariffRegex.allMatches(regexString);
 
   for (Match match in matches) {
-    tariff.add(match.group(1)!);
+    tariff.add(int.parse(match.group(1)!));
   }
 
   return tariff;
+}
+
+List<int> convertRegexToCapacityList(String regexString) {
+  List<int> capacity = [];
+
+  // Extract capacity numbers from the regex string
+  RegExp capacityRegex = RegExp(r'"(\d+)"');
+  Iterable<Match> matches = capacityRegex.allMatches(regexString);
+
+  for (Match match in matches) {
+    capacity.add(int.parse(match.group(1)!));
+  }
+
+  return capacity;
 }

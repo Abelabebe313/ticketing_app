@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:developer' as developer;
 import 'dart:math';
 
 import 'package:easy_localization/easy_localization.dart';
@@ -7,13 +6,12 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:transport_app/data/bus_data.dart';
 import '../../core/my_colors.dart';
-import '../../core/my_text.dart';
 import '../../models/bus.dart';
 import '../../models/ticket.dart';
 import '../result/ticket_result.dart';
 
 class BuyTicket extends StatefulWidget {
-  // const BuyTicket({super.key});
+  const BuyTicket({super.key});
 
   @override
   BuyTicketState createState() => BuyTicketState();
@@ -31,50 +29,70 @@ class BuyTicketState extends State<BuyTicket> {
   final TextEditingController serviceCharge = TextEditingController();
   final TextEditingController no_of_ticket = TextEditingController();
 
-  String? TicketTailer;
-  int totalCapacity = carlist[0].totalCapacity;
+  // String? TicketTailer;
+  int totalCapacity = 0;
   List<Vehicle> _busList = [];
   List<String> destinationList = [];
   List<String> departureList = [];
-  List<String> tariff_list = [];
+  List<int> tariff_list = [];
+  List<int> seat_capacity_list = [];
   // intial value variables
   Vehicle? selectedVehicle;
   String? selectedDestination;
   String? selectedDeparture;
-
-  // Future<void> _loadBusList() async {
-  //   SharedPreferences prefs = await SharedPreferences.getInstance();
-  //   String busJson = prefs.getString('bus_info') ?? '[]';
-  //   List<dynamic> busData = json.decode(busJson);
-  // List<BusInfo> buses =
-  //     busData.map((data) => BusInfo.fromJson(data)).toList();
-
-  // Sort the list of buses by current capacity in descending order
-  // buses.sort((a, b) => b.currentCapacity.compareTo(a.currentCapacity));
-
-  // setState(() {
-  //   busList = buses;
-  // });
-  // }
 
   @override
   void initState() {
     String currentDate = DateTime.now().toLocal().toString().split(' ')[0];
     super.initState();
     level.text = "Level 2";
+
     _loadBusQueueList();
     _loadDestinationList();
     _loadDepartureList();
     _loadTailerData();
     _loadTariffData();
+    _loadCapacityData();
     date.text = currentDate;
+  }
+
+  void _loadCapacityData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String capacityListJson = prefs.getString('capacity_list') ?? '[]';
+    List<dynamic> decodedList = json.decode(capacityListJson);
+
+    // Clear the existing list
+    seat_capacity_list.clear();
+
+    // Convert the decoded list elements to integers
+    for (var item in decodedList) {
+      if (item is int) {
+        seat_capacity_list.add(item); // No need for parsing
+      } else if (item is String) {
+        seat_capacity_list.add(int.parse(item));
+      }
+    }
+
+    setState(() {});
   }
 
   void _loadTariffData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String tarifListJson = prefs.getString('tariff_list') ?? '[]';
-    List<dynamic> decodedList = json.decode(tarifListJson);
-    tariff_list.addAll(decodedList.cast<String>());
+    String tariffListJson = prefs.getString('tariff_list') ?? '[]';
+    List<dynamic> decodedList = json.decode(tariffListJson);
+
+    // Clear the existing list
+    tariff_list.clear();
+
+    // Convert the decoded list elements to integers
+    for (var item in decodedList) {
+      if (item is int) {
+        tariff_list.add(item);
+      } else if (item is String) {
+        tariff_list.add(int.parse(item));
+      }
+    }
+
     setState(() {});
   }
 
@@ -216,7 +234,7 @@ class BuyTicketState extends State<BuyTicket> {
                         elevation: 0,
                         child: Container(
                           height: 50,
-                          width: MediaQuery.of(context).size.width * 0.6,
+                          width: MediaQuery.of(context).size.width * 0.55,
                           alignment: Alignment.topRight,
                           padding: const EdgeInsets.symmetric(horizontal: 20),
                           child: TextField(
@@ -237,7 +255,7 @@ class BuyTicketState extends State<BuyTicket> {
                     ],
                   ),
                   const SizedBox(
-                    width: 20,
+                    width: 10,
                   ),
                   Column(
                     children: [
@@ -370,13 +388,15 @@ class BuyTicketState extends State<BuyTicket> {
                                       );
                                     }).toList(),
                                     onChanged: (Vehicle? newValue) {
-                                      setState(() {
-                                        selectedVehicle = newValue;
-                                        plateNumber.text =
-                                            selectedVehicle!.plateNumber;
-                                        totalCapacity =
-                                            selectedVehicle!.totalCapacity;
-                                      });
+                                      setState(
+                                        () {
+                                          selectedVehicle = newValue;
+                                          plateNumber.text =
+                                              selectedVehicle!.plateNumber;
+                                          totalCapacity =
+                                              selectedVehicle!.totalCapacity;
+                                        },
+                                      );
                                     },
                                     underline: Container(),
                                   ),
@@ -528,8 +548,13 @@ class BuyTicketState extends State<BuyTicket> {
                               int selectedIndex = destinationList.indexWhere(
                                   (destination) => destination == newValue);
 
+                              // i added the following line to update the total capacity and service charge and tariff to update imediately after selecting destination
                               tariff.text =
-                                  tariff_list[selectedIndex];
+                                  tariff_list[selectedIndex].toString();
+                              totalCapacity = seat_capacity_list[selectedIndex];
+                              serviceCharge.text =
+                                  (tariff_list[selectedIndex] * 0.02)
+                                      .toString();
                             });
                           },
                           underline: Container(), // Removes the underline
@@ -565,6 +590,7 @@ class BuyTicketState extends State<BuyTicket> {
                   child: TextField(
                     maxLines: 1,
                     controller: tariff,
+                    keyboardType: TextInputType.number,
                     style: const TextStyle(
                       fontSize: 16,
                       fontFamily: 'Poppins-Light',
@@ -602,6 +628,7 @@ class BuyTicketState extends State<BuyTicket> {
                   child: TextField(
                     maxLines: 1,
                     controller: serviceCharge,
+                    keyboardType: TextInputType.number,
                     style: const TextStyle(
                       fontSize: 16,
                       fontFamily: 'Poppins-Light',
@@ -631,8 +658,8 @@ class BuyTicketState extends State<BuyTicket> {
                     ),
                   ),
                   onPressed: () async {
-                    print(
-                        'Selected vehicle capacity is  ========>$totalCapacity');
+                    SharedPreferences prefs =
+                        await SharedPreferences.getInstance();
                     Ticket ticket = Ticket(
                       tailure: Tailure.text,
                       level: level.text,
@@ -645,97 +672,68 @@ class BuyTicketState extends State<BuyTicket> {
                       charge: double.parse(serviceCharge.text),
                     );
 
-                    // Retrieve existing user list from SharedPreferences
-                    SharedPreferences prefs =
-                        await SharedPreferences.getInstance();
-                    String userJson =
-                        prefs.getString('user_registration') ?? '[]';
+                    // String userJson =
+                    //     prefs.getString('user_registration') ?? '[]';
 
                     // Parse the JSON string to a List of Users
-                    List<Ticket> ticketList =
-                        (json.decode(userJson) as List<dynamic>)
-                            .map((item) => Ticket.fromJson(item))
-                            .toList();
+                    // List<Ticket> ticketList =
+                    //     (json.decode(userJson) as List<dynamic>)
+                    //         .map((item) => Ticket.fromJson(item))
+                    //         .toList();
 
                     // Add the new user to the list
-                    ticketList.add(ticket);
+                    // ticketList.add(ticket);
 
                     // Store the updated user list back to SharedPreferences
-                    prefs.setString(
-                        'user_registration', json.encode(ticketList));
+                    // prefs.setString(
+                    //     'user_registration', json.encode(ticketList));
 
                     // ----------------==============================================
                     // Retrieve existing bus list from SharedPreferences
-                    String busJson = prefs.getString('bus_info') ?? '[]';
+                    // String busJson = prefs.getString('bus_info') ?? '[]';
 
-                    // Parse the JSON string to a List of Buses
-                    List<Vehicle> busList =
-                        (json.decode(busJson) as List<dynamic>)
-                            .map((item) => Vehicle.fromJson(item))
-                            .toList();
+                    // // Parse the JSON string to a List of Buses
+                    // List<Vehicle> busList =
+                    //     (json.decode(busJson) as List<dynamic>)
+                    //         .map((item) => Vehicle.fromJson(item))
+                    //         .toList();
 
                     // Update the current capacity of the appropriate bus (you need to implement logic to find the correct bus to update)
 
                     // Add the updated bus back to the list
 
                     // Assuming you have some logic to find the appropriate bus to update
-                    String busNumberToUpdate = bus_no
-                        .text; // Replace this with your logic to find the correct bus number to update
-                    Vehicle? busToUpdate = busList.firstWhere(
-                      (bus) => bus.plateNumber == busNumberToUpdate,
-                      orElse: () => Vehicle(
-                        plateNumber: bus_no.text,
-                        totalCapacity: 50,
+
+                    // String busNumberToUpdate = bus_no
+                    //     .text; // Replace this with your logic to find the correct bus number to update
+                    // Vehicle? busToUpdate = busList.firstWhere(
+                    //   (bus) => bus.plateNumber == busNumberToUpdate,
+                    //   orElse: () => Vehicle(
+                    //     plateNumber: bus_no.text,
+                    //     totalCapacity: 50,
+                    //   ),
+                    // );
+                    // Update the current capacity of the appropriate bus
+                    // busToUpdate.currentCapacity++;
+
+                    // Add the updated bus back to the list
+                    // busList.removeWhere(
+                    //     (bus) => bus.plateNumber == busNumberToUpdate);
+                    // busList.add(busToUpdate);
+
+                    // Store the updated bus list back to SharedPreferences
+                    // prefs.setString('bus_info', json.encode(busList));
+
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ResultPage(
+                          numberOfTickets: int.parse(no_of_ticket.text),
+                          ticket: ticket,
+                          totalCapacity: totalCapacity,
+                        ),
                       ),
                     );
-
-                    if (busToUpdate != null) {
-                      // Update the current capacity of the appropriate bus
-                      // busToUpdate.currentCapacity++;
-
-                      // Add the updated bus back to the list
-                      busList.removeWhere(
-                          (bus) => bus.plateNumber == busNumberToUpdate);
-                      busList.add(busToUpdate);
-
-                      // Store the updated bus list back to SharedPreferences
-                      prefs.setString('bus_info', json.encode(busList));
-                    } else {
-                      print('Bus with number $busNumberToUpdate not found.');
-                    }
-                    // Store the updated bus list back to SharedPreferences
-                    prefs.setString('bus_info', json.encode(busList));
-
-                    //=======  Check if there is available space left for the selelected Vehicle =======//
-                    int previousTicketCount = prefs.getInt(ticket.plate) ?? 0;
-                    print(
-                        'Selected vehicle Previous Ticket sold is  ========>$previousTicketCount');
-                    int currentTicketCount =
-                        previousTicketCount + int.parse(no_of_ticket.text);
-
-                    if (currentTicketCount <= totalCapacity) {
-                      // ignore: use_build_context_synchronously
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ResultPage(
-                            numberOfTickets: int.parse(no_of_ticket.text),
-                            ticket: ticket,
-                            totalCapacity: totalCapacity,
-                          ),
-                        ),
-                      );
-                    } else {
-                      print('=========> currentTicketCount');
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                              "You only left with ${totalCapacity - previousTicketCount} available"),
-                          backgroundColor: Colors.red,
-                          duration: const Duration(seconds: 2),
-                        ),
-                      );
-                    }
                   },
                 ),
               )
