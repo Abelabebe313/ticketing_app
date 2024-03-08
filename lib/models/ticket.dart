@@ -8,6 +8,8 @@ class Ticket {
   int uniqueId;
   double tariff;
   double charge;
+  String association;
+  double distance;
 
   Ticket({
     required this.tailure,
@@ -19,6 +21,8 @@ class Ticket {
     required this.uniqueId,
     required this.tariff,
     required this.charge,
+    required this.association,
+    required this.distance,
   });
   Map<String, dynamic> toJson() {
     return {
@@ -30,6 +34,9 @@ class Ticket {
       'departure': departure,
       'uniqueId': uniqueId,
       'tariff': tariff,
+      'charge': charge,
+      'association': association,
+      'distance': distance,
     };
   }
 
@@ -44,6 +51,8 @@ class Ticket {
       uniqueId: json['uniqueId'] ?? 0,
       tariff: json['tariff'] ?? 0.0,
       charge: json['charge'] ?? 0.0,
+      association: json['association'] ?? '',
+      distance: json['distance'] ?? '',
     );
   }
 }

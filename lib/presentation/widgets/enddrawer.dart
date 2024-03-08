@@ -40,32 +40,8 @@ class _EndDrawersState extends State<EndDrawers> {
                 fontSize: 16,
               ),
             ),
-            onTap: () {
-              // Navigator.of(context).push(
-              //   MaterialPageRoute(
-              //     builder: (context) => AboutUs(),
-              //   ),
-              // );
-            },
+            onTap: () {},
           ),
-          // ListTile(
-          //   leading: const Icon(
-          //     Icons.privacy_tip,
-          //     color: Color(0xFF0E5120),
-          //   ),
-          //   title: const Text(
-          //     'Privacy',
-          //     style: TextStyle(
-          //       fontFamily: 'Urbanist-Bold',
-          //       fontSize: 16,
-          //     ),
-          //   ),
-          //   onTap: () {
-          //     // Handle Privacy action
-          //     Navigator.pop(context); // Close the drawer
-          //   },
-          // ),
-
           ListTile(
             leading: const Icon(
               Icons.share,

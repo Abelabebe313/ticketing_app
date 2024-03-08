@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:transport_app/bloc/data_bloc.dart';
 import 'package:transport_app/bloc/login%20bloc/login_state.dart';
 import 'package:transport_app/bloc/registration%20bloc/register_bloc.dart';

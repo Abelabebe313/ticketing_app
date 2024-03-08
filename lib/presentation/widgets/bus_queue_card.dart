@@ -28,7 +28,6 @@ class BusQueueCardWidget extends StatelessWidget {
             return BusDetailsPopup(
                 busDetails: QueueModel(
               plateNumber: plateNo,
-              
               date: date,
               time: time,
             ));
