@@ -122,7 +122,7 @@ class _SunmiPrinterPageState extends State<SunmiPrinterPage> {
                         ),
                         Text(
                           '12/12/1221',
-                          style: const TextStyle(
+                          style:  TextStyle(
                               color: Colors.black,
                               fontSize: 16,
                               fontWeight: FontWeight.normal),

@@ -28,24 +28,29 @@ class BuyTicketState extends State<BuyTicket> {
   final TextEditingController tariff = TextEditingController();
   final TextEditingController serviceCharge = TextEditingController();
   final TextEditingController no_of_ticket = TextEditingController();
+  final TextEditingController association = TextEditingController();
 
   // String? TicketTailer;
   int totalCapacity = 0;
   List<Vehicle> _busList = [];
   List<String> destinationList = [];
   List<String> departureList = [];
+  List<String> associationList = ['Selam', 'golden', 'sky'];
   List<int> tariff_list = [];
   List<int> seat_capacity_list = [];
   // intial value variables
   Vehicle? selectedVehicle;
   String? selectedDestination;
   String? selectedDeparture;
+  String? selectedAssociation;
 
   @override
   void initState() {
     String currentDate = DateTime.now().toLocal().toString().split(' ')[0];
     super.initState();
     level.text = "Level 2";
+    selectedAssociation = associationList[0];
+    association.text = associationList[0];
 
     _loadBusQueueList();
     _loadDestinationList();
@@ -588,6 +593,7 @@ class BuyTicketState extends State<BuyTicket> {
                   alignment: Alignment.centerLeft,
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: TextField(
+                    enabled: false,
                     maxLines: 1,
                     controller: tariff,
                     keyboardType: TextInputType.number,
@@ -626,6 +632,7 @@ class BuyTicketState extends State<BuyTicket> {
                   alignment: Alignment.centerLeft,
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: TextField(
+                    enabled: false,
                     maxLines: 1,
                     controller: serviceCharge,
                     keyboardType: TextInputType.number,
@@ -642,6 +649,61 @@ class BuyTicketState extends State<BuyTicket> {
                 ),
               ),
               Container(height: 15),
+              Text(
+                "Association".tr(),
+                style: const TextStyle(
+                  color: MyColors.grey_60,
+                  fontSize: 14,
+                  fontFamily: 'Poppins-Light',
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Container(height: 5),
+              Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(3),
+                ),
+                clipBehavior: Clip.antiAliasWithSaveLayer,
+                margin: const EdgeInsets.all(0),
+                elevation: 0,
+                child: Container(
+                  height: 50,
+                  alignment: Alignment.centerLeft,
+                  padding: const EdgeInsets.symmetric(horizontal: 5),
+                  child: Row(
+                    children: <Widget>[
+                      Container(width: 15),
+                      Expanded(
+                        child: DropdownButton<String>(
+                          value: selectedAssociation,
+                          items: associationList.map((String associ) {
+                            return DropdownMenuItem<String>(
+                              value: associ,
+                              child: Text(
+                                associ,
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontFamily: 'Poppins-Light',
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                          onChanged: (String? newValue) {
+                            setState(() {
+                              selectedAssociation = newValue ?? '';
+                              association.text = newValue!;
+                            });
+                          },
+                          underline: Container(), // Removes the underline
+                        ),
+                      ),
+                      // const Icon(Icons.expand_more, color: MyColors.grey_40),
+                    ],
+                  ),
+                ),
+              ),
+              Container(height: 20),
               SizedBox(
                 width: double.infinity,
                 height: 45,
@@ -670,59 +732,9 @@ class BuyTicketState extends State<BuyTicket> {
                       uniqueId: Random().nextInt(10000000),
                       tariff: double.parse(tariff.text),
                       charge: double.parse(serviceCharge.text),
+                      association: association.text,
+                      distance: 0.0,
                     );
-
-                    // String userJson =
-                    //     prefs.getString('user_registration') ?? '[]';
-
-                    // Parse the JSON string to a List of Users
-                    // List<Ticket> ticketList =
-                    //     (json.decode(userJson) as List<dynamic>)
-                    //         .map((item) => Ticket.fromJson(item))
-                    //         .toList();
-
-                    // Add the new user to the list
-                    // ticketList.add(ticket);
-
-                    // Store the updated user list back to SharedPreferences
-                    // prefs.setString(
-                    //     'user_registration', json.encode(ticketList));
-
-                    // ----------------==============================================
-                    // Retrieve existing bus list from SharedPreferences
-                    // String busJson = prefs.getString('bus_info') ?? '[]';
-
-                    // // Parse the JSON string to a List of Buses
-                    // List<Vehicle> busList =
-                    //     (json.decode(busJson) as List<dynamic>)
-                    //         .map((item) => Vehicle.fromJson(item))
-                    //         .toList();
-
-                    // Update the current capacity of the appropriate bus (you need to implement logic to find the correct bus to update)
-
-                    // Add the updated bus back to the list
-
-                    // Assuming you have some logic to find the appropriate bus to update
-
-                    // String busNumberToUpdate = bus_no
-                    //     .text; // Replace this with your logic to find the correct bus number to update
-                    // Vehicle? busToUpdate = busList.firstWhere(
-                    //   (bus) => bus.plateNumber == busNumberToUpdate,
-                    //   orElse: () => Vehicle(
-                    //     plateNumber: bus_no.text,
-                    //     totalCapacity: 50,
-                    //   ),
-                    // );
-                    // Update the current capacity of the appropriate bus
-                    // busToUpdate.currentCapacity++;
-
-                    // Add the updated bus back to the list
-                    // busList.removeWhere(
-                    //     (bus) => bus.plateNumber == busNumberToUpdate);
-                    // busList.add(busToUpdate);
-
-                    // Store the updated bus list back to SharedPreferences
-                    // prefs.setString('bus_info', json.encode(busList));
 
                     Navigator.pushReplacement(
                       context,

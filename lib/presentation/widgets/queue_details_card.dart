@@ -6,7 +6,6 @@ import 'package:sunmi_printer_plus/sunmi_printer_plus.dart';
 import 'package:transport_app/core/my_colors.dart';
 import 'package:transport_app/core/my_text.dart';
 import 'package:transport_app/models/queue_model.dart';
-import 'package:transport_app/presentation/result/queue_printer.dart';
 import 'package:transport_app/presentation/result/sunmi_printer.dart';
 
 class BusDetailsPopup extends StatefulWidget {
