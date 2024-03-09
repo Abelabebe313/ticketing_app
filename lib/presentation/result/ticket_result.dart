@@ -463,7 +463,7 @@ class ResultPageState extends State<ResultPage> {
 
     await SunmiPrinter.printRow(cols: [
       ColumnMaker(
-        text: "Guyyoo",
+        text: "Guyyaa",
         width: 13,
         align: SunmiPrintAlign.LEFT,
       ),

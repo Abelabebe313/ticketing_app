@@ -23,8 +23,14 @@ import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 const vehiclesList = 'vehicle_list';
+const busList = 'bus_queue';
+const capacityList = 'capacity_list';
+const tarifList = 'tariff_list';
+const destinationList = 'destination_list';
+const associationList = 'association_list';
 const tokenHive = 'token';
 const pin_code = 'pin';
+const departure = 'departure';
 
 void main() async {
   await Hive.initFlutter();

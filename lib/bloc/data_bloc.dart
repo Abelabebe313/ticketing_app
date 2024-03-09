@@ -14,6 +14,7 @@ class DataBloc extends Bloc<DataEvent, DataState> {
         await dataService.fetchData();
         emit(DataLoadedState());
       } catch (e) {
+        print('refresh is now at block in error catch!');
         emit(DataErrorState("Failed to load data: $e"));
       }
     });

@@ -17,6 +17,7 @@
     "Date":"Date",
     "Departure":"Departure",
     "Destination":"Destination",
+    "Distance": "Distance",
     "Tariff":"Tariff",
     "Service Charge":"Service Charge",
     "Association":"Association",

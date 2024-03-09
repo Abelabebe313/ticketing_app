@@ -10,19 +10,19 @@ import 'package:transport_app/models/data.dart';
 import 'package:transport_app/models/queue_model.dart';
 
 class DataService {
+  static const vehiclesList = 'vehicle_list';
+  static const busList = 'bus_queue';
   static const String baseUrl =
       "https://api.noraticket.com/v1/public/api/updates";
 
   Future<void> fetchData() async {
-    // hive box implementation
-    // final Box<String> vehiclesBox = Hive.box<String>(vehiclesList);
-
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    // hive box token
+    await Hive.openBox<String>(tokenHive);
 
     // String token = prefs.getString('access_token') ?? '';
-    await Hive.openBox<String>(tokenHive);
+
     final String? token = Hive.box<String>(tokenHive).get('token');
-    await Hive.close();
+
     print('ቶክኑ: $token');
     try {
       final response = await http.get(
@@ -44,9 +44,23 @@ class DataService {
         final tarifListJson = await responseData['data']['data'][0]['tariff'];
         final capacityListJson =
             await responseData['data']['data'][0]['capacity_list'];
-        //
+        final distanceListJson =
+            await responseData['data']['data'][0]['distance_list'];
+        final levelListJson =
+            await responseData['data']['data'][0]['vehicle_level_list'];
+        final associationListJson =
+            await responseData['data']['data'][0]['vehicle_owner_list'];
+
+        // ============vehicle list==============
+        await Hive.openBox<String>('bus_queue');
+        await Hive.openBox<String>('vehicle_list');
+
+        final Box<String> busBox = Hive.box<String>('bus_queue');
+        final Box<String> vehicleBox = Hive.box<String>('vehicle_list');
+
         // Check if the response has a 'vehicle_list' key
         if (vehicleListJson != null) {
+          print('vehicleListJson bloc');
           // ==========  convert String to List<Vehicle>  ========== //
           List<Vehicle> carList = convertRegexToVehicleList(vehicleListJson);
 
@@ -65,45 +79,72 @@ class DataService {
             }
 
             // hive put
-            // vehiclesBox.put('bus_queue',
-            //     json.encode(busQueueList.map((bus) => bus.toJson()).toList()));
-
-            // Save the updated list to SharedPreferences
-            await prefs.setString(
-              'bus_queue',
-              json.encode(busQueueList.map((bus) => bus.toJson()).toList()),
-            );
-            await prefs.setString(
-              'vehicle_list',
-              json.encode(busQueueList.map((bus) => bus.toJson()).toList()),
-            );
+            busBox.put('bus_queue',
+                json.encode(busQueueList.map((bus) => bus.toJson()).toList()));
+            vehicleBox.put(
+                'vehicle_list',
+                json.encode(
+                    carList.map((vehicle) => vehicle.toJson()).toList()));
           }
         }
-        //
+        // Hive Imple for destination
+        await Hive.openBox<String>('destination_list');
+        final Box<String> destinationBox = Hive.box<String>('destination_list');
         // check if the response has Destination List and add to sharedpreference
         if (destinationList != null) {
           List<String> destination =
               convertRegexToDestinationList(destinationList);
-          String destinationString = json.encode(destination);
-          await prefs.setString('destination_list', destinationString);
+          destinationBox.put('destination_list', json.encode(destination));
         }
 
         // check if the response has Tariff List and add to sharedpreference
+        // Hive Imple for tariff
+        await Hive.openBox<String>('tariff_list');
+        final Box<String> tariffBox = Hive.box<String>('tariff_list');
         if (tarifListJson != null) {
           List<int> tariff = convertRegexToTariffList(tarifListJson);
-          String tariffString = json.encode(tariff);
-          await prefs.setString('tariff_list', tariffString);
+          tariffBox.put('tariff_list', json.encode(tariff));
         }
-
+        // Hive Imple for destination
+        await Hive.openBox<String>('capacity_list');
+        final Box<String> capacityBox = Hive.box<String>('capacity_list');
         if (capacityListJson != null) {
           List<int> tariff = convertRegexToCapacityList(capacityListJson);
-          String capacityString = json.encode(tariff);
-          await prefs.setString('capacity_list', capacityString);
+          capacityBox.put('capacity_list', json.encode(tariff));
         }
+
         // check departure add to sharedpreference
+        // Hive Imple for destination
+        await Hive.openBox<String>('departure');
+        final Box<String> departureBox = Hive.box<String>('departure');
         if (departure != null) {
-          // String departureString = json.encode(departure);
-          await prefs.setString('departure', departure);
+          departureBox.put('departure', departure);
+        }
+
+        // ====== assocoation======
+        await Hive.openBox<String>('association');
+        final Box<String> assocoationBox = Hive.box<String>('association');
+        if (associationListJson != null) {
+          List<String> association = convertRegexToAssocoationList(associationListJson);
+          assocoationBox.put('association', json.encode(association));
+        }
+
+        // ====== distance ======
+        await Hive.openBox<String>('distance');
+        final Box<String> distanceBox = Hive.box<String>('distance');
+        //
+        if (distanceListJson != null) {
+          List<String> distance = convertRegexToDistanceList(distanceListJson);
+          distanceBox.put('distance', json.encode(distance));
+        }
+
+        // ====== vehicle level ======
+        await Hive.openBox<String>('level');
+        final Box<String> levelBox = Hive.box<String>('level');
+        //
+        if (levelListJson != null) {
+          List<String> level = convertRegexToLevelList(levelListJson);
+          levelBox.put('level', json.encode(level));
         }
       } else {
         print("error: *********> $responseData");
@@ -114,6 +155,8 @@ class DataService {
     } catch (e) {
       print("error::++++++++++> $e");
       throw Exception('An error occurred: $e');
+    } finally {
+      await Hive.close();
     }
   }
 }
@@ -178,6 +221,47 @@ List<int> convertRegexToCapacityList(String regexString) {
   for (Match match in matches) {
     capacity.add(int.parse(match.group(1)!));
   }
-
   return capacity;
+}
+
+List<String> convertRegexToAssocoationList(String regexString) {
+   List<String> associations = [];
+
+  // Extract plate numbers from the regex string
+  RegExp associationsRegex = RegExp(r'"([^"]*)"');
+  Iterable<Match> matches = associationsRegex.allMatches(regexString);
+
+  for (Match match in matches) {
+    associations.add(match.group(1)!);
+  }
+
+  return associations;
+}
+
+List<String> convertRegexToDistanceList(String regexString) {
+   List<String> distance = [];
+
+  // Extract plate numbers from the regex string
+  RegExp distanceRegex = RegExp(r'"([^"]*)"');
+  Iterable<Match> matches = distanceRegex.allMatches(regexString);
+
+  for (Match match in matches) {
+    distance.add(match.group(1)!);
+  }
+
+  return distance;
+}
+
+List<String> convertRegexToLevelList(String regexString) {
+   List<String> level = [];
+
+  // Extract plate numbers from the regex string
+  RegExp levelRegex = RegExp(r'"([^"]*)"');
+  Iterable<Match> matches = levelRegex.allMatches(regexString);
+
+  for (Match match in matches) {
+    level.add(match.group(1)!);
+  }
+
+  return level;
 }

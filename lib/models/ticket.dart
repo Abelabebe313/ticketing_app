@@ -9,7 +9,7 @@ class Ticket {
   double tariff;
   double charge;
   String association;
-  double distance;
+  String distance;
 
   Ticket({
     required this.tailure,

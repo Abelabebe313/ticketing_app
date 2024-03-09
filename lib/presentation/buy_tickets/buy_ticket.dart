@@ -3,8 +3,10 @@ import 'dart:math';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:transport_app/data/bus_data.dart';
+import 'package:transport_app/main.dart';
 import '../../core/my_colors.dart';
 import '../../models/bus.dart';
 import '../../models/ticket.dart';
@@ -29,13 +31,16 @@ class BuyTicketState extends State<BuyTicket> {
   final TextEditingController serviceCharge = TextEditingController();
   final TextEditingController no_of_ticket = TextEditingController();
   final TextEditingController association = TextEditingController();
+  final TextEditingController distance = TextEditingController();
 
   // String? TicketTailer;
   int totalCapacity = 0;
   List<Vehicle> _busList = [];
   List<String> destinationList = [];
   List<String> departureList = [];
-  List<String> associationList = ['Selam', 'golden', 'sky'];
+  List<String> associationList = [];
+  List<String> levelList = [];
+  List<String> distanceList = [];
   List<int> tariff_list = [];
   List<int> seat_capacity_list = [];
   // intial value variables
@@ -43,62 +48,161 @@ class BuyTicketState extends State<BuyTicket> {
   String? selectedDestination;
   String? selectedDeparture;
   String? selectedAssociation;
+  String? selectedLevel;
 
   @override
   void initState() {
     String currentDate = DateTime.now().toLocal().toString().split(' ')[0];
     super.initState();
-    level.text = "Level 2";
-    selectedAssociation = associationList[0];
-    association.text = associationList[0];
-
     _loadBusQueueList();
+    _loadLevelList();
     _loadDestinationList();
     _loadDepartureList();
     _loadTailerData();
     _loadTariffData();
     _loadCapacityData();
+    _loadAssociationList();
+    _loadDistanceList();
     date.text = currentDate;
   }
 
-  void _loadCapacityData() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String capacityListJson = prefs.getString('capacity_list') ?? '[]';
-    List<dynamic> decodedList = json.decode(capacityListJson);
+  void _loadDistanceList() async {
+    // Open the destination list Hive box
+    final Box<String> distanceBox = await Hive.openBox<String>('distance');
+    try {
+      // Retrieve the destination list from Hive box
+      String? distanceBoxJson = distanceBox.get('distance');
 
-    // Clear the existing list
-    seat_capacity_list.clear();
+      if (distanceBoxJson != null) {
+        List<dynamic> decodedList = json.decode(distanceBoxJson);
 
-    // Convert the decoded list elements to integers
-    for (var item in decodedList) {
-      if (item is int) {
-        seat_capacity_list.add(item); // No need for parsing
-      } else if (item is String) {
-        seat_capacity_list.add(int.parse(item));
+        for (var item in decodedList) {
+          if (item is String) {
+            distanceList.add(item);
+          } else if (item is String) {
+            distanceList.add(item);
+          }
+        }
       }
+    } catch (e) {
+      print('Error loading level list: $e');
+    } finally {
+      await distanceBox.close(); // Close the Hive box
+      setState(() {}); // Update the UI
     }
+  }
 
-    setState(() {});
+  void _loadLevelList() async {
+    // Open the destination list Hive box
+    final Box<String> levelBox = await Hive.openBox<String>('level');
+    try {
+      // Retrieve the destination list from Hive box
+      String? levelBoxJson = levelBox.get('level');
+
+      if (levelBoxJson != null) {
+        List<dynamic> decodedList = json.decode(levelBoxJson);
+
+        for (var item in decodedList) {
+          if (item is String) {
+            levelList.add(item);
+          } else if (item is String) {
+            levelList.add(item);
+          }
+        }
+      }
+    } catch (e) {
+      print('Error loading level list: $e');
+    } finally {
+      await levelBox.close(); // Close the Hive box
+      setState(() {}); // Update the UI
+    }
+  }
+
+  void _loadAssociationList() async {
+    // Open the destination list Hive box
+    final Box<String> associationBox =
+        await Hive.openBox<String>('association');
+
+    try {
+      // Retrieve the destination list from Hive box
+      String? associationBoxJson = associationBox.get('association');
+      if (associationBoxJson != null) {
+        List<dynamic> decodedList = json.decode(associationBoxJson);
+        associationList.addAll(decodedList.cast<String>());
+      }
+
+      if (associationList.isNotEmpty) {
+        selectedAssociation = associationList[0];
+        association.text = associationList[0];
+      } else {
+        print('association list is empty');
+      }
+    } catch (e) {
+      print('Error loading association list: $e');
+    } finally {
+      await associationBox.close(); // Close the Hive box
+      setState(() {}); // Update the UI
+    }
+  }
+
+  void _loadCapacityData() async {
+    final Box<String> capacityBox = await Hive.openBox<String>('capacity_list');
+
+    try {
+      // Retrieve capacity data from Hive box
+      String? capacityListJson = capacityBox.get('capacity_list');
+
+      // Clear the existing list
+      seat_capacity_list.clear();
+
+      if (capacityListJson != null) {
+        List<dynamic> decodedList = json.decode(capacityListJson);
+
+        // Convert the decoded list elements to integers
+        for (var item in decodedList) {
+          if (item is int) {
+            seat_capacity_list.add(item);
+          } else if (item is String) {
+            seat_capacity_list.add(int.parse(item));
+          }
+        }
+      }
+    } catch (e) {
+      print('Error loading capacity data: $e');
+    } finally {
+      await capacityBox.close(); // Close the Hive box
+      setState(() {}); // Update the UI
+    }
   }
 
   void _loadTariffData() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String tariffListJson = prefs.getString('tariff_list') ?? '[]';
-    List<dynamic> decodedList = json.decode(tariffListJson);
+    final Box<String> tariffBox = await Hive.openBox<String>('tariff_list');
 
-    // Clear the existing list
-    tariff_list.clear();
+    try {
+      // Retrieve tariff data from Hive box
+      String? tariffListJson = tariffBox.get('tariff_list');
 
-    // Convert the decoded list elements to integers
-    for (var item in decodedList) {
-      if (item is int) {
-        tariff_list.add(item);
-      } else if (item is String) {
-        tariff_list.add(int.parse(item));
+      // Clear the existing list
+      tariff_list.clear();
+
+      if (tariffListJson != null) {
+        List<dynamic> decodedList = json.decode(tariffListJson);
+
+        // Convert the decoded list elements to integers
+        for (var item in decodedList) {
+          if (item is int) {
+            tariff_list.add(item);
+          } else if (item is String) {
+            tariff_list.add(int.parse(item));
+          }
+        }
       }
+    } catch (e) {
+      print('Error loading tariff data: $e');
+    } finally {
+      await tariffBox.close(); // Close the Hive box
+      setState(() {}); // Update the UI
     }
-
-    setState(() {});
   }
 
   void _loadTailerData() async {
@@ -114,46 +218,72 @@ class BuyTicketState extends State<BuyTicket> {
   }
 
   void _loadDepartureList() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String departurepref = prefs.getString('departure') ?? '[]';
+    final Box<String> departureBox = await Hive.openBox<String>('departure');
 
-    print('departurepref:==== $departurepref');
+    try {
+      // Retrieve departure data from Hive box
+      String? selectedDeparture = departureBox.get('departure');
 
-    if (departurepref.isNotEmpty) {
-      selectedDeparture = departurepref;
-      departure.text = selectedDeparture!;
-    } else {
-      print('desparture list is empty');
+      if (selectedDeparture != null && selectedDeparture.isNotEmpty) {
+        departure.text = selectedDeparture;
+      } else {
+        print('Departure list is empty');
+      }
+    } catch (e) {
+      print('Error loading departure list: $e');
+    } finally {
+      await departureBox.close(); // Close the Hive box
+      setState(() {}); // Update the UI
     }
-    setState(() {});
   }
 
   void _loadBusQueueList() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String busQueueJson = prefs.getString('bus_queue') ?? '[]';
-    List<dynamic> busQueueJsonList = json.decode(busQueueJson);
-    _busList = busQueueJsonList.map((json) => Vehicle.fromJson(json)).toList();
+    final box = await Hive.openBox<String>(busList);
+    try {
+      // Retrieve data from Hive box
+      List<dynamic>? busQueueJsonList =
+          json.decode(box.get('bus_queue') ?? "[]");
+      _busList =
+          busQueueJsonList!.map((json) => Vehicle.fromJson(json)).toList();
 
-    if (_busList.isNotEmpty) {
-      selectedVehicle = _busList[0];
-      plateNumber.text = _busList[0].plateNumber;
+      if (_busList.isNotEmpty) {
+        selectedVehicle = _busList[0];
+        plateNumber.text = _busList[0].plateNumber;
+      }
+    } catch (e) {
+      // Handle exceptions appropriately
+      print("Error loading bus queue: $e");
+    } finally {
+      await box.close();
+      setState(() {});
     }
-    setState(() {});
   }
 
   void _loadDestinationList() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String destinationpref = prefs.getString('destination_list') ?? '[]';
-    List<dynamic> decodedList = json.decode(destinationpref);
-    destinationList.addAll(decodedList.cast<String>());
+    // Open the destination list Hive box
+    final Box<String> destinationBox =
+        await Hive.openBox<String>('destination_list');
 
-    if (destinationList.isNotEmpty) {
-      selectedDestination = destinationList[0];
-      destination.text = destinationList[0];
-    } else {
-      print('destination list is empty');
+    try {
+      // Retrieve the destination list from Hive box
+      String? destinationJson = destinationBox.get('destination_list');
+      if (destinationJson != null) {
+        List<dynamic> decodedList = json.decode(destinationJson);
+        destinationList.addAll(decodedList.cast<String>());
+      }
+
+      if (destinationList.isNotEmpty) {
+        selectedDestination = destinationList[0];
+        destination.text = destinationList[0];
+      } else {
+        print('Destination list is empty');
+      }
+    } catch (e) {
+      print('Error loading destination list: $e');
+    } finally {
+      await destinationBox.close(); // Close the Hive box
+      setState(() {}); // Update the UI
     }
-    setState(() {});
   }
 
   Future<void> _selectDate(BuildContext context) async {
@@ -239,7 +369,7 @@ class BuyTicketState extends State<BuyTicket> {
                         elevation: 0,
                         child: Container(
                           height: 50,
-                          width: MediaQuery.of(context).size.width * 0.55,
+                          width: MediaQuery.of(context).size.width * 0.5,
                           alignment: Alignment.topRight,
                           padding: const EdgeInsets.symmetric(horizontal: 20),
                           child: TextField(
@@ -308,43 +438,7 @@ class BuyTicketState extends State<BuyTicket> {
                   ),
                 ],
               ),
-              Container(height: 15),
-              Text(
-                "Level".tr(),
-                style: const TextStyle(
-                  color: MyColors.grey_60,
-                  fontSize: 14,
-                  fontFamily: 'Poppins-Light',
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Container(height: 5),
-              Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(3),
-                ),
-                clipBehavior: Clip.antiAliasWithSaveLayer,
-                margin: const EdgeInsets.all(0),
-                elevation: 0,
-                child: Container(
-                  height: 50,
-                  alignment: Alignment.centerLeft,
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: TextField(
-                    maxLines: 1,
-                    controller: level,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontFamily: 'Poppins-Light',
-                      fontWeight: FontWeight.bold,
-                    ),
-                    decoration: const InputDecoration(
-                      contentPadding: EdgeInsets.all(-12),
-                      border: InputBorder.none,
-                    ),
-                  ),
-                ),
-              ),
+
               Container(height: 15),
               Row(
                 children: <Widget>[
@@ -400,6 +494,15 @@ class BuyTicketState extends State<BuyTicket> {
                                               selectedVehicle!.plateNumber;
                                           totalCapacity =
                                               selectedVehicle!.totalCapacity;
+
+                                          int selectedIndex =
+                                              _busList.indexWhere((bus) =>
+                                                  bus.plateNumber ==
+                                                  selectedVehicle!.plateNumber);
+                                          level.text = levelList[selectedIndex]
+                                              .toString();
+                                          totalCapacity =
+                                              seat_capacity_list[selectedIndex];
                                         },
                                       );
                                     },
@@ -467,6 +570,45 @@ class BuyTicketState extends State<BuyTicket> {
               ),
               Container(height: 15),
               Text(
+                "Level".tr(),
+                style: const TextStyle(
+                  color: MyColors.grey_60,
+                  fontSize: 14,
+                  fontFamily: 'Poppins-Light',
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Container(height: 5),
+              Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(3),
+                ),
+                clipBehavior: Clip.antiAliasWithSaveLayer,
+                margin: const EdgeInsets.all(0),
+                elevation: 0,
+                child: Container(
+                  height: 50,
+                  alignment: Alignment.centerLeft,
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: TextField(
+                    enabled: false,
+                    maxLines: 1,
+                    controller: level,
+                    keyboardType: TextInputType.number,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontFamily: 'Poppins-Light',
+                      fontWeight: FontWeight.bold,
+                    ),
+                    decoration: const InputDecoration(
+                      contentPadding: EdgeInsets.all(-12),
+                      border: InputBorder.none,
+                    ),
+                  ),
+                ),
+              ),
+              Container(height: 15),
+              Text(
                 "Departure".tr(),
                 style: const TextStyle(
                   color: MyColors.grey_60,
@@ -504,150 +646,234 @@ class BuyTicketState extends State<BuyTicket> {
                 ),
               ),
               Container(height: 15),
-              Text(
-                "Destination".tr(),
-                style: const TextStyle(
-                  color: MyColors.grey_60,
-                  fontSize: 14,
-                  fontFamily: 'Poppins-Light',
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Container(height: 5),
-              Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(3),
-                ),
-                clipBehavior: Clip.antiAliasWithSaveLayer,
-                margin: const EdgeInsets.all(0),
-                elevation: 0,
-                child: Container(
-                  height: 50,
-                  alignment: Alignment.centerLeft,
-                  padding: const EdgeInsets.symmetric(horizontal: 5),
-                  child: Row(
-                    children: <Widget>[
-                      Container(width: 15),
-                      Expanded(
-                        child: DropdownButton<String>(
-                          value: selectedDestination,
-                          items: destinationList.map((String destination) {
-                            return DropdownMenuItem<String>(
-                              value: destination,
-                              child: Text(
-                                destination,
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontFamily: 'Poppins-Light',
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            );
-                          }).toList(),
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              selectedDestination = newValue ?? '';
-                              destination.text = newValue!;
-
-                              // since the destination and tariff list are in the same order, we can use the index of the selected destination to get the corresponding tariff
-                              int selectedIndex = destinationList.indexWhere(
-                                  (destination) => destination == newValue);
-
-                              // i added the following line to update the total capacity and service charge and tariff to update imediately after selecting destination
-                              tariff.text =
-                                  tariff_list[selectedIndex].toString();
-                              totalCapacity = seat_capacity_list[selectedIndex];
-                              serviceCharge.text =
-                                  (tariff_list[selectedIndex] * 0.02)
-                                      .toString();
-                            });
-                          },
-                          underline: Container(), // Removes the underline
+              // ==== Destination Wideget ===========
+              Row(
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Destination".tr(),
+                        style: const TextStyle(
+                          color: MyColors.grey_60,
+                          fontSize: 14,
+                          fontFamily: 'Poppins-Light',
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                      // const Icon(Icons.expand_more, color: MyColors.grey_40),
+                      Container(height: 5),
+                      Card(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(3),
+                        ),
+                        clipBehavior: Clip.antiAliasWithSaveLayer,
+                        margin: const EdgeInsets.all(0),
+                        elevation: 0,
+                        child: Container(
+                          height: 50,
+                          width: MediaQuery.of(context).size.width * 0.5,
+                          alignment: Alignment.centerLeft,
+                          padding: const EdgeInsets.symmetric(horizontal: 5),
+                          child: Row(
+                            children: <Widget>[
+                              Container(width: 15),
+                              Expanded(
+                                child: DropdownButton<String>(
+                                  value: selectedDestination,
+                                  items:
+                                      destinationList.map((String destination) {
+                                    return DropdownMenuItem<String>(
+                                      value: destination,
+                                      child: Text(
+                                        destination,
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          fontFamily: 'Poppins-Light',
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    );
+                                  }).toList(),
+                                  onChanged: (String? newValue) {
+                                    setState(() {
+                                      selectedDestination = newValue ?? '';
+                                      destination.text = newValue!;
+
+                                      // since the destination and tariff list are in the same order, we can use the index of the selected destination to get the corresponding tariff
+                                      int selectedIndex = destinationList
+                                          .indexWhere((destination) =>
+                                              destination == newValue);
+
+                                      // i added the following line to update the total capacity and service charge and tariff to update imediately after selecting destination
+                                      distance.text =
+                                          distanceList[selectedIndex]
+                                              .toString();
+                                      tariff.text =
+                                          tariff_list[selectedIndex].toString();
+
+                                      serviceCharge.text =
+                                          (tariff_list[selectedIndex] * 0.02)
+                                              .toString();
+                                    });
+                                  },
+                                  underline:
+                                      Container(), // Removes the underline
+                                ),
+                              ),
+                              // const Icon(Icons.expand_more, color: MyColors.grey_40),
+                            ],
+                          ),
+                        ),
+                      ),
                     ],
                   ),
-                ),
+                  const SizedBox(
+                    width: 10,
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Distance".tr(),
+                        style: const TextStyle(
+                          color: MyColors.grey_60,
+                          fontSize: 14,
+                          fontFamily: 'Poppins-Light',
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 5,
+                      ),
+                      Card(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(3),
+                        ),
+                        clipBehavior: Clip.antiAliasWithSaveLayer,
+                        margin: const EdgeInsets.all(0),
+                        elevation: 0,
+                        child: Container(
+                          width: 100,
+                          height: 50,
+                          alignment: Alignment.topLeft,
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: TextField(
+                            enabled: false,
+                            maxLines: 1,
+                            controller: distance,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontFamily: 'Poppins-Light',
+                              fontWeight: FontWeight.bold,
+                            ),
+                            decoration: const InputDecoration(
+                              contentPadding: EdgeInsets.all(-12),
+                              border: InputBorder.none,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
               Container(height: 15),
-              Text(
-                "Tariff".tr(),
-                style: const TextStyle(
-                  color: MyColors.grey_60,
-                  fontSize: 14,
-                  fontFamily: 'Poppins-Light',
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Container(height: 5),
-              Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(3),
-                ),
-                clipBehavior: Clip.antiAliasWithSaveLayer,
-                margin: const EdgeInsets.all(0),
-                elevation: 0,
-                child: Container(
-                  height: 50,
-                  alignment: Alignment.centerLeft,
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: TextField(
-                    enabled: false,
-                    maxLines: 1,
-                    controller: tariff,
-                    keyboardType: TextInputType.number,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontFamily: 'Poppins-Light',
-                      fontWeight: FontWeight.bold,
-                    ),
-                    decoration: const InputDecoration(
-                      contentPadding: EdgeInsets.all(-12),
-                      border: InputBorder.none,
-                    ),
+              // === Tarif and Service Charge Widgets ===
+              Row(
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Tariff".tr(),
+                        style: const TextStyle(
+                          color: MyColors.grey_60,
+                          fontSize: 14,
+                          fontFamily: 'Poppins-Light',
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Container(height: 5),
+                      Card(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(3),
+                        ),
+                        clipBehavior: Clip.antiAliasWithSaveLayer,
+                        margin: const EdgeInsets.all(0),
+                        elevation: 0,
+                        child: Container(
+                          height: 50,
+                          width: MediaQuery.of(context).size.width * 0.5,
+                          alignment: Alignment.centerLeft,
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: TextField(
+                            enabled: false,
+                            maxLines: 1,
+                            controller: tariff,
+                            keyboardType: TextInputType.number,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontFamily: 'Poppins-Light',
+                              fontWeight: FontWeight.bold,
+                            ),
+                            decoration: const InputDecoration(
+                              contentPadding: EdgeInsets.all(-12),
+                              border: InputBorder.none,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ),
-              Container(height: 15),
-              Text(
-                "Service Charge".tr(),
-                style: const TextStyle(
-                  color: MyColors.grey_60,
-                  fontSize: 14,
-                  fontFamily: 'Poppins-Light',
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Container(height: 5),
-              Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(3),
-                ),
-                clipBehavior: Clip.antiAliasWithSaveLayer,
-                margin: const EdgeInsets.all(0),
-                elevation: 0,
-                child: Container(
-                  height: 50,
-                  alignment: Alignment.centerLeft,
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: TextField(
-                    enabled: false,
-                    maxLines: 1,
-                    controller: serviceCharge,
-                    keyboardType: TextInputType.number,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontFamily: 'Poppins-Light',
-                      fontWeight: FontWeight.bold,
-                    ),
-                    decoration: const InputDecoration(
-                      contentPadding: EdgeInsets.all(-12),
-                      border: InputBorder.none,
-                    ),
+                  const SizedBox(
+                    width: 10,
                   ),
-                ),
+                  Column(
+                    children: [
+                      Text(
+                        "Service Charge".tr(),
+                        style: const TextStyle(
+                          color: MyColors.grey_60,
+                          fontSize: 14,
+                          fontFamily: 'Poppins-Light',
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Container(height: 5),
+                      Card(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(3),
+                        ),
+                        clipBehavior: Clip.antiAliasWithSaveLayer,
+                        margin: const EdgeInsets.all(0),
+                        elevation: 0,
+                        child: Container(
+                          height: 50,
+                          width: MediaQuery.of(context).size.width * 0.3,
+                          alignment: Alignment.centerLeft,
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: TextField(
+                            enabled: false,
+                            maxLines: 1,
+                            controller: serviceCharge,
+                            keyboardType: TextInputType.number,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontFamily: 'Poppins-Light',
+                              fontWeight: FontWeight.bold,
+                            ),
+                            decoration: const InputDecoration(
+                              contentPadding: EdgeInsets.all(-12),
+                              border: InputBorder.none,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  )
+                ],
               ),
+
               Container(height: 15),
               Text(
                 "Association".tr(),
@@ -720,8 +946,8 @@ class BuyTicketState extends State<BuyTicket> {
                     ),
                   ),
                   onPressed: () async {
-                    SharedPreferences prefs =
-                        await SharedPreferences.getInstance();
+                    String uniqueid =
+                        '${DateTime.now().year.toString()}${DateTime.now().month.toString()}${DateTime.now().day.toString()}${Random().nextInt(10000000)}';
                     Ticket ticket = Ticket(
                       tailure: Tailure.text,
                       level: level.text,
@@ -733,7 +959,7 @@ class BuyTicketState extends State<BuyTicket> {
                       tariff: double.parse(tariff.text),
                       charge: double.parse(serviceCharge.text),
                       association: association.text,
-                      distance: 0.0,
+                      distance: distance.text,
                     );
 
                     Navigator.pushReplacement(
