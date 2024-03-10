@@ -2,6 +2,7 @@
 import 'dart:convert';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:transport_app/models/queue_model.dart';
 import 'package:transport_app/presentation/widgets/bus_queue_card.dart';
@@ -28,38 +29,48 @@ class BusQueueState extends State<BusQueue> {
   }
 
   void loadBusQueueList() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    // for vehicle dropdown
-    String vehicleDropdownJson = prefs.getString('vehicle_list') ?? '[]';
-    List<dynamic> vehicledropJsonList = json.decode(vehicleDropdownJson);
-    _busList = vehicledropJsonList.map((json) => Vehicle.fromJson(json)).toList();
+    final vehicleBox = await Hive.openBox<String>('vehicle_list');
+    final busQueueBox = await Hive.openBox<String>('bus_queue');
 
-    // for vehicle queue
-    String busQueueJson = prefs.getString('bus_queue') ?? '[]';
+    // Retrieve data for vehicle dropdown
+    String vehicleDropdownJson = vehicleBox.get('vehicle_list') ?? '[]';
+    List<dynamic> vehicleJsonList = json.decode(vehicleDropdownJson);
+    _busList = vehicleJsonList.map((json) => Vehicle.fromJson(json)).toList();
+
+    // Retrieve data for vehicle queue
+    String busQueueJson = busQueueBox.get('bus_queue') ?? '[]';
     List<dynamic> busQueueJsonList = json.decode(busQueueJson);
-    _busQueueList = busQueueJsonList.map((json) => QueueModel.fromJson(json)).toList();
+    _busQueueList =
+        busQueueJsonList.map((json) => QueueModel.fromJson(json)).toList();
 
     if (_busList.isNotEmpty) {
       selectedVehicle = _busList[0];
-      }
-      setState(() {});
     }
 
-    void _saveBusToQueue(Vehicle vehicle) async {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
+    // Close the Hive boxes
+    await vehicleBox.close();
+    await busQueueBox.close();
 
+    setState(() {}); // Update the UI
+  }
+
+  void _saveBusToQueue(Vehicle vehicle) async {
+    final busQueueBox = await Hive.openBox<String>('bus_queue');
+
+    try {
       // Check if the bus is not already in the queue
       if (!_busQueueList.any((bus) => bus.plateNumber == vehicle.plateNumber)) {
         QueueModel newBus = QueueModel(
           plateNumber: vehicle.plateNumber,
-          date: '${DateTime.now().month}/${DateTime.now().day}/${DateTime.now().year}',
+          date:
+              '${DateTime.now().month}/${DateTime.now().day}/${DateTime.now().year}',
           time: TimeOfDay.now().format(context),
         );
 
         _busQueueList.add(newBus);
 
-        // Save the updated list to SharedPreferences
-        await prefs.setString('bus_queue',
+        // Save the updated list to the Hive box
+        await busQueueBox.put('bus_queue',
             json.encode(_busQueueList.map((bus) => bus.toJson()).toList()));
 
         // Refresh the UI
@@ -74,7 +85,6 @@ class BusQueueState extends State<BusQueue> {
         });
       } else {
         // Show a Snackbar if the bus is already in the queue
-        // ignore: use_build_context_synchronously
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('failure'.tr()),
@@ -83,211 +93,215 @@ class BusQueueState extends State<BusQueue> {
           ),
         );
       }
+    } catch (e) {
+      print('Error saving bus to queue: $e');
+    } finally {
+      // Close the Hive box
+      await busQueueBox.close();
     }
+  }
 
-    Future<bool?> showConfirmationDialog() async {
-      return await showDialog<bool>(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text('Confirm Deletion'.tr()),
-            content: Text('Are you sure?'.tr()),
-            actions: <Widget>[
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context)
-                      .pop(false); // User canceled the deletion
-                },
-                child: Text('Cancel'.tr()),
-              ),
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context)
-                      .pop(true); // User confirmed the deletion
-                },
-                child: Text(
-                  'Delete'.tr(),
-                  style: TextStyle(color: Colors.red),
-                ),
-              ),
-            ],
-          );
-        },
-      );
-    }
-
-    void _removeBusFromQueue(QueueModel bus) async {
-      bool? confirmed = await showConfirmationDialog();
-      if (confirmed != null && confirmed) {
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-
-        // Remove the bus from the list
-        _busQueueList.remove(bus);
-
-        // Save the updated list to SharedPreferences
-        await prefs.setString('bus_queue',
-            json.encode(_busQueueList.map((bus) => bus.toJson()).toList()));
-
-        // Refresh the UI
-        setState(() {});
-      }
-    }
-
-    @override
-    Widget build(BuildContext context) {
-      return Scaffold(
-        appBar: AppBar(
-          backgroundColor: MyColors.primary,
-          leading: IconButton(
-            icon: const Icon(
-              Icons.arrow_back_ios,
-              color: Colors.white,
+  Future<bool?> showConfirmationDialog() async {
+    return await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Confirm Deletion'.tr()),
+          content: Text('Are you sure?'.tr()),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(false); // User canceled the deletion
+              },
+              child: Text('Cancel'.tr()),
             ),
-            onPressed: () {
-              Navigator.pop(context);
-            },
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(true); // User confirmed the deletion
+              },
+              child: Text(
+                'Delete'.tr(),
+                style: TextStyle(color: Colors.red),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _removeBusFromQueue(QueueModel bus) async {
+    bool? confirmed = await showConfirmationDialog();
+    if (confirmed != null && confirmed) {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+
+      // Remove the bus from the list
+      _busQueueList.remove(bus);
+
+      // Save the updated list to SharedPreferences
+      await prefs.setString('bus_queue',
+          json.encode(_busQueueList.map((bus) => bus.toJson()).toList()));
+
+      // Refresh the UI
+      setState(() {});
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: MyColors.primary,
+        leading: IconButton(
+          icon: const Icon(
+            Icons.arrow_back_ios,
+            color: Colors.white,
           ),
-          title: Text(
-            'Bus Queue'.tr(),
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+        title: Text(
+          'Bus Queue'.tr(),
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
           ),
         ),
-        body: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const SizedBox(height: 10),
-              Container(
-                height: MediaQuery.of(context).size.height * 0.07,
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const SizedBox(height: 10),
+            Container(
+              height: MediaQuery.of(context).size.height * 0.07,
+              width: MediaQuery.of(context).size.width * 0.95,
+              alignment: Alignment.centerLeft,
+              padding: const EdgeInsets.symmetric(horizontal: 5),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                color: Colors.grey.shade100,
+              ),
+              child: Row(
+                children: <Widget>[
+                  const Icon(
+                    Icons.add_circle,
+                    size: 40,
+                    color: MyColors.primary,
+                  ),
+                  const SizedBox(width: 15),
+                  Padding(
+                    padding: const EdgeInsets.only(right: 20),
+                    child: Text(
+                      'Select Bus'.tr(),
+                      style: const TextStyle(
+                        // color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 50,
+                  ),
+                  Expanded(
+                    child: DropdownButton<Vehicle>(
+                      value: selectedVehicle,
+                      items: _busList.map((Vehicle vehicle) {
+                        return DropdownMenuItem<Vehicle>(
+                          value: vehicle,
+                          child: Text(
+                            vehicle.plateNumber,
+                          ),
+                        );
+                      }).toList(),
+                      onChanged: (Vehicle? newValue) {
+                        setState(() {
+                          selectedVehicle = newValue;
+                          _saveBusToQueue(selectedVehicle!);
+                        });
+                      },
+                      underline: Container(),
+                    ),
+                  ),
+                ],
+              ), // Handle the case when busList is empty
+            ),
+            const SizedBox(
+              height: 20,
+            ),
+            // Bus Queue Order
+            Center(
+              child: Container(
                 width: MediaQuery.of(context).size.width * 0.95,
-                alignment: Alignment.centerLeft,
-                padding: const EdgeInsets.symmetric(horizontal: 5),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  color: Colors.grey.shade100,
+                height: MediaQuery.of(context).size.height * 0.08,
+                decoration: const BoxDecoration(
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(10),
+                    topRight: Radius.circular(10),
+                  ),
+                  color: MyColors.primary,
                 ),
                 child: Row(
-                  children: <Widget>[
-                    const Icon(
-                      Icons.add_circle,
-                      size: 40,
-                      color: MyColors.primary,
-                    ),
-                    const SizedBox(width: 15),
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
                     Padding(
-                      padding: const EdgeInsets.only(right: 20),
+                      padding: const EdgeInsets.only(left: 10),
                       child: Text(
-                        'Select Bus'.tr(),
+                        'Vehicle Order'.tr(),
                         style: const TextStyle(
-                          // color: Colors.white,
+                          color: Colors.white,
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
-                    const SizedBox(
-                      width: 50,
-                    ),
-                    Expanded(
-                      child: DropdownButton<Vehicle>(
-                        value: selectedVehicle,
-                        items: _busList.map((Vehicle vehicle) {
-                          return DropdownMenuItem<Vehicle>(
-                            value: vehicle,
-                            child: Text(
-                              vehicle.plateNumber,
-                            ),
-                          );
-                        }).toList(),
-                        onChanged: (Vehicle? newValue) {
-                          setState(() {
-                            selectedVehicle = newValue;
-                            _saveBusToQueue(selectedVehicle!);
-                          });
-                        },
-                        underline: Container(),
+                    Padding(
+                      padding: const EdgeInsets.only(right: 20),
+                      child: Text(
+                        _busQueueList.length.toString(),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ],
-                ), // Handle the case when busList is empty
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              // Bus Queue Order
-              Center(
-                child: Container(
-                  width: MediaQuery.of(context).size.width * 0.95,
-                  height: MediaQuery.of(context).size.height * 0.08,
-                  decoration: const BoxDecoration(
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(10),
-                      topRight: Radius.circular(10),
-                    ),
-                    color: MyColors.primary,
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(left: 10),
-                        child: Text(
-                          'Vehicle Order'.tr(),
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(right: 20),
-                        child: Text(
-                          _busQueueList.length.toString(),
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
                 ),
               ),
-              SizedBox(
-                height: MediaQuery.of(context).size.height * 0.68,
-                child: _busQueueList.isEmpty
-                    ? Center(
-                        child: Text(
-                          'No Bus in Queue'.tr(),
-                          style: const TextStyle(
-                            color: Colors.black,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
+            ),
+            SizedBox(
+              height: MediaQuery.of(context).size.height * 0.68,
+              child: _busQueueList.isEmpty
+                  ? Center(
+                      child: Text(
+                        'No Bus in Queue'.tr(),
+                        style: const TextStyle(
+                          color: Colors.black,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
                         ),
-                      )
-                    : ListView.builder(
-                        itemCount: _busQueueList.length,
-                        itemBuilder: (context, index) {
-                          return BusQueueCardWidget(
-                            plateNo: _busQueueList[index].plateNumber,
-                            date: _busQueueList[index].date,
-                            time: _busQueueList[index].time,
-                            onRemove: () =>
-                                _removeBusFromQueue(_busQueueList[index]),
-                          );
-                        },
                       ),
-              ),
-            ],
-          ),
+                    )
+                  : ListView.builder(
+                      itemCount: _busQueueList.length,
+                      itemBuilder: (context, index) {
+                        return BusQueueCardWidget(
+                          plateNo: _busQueueList[index].plateNumber,
+                          date: _busQueueList[index].date,
+                          time: _busQueueList[index].time,
+                          onRemove: () =>
+                              _removeBusFromQueue(_busQueueList[index]),
+                        );
+                      },
+                    ),
+            ),
+          ],
         ),
-      );
-    }
+      ),
+    );
   }
+}

@@ -122,7 +122,7 @@ class _SunmiPrinterPageState extends State<SunmiPrinterPage> {
                         ),
                         Text(
                           '12/12/1221',
-                          style:  TextStyle(
+                          style: TextStyle(
                               color: Colors.black,
                               fontSize: 16,
                               fontWeight: FontWeight.normal),
@@ -238,6 +238,14 @@ class _SunmiPrinterPageState extends State<SunmiPrinterPage> {
                           print('print pressed');
                           await SunmiPrinter.initPrinter();
                           await SunmiPrinter.startTransactionPrint(true);
+                          Uint8List dalex = await _getImageFromAsset(
+                              'assets/images/Untitled-2.jpg');
+
+                          await SunmiPrinter.startTransactionPrint(true);
+                          await SunmiPrinter.setAlignment(
+                              SunmiPrintAlign.CENTER);
+                          await SunmiPrinter.printImage(dalex);
+                          await SunmiPrinter.lineWrap(1);
                           await SunmiPrinter.setAlignment(
                               SunmiPrintAlign.CENTER);
                           await SunmiPrinter.bold();
@@ -340,6 +348,10 @@ class _SunmiPrinterPageState extends State<SunmiPrinterPage> {
           ),
         ));
   }
+}
+
+Future<Uint8List> _getImageFromAsset(String iconPath) async {
+  return await readFileBytes(iconPath);
 }
 
 Future<Uint8List> readFileBytes(String path) async {

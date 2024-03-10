@@ -20,6 +20,7 @@ class BuyTicket extends StatefulWidget {
 }
 
 class BuyTicketState extends State<BuyTicket> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController Tailure = TextEditingController();
   final TextEditingController level = TextEditingController();
   final TextEditingController plateNumber = TextEditingController();
@@ -302,6 +303,30 @@ class BuyTicketState extends State<BuyTicket> {
     }
   }
 
+  String? validateNoOfTicket(String? value, BuildContext context) {
+    if (value == null || value.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Pleaseenterthenumberoftickets'.tr()),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return null;
+    }
+    int? numberOfTickets = int.tryParse(value);
+    if (numberOfTickets == null || numberOfTickets <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Pleaseenteravalidnumberoftickets'.tr()),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return null;
+    }
+    // Validation passed
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -335,119 +360,333 @@ class BuyTicketState extends State<BuyTicket> {
               onPressed: () {},
             ),
           ]),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        scrollDirection: Axis.vertical,
-        child: Align(
-          alignment: Alignment.topCenter,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Row(
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Tailor".tr(),
-                        style: const TextStyle(
-                          color: MyColors.grey_60,
-                          fontSize: 14,
-                          fontFamily: 'Poppins-Light',
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 5,
-                      ),
-                      Card(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(3),
-                        ),
-                        clipBehavior: Clip.antiAliasWithSaveLayer,
-                        margin: const EdgeInsets.all(0),
-                        elevation: 0,
-                        child: Container(
-                          height: 50,
-                          width: MediaQuery.of(context).size.width * 0.5,
-                          alignment: Alignment.topRight,
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          child: TextField(
-                            maxLines: 1,
-                            controller: Tailure,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontFamily: 'Poppins-Light',
-                              fontWeight: FontWeight.bold,
-                            ),
-                            decoration: const InputDecoration(
-                              contentPadding: EdgeInsets.all(-12),
-                              border: InputBorder.none,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(
-                    width: 10,
-                  ),
-                  Column(
-                    children: [
-                      Text(
-                        "No of ticket".tr(),
-                        style: const TextStyle(
-                          color: MyColors.grey_60,
-                          fontSize: 14,
-                          fontFamily: 'Poppins-Light',
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 5,
-                      ),
-                      Card(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(3),
-                        ),
-                        clipBehavior: Clip.antiAliasWithSaveLayer,
-                        margin: const EdgeInsets.all(0),
-                        elevation: 0,
-                        child: Container(
-                          width: 100,
-                          height: 50,
-                          alignment: Alignment.topLeft,
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          child: TextField(
-                            keyboardType: TextInputType.number,
-                            maxLines: 1,
-                            controller: no_of_ticket,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontFamily: 'Poppins-Light',
-                              fontWeight: FontWeight.bold,
-                            ),
-                            decoration: const InputDecoration(
-                              contentPadding: EdgeInsets.all(-12),
-                              border: InputBorder.none,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-
-              Container(height: 15),
-              Row(
-                children: <Widget>[
-                  Expanded(
-                    child: Column(
+      body: Form(
+        key: _formKey,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(20),
+          scrollDirection: Axis.vertical,
+          child: Align(
+            alignment: Alignment.topCenter,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Row(
+                  children: [
+                    Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
+                      children: [
                         Text(
-                          "Bus Plate Number".tr(),
+                          "Tailor".tr(),
+                          style: const TextStyle(
+                            color: MyColors.grey_60,
+                            fontSize: 14,
+                            fontFamily: 'Poppins-Light',
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 5,
+                        ),
+                        Card(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(3),
+                          ),
+                          clipBehavior: Clip.antiAliasWithSaveLayer,
+                          margin: const EdgeInsets.all(0),
+                          elevation: 0,
+                          child: Container(
+                            height: 50,
+                            width: MediaQuery.of(context).size.width * 0.5,
+                            alignment: Alignment.topRight,
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child: TextField(
+                              maxLines: 1,
+                              controller: Tailure,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontFamily: 'Poppins-Light',
+                                fontWeight: FontWeight.bold,
+                              ),
+                              decoration: const InputDecoration(
+                                contentPadding: EdgeInsets.all(-12),
+                                border: InputBorder.none,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    Column(
+                      children: [
+                        Text(
+                          "No of ticket".tr(),
+                          style: const TextStyle(
+                            color: MyColors.grey_60,
+                            fontSize: 14,
+                            fontFamily: 'Poppins-Light',
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 5,
+                        ),
+                        Card(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(3),
+                          ),
+                          clipBehavior: Clip.antiAliasWithSaveLayer,
+                          margin: const EdgeInsets.all(0),
+                          elevation: 0,
+                          child: Container(
+                            width: 100,
+                            height: 50,
+                            alignment: Alignment.topLeft,
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child: TextFormField(
+                              validator: (value) => validateNoOfTicket(value, context),
+                              keyboardType: TextInputType.number,
+                              maxLines: 1,
+                              controller: no_of_ticket,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontFamily: 'Poppins-Light',
+                                fontWeight: FontWeight.bold,
+                              ),
+                              decoration: const InputDecoration(
+                                contentPadding: EdgeInsets.all(-12),
+                                border: InputBorder.none,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+
+                Container(height: 15),
+                Row(
+                  children: <Widget>[
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Text(
+                            "Bus Plate Number".tr(),
+                            style: const TextStyle(
+                              color: MyColors.grey_60,
+                              fontSize: 14,
+                              fontFamily: 'Poppins-Light',
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Container(height: 5),
+                          Card(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(3),
+                            ),
+                            clipBehavior: Clip.antiAliasWithSaveLayer,
+                            margin: const EdgeInsets.all(0),
+                            elevation: 0,
+                            child: Container(
+                              height: 50,
+                              alignment: Alignment.centerLeft,
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 5),
+                              child: Row(
+                                children: <Widget>[
+                                  Container(width: 15),
+                                  Expanded(
+                                    child: DropdownButton<Vehicle>(
+                                      value: selectedVehicle,
+                                      items: _busList.map((Vehicle vehicle) {
+                                        return DropdownMenuItem<Vehicle>(
+                                          value: vehicle,
+                                          child: Text(
+                                            vehicle.plateNumber,
+                                            style: const TextStyle(
+                                              fontSize: 16,
+                                              fontFamily: 'Poppins-Light',
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        );
+                                      }).toList(),
+                                      onChanged: (Vehicle? newValue) {
+                                        setState(
+                                          () {
+                                            selectedVehicle = newValue;
+                                            plateNumber.text =
+                                                selectedVehicle!.plateNumber;
+                                            totalCapacity =
+                                                selectedVehicle!.totalCapacity;
+
+                                            int selectedIndex =
+                                                _busList.indexWhere((bus) =>
+                                                    bus.plateNumber ==
+                                                    selectedVehicle!
+                                                        .plateNumber);
+                                            level.text =
+                                                levelList[selectedIndex]
+                                                    .toString();
+                                            totalCapacity = seat_capacity_list[
+                                                selectedIndex];
+                                          },
+                                        );
+                                      },
+                                      underline: Container(),
+                                    ),
+                                  ),
+                                ],
+                              ), // Handle the case when busList is empty
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Container(width: 15),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Text(
+                            "Date".tr(),
+                            style: const TextStyle(
+                              color: MyColors.grey_60,
+                              fontSize: 14,
+                              fontFamily: 'Poppins-Light',
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Container(height: 5),
+                          Card(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(3),
+                            ),
+                            clipBehavior: Clip.antiAliasWithSaveLayer,
+                            margin: const EdgeInsets.all(0),
+                            elevation: 0,
+                            child: Container(
+                              height: 50,
+                              alignment: Alignment.centerLeft,
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 10),
+                              child: TextField(
+                                maxLines: 1,
+                                // keyboardType: TextInputType.phone,
+                                controller: date,
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontFamily: 'Poppins-Light',
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                decoration: InputDecoration(
+                                  contentPadding:
+                                      EdgeInsets.fromLTRB(0, 5, 5, 5),
+                                  border: InputBorder.none,
+                                  suffixIcon: IconButton(
+                                    icon: Icon(Icons.date_range),
+                                    onPressed: () => _selectDate(context),
+                                    color: Color(0xffB2B5BB),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  ],
+                ),
+                Container(height: 15),
+                Text(
+                  "Level".tr(),
+                  style: const TextStyle(
+                    color: MyColors.grey_60,
+                    fontSize: 14,
+                    fontFamily: 'Poppins-Light',
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Container(height: 5),
+                Card(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(3),
+                  ),
+                  clipBehavior: Clip.antiAliasWithSaveLayer,
+                  margin: const EdgeInsets.all(0),
+                  elevation: 0,
+                  child: Container(
+                    height: 50,
+                    alignment: Alignment.centerLeft,
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: TextField(
+                      enabled: false,
+                      maxLines: 1,
+                      controller: level,
+                      keyboardType: TextInputType.number,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontFamily: 'Poppins-Light',
+                        fontWeight: FontWeight.bold,
+                      ),
+                      decoration: const InputDecoration(
+                        contentPadding: EdgeInsets.all(-12),
+                        border: InputBorder.none,
+                      ),
+                    ),
+                  ),
+                ),
+                Container(height: 15),
+                Text(
+                  "Departure".tr(),
+                  style: const TextStyle(
+                    color: MyColors.grey_60,
+                    fontSize: 14,
+                    fontFamily: 'Poppins-Light',
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Container(height: 5),
+                Card(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(3),
+                  ),
+                  clipBehavior: Clip.antiAliasWithSaveLayer,
+                  margin: const EdgeInsets.all(0),
+                  elevation: 0,
+                  child: Container(
+                    height: 50,
+                    width: MediaQuery.of(context).size.width * 0.6,
+                    alignment: Alignment.topRight,
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: TextField(
+                      maxLines: 1,
+                      controller: departure,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontFamily: 'Poppins-Light',
+                        fontWeight: FontWeight.bold,
+                      ),
+                      decoration: const InputDecoration(
+                        contentPadding: EdgeInsets.all(-12),
+                        border: InputBorder.none,
+                      ),
+                    ),
+                  ),
+                ),
+                Container(height: 15),
+                // ==== Destination Wideget ===========
+                Row(
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Destination".tr(),
                           style: const TextStyle(
                             color: MyColors.grey_60,
                             fontSize: 14,
@@ -465,19 +704,21 @@ class BuyTicketState extends State<BuyTicket> {
                           elevation: 0,
                           child: Container(
                             height: 50,
+                            width: MediaQuery.of(context).size.width * 0.5,
                             alignment: Alignment.centerLeft,
                             padding: const EdgeInsets.symmetric(horizontal: 5),
                             child: Row(
                               children: <Widget>[
                                 Container(width: 15),
                                 Expanded(
-                                  child: DropdownButton<Vehicle>(
-                                    value: selectedVehicle,
-                                    items: _busList.map((Vehicle vehicle) {
-                                      return DropdownMenuItem<Vehicle>(
-                                        value: vehicle,
+                                  child: DropdownButton<String>(
+                                    value: selectedDestination,
+                                    items: destinationList
+                                        .map((String destination) {
+                                      return DropdownMenuItem<String>(
+                                        value: destination,
                                         child: Text(
-                                          vehicle.plateNumber,
+                                          destination,
                                           style: const TextStyle(
                                             fontSize: 16,
                                             fontFamily: 'Poppins-Light',
@@ -486,43 +727,98 @@ class BuyTicketState extends State<BuyTicket> {
                                         ),
                                       );
                                     }).toList(),
-                                    onChanged: (Vehicle? newValue) {
-                                      setState(
-                                        () {
-                                          selectedVehicle = newValue;
-                                          plateNumber.text =
-                                              selectedVehicle!.plateNumber;
-                                          totalCapacity =
-                                              selectedVehicle!.totalCapacity;
+                                    onChanged: (String? newValue) {
+                                      setState(() {
+                                        selectedDestination = newValue ?? '';
+                                        destination.text = newValue!;
 
-                                          int selectedIndex =
-                                              _busList.indexWhere((bus) =>
-                                                  bus.plateNumber ==
-                                                  selectedVehicle!.plateNumber);
-                                          level.text = levelList[selectedIndex]
-                                              .toString();
-                                          totalCapacity =
-                                              seat_capacity_list[selectedIndex];
-                                        },
-                                      );
+                                        // since the destination and tariff list are in the same order, we can use the index of the selected destination to get the corresponding tariff
+                                        int selectedIndex = destinationList
+                                            .indexWhere((destination) =>
+                                                destination == newValue);
+
+                                        // i added the following line to update the total capacity and service charge and tariff to update imediately after selecting destination
+                                        distance.text =
+                                            distanceList[selectedIndex]
+                                                .toString();
+                                        tariff.text = tariff_list[selectedIndex]
+                                            .toString();
+
+                                        serviceCharge.text =
+                                            (tariff_list[selectedIndex] * 0.02)
+                                                .toString();
+                                      });
                                     },
-                                    underline: Container(),
+                                    underline:
+                                        Container(), // Removes the underline
                                   ),
                                 ),
+                                // const Icon(Icons.expand_more, color: MyColors.grey_40),
                               ],
-                            ), // Handle the case when busList is empty
+                            ),
                           ),
                         ),
                       ],
                     ),
-                  ),
-                  Container(width: 15),
-                  Expanded(
-                    child: Column(
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
+                      children: [
                         Text(
-                          "Date".tr(),
+                          "Distance".tr(),
+                          style: const TextStyle(
+                            color: MyColors.grey_60,
+                            fontSize: 14,
+                            fontFamily: 'Poppins-Light',
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 5,
+                        ),
+                        Card(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(3),
+                          ),
+                          clipBehavior: Clip.antiAliasWithSaveLayer,
+                          margin: const EdgeInsets.all(0),
+                          elevation: 0,
+                          child: Container(
+                            width: 100,
+                            height: 50,
+                            alignment: Alignment.topLeft,
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child: TextField(
+                              enabled: false,
+                              maxLines: 1,
+                              controller: distance,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontFamily: 'Poppins-Light',
+                                fontWeight: FontWeight.bold,
+                              ),
+                              decoration: const InputDecoration(
+                                contentPadding: EdgeInsets.all(-12),
+                                border: InputBorder.none,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                Container(height: 15),
+                // === Tarif and Service Charge Widgets ===
+                Row(
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Tariff".tr(),
                           style: const TextStyle(
                             color: MyColors.grey_60,
                             fontSize: 14,
@@ -540,442 +836,182 @@ class BuyTicketState extends State<BuyTicket> {
                           elevation: 0,
                           child: Container(
                             height: 50,
+                            width: MediaQuery.of(context).size.width * 0.5,
                             alignment: Alignment.centerLeft,
-                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
                             child: TextField(
+                              enabled: false,
                               maxLines: 1,
-                              // keyboardType: TextInputType.phone,
-                              controller: date,
+                              controller: tariff,
+                              keyboardType: TextInputType.number,
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontFamily: 'Poppins-Light',
                                 fontWeight: FontWeight.bold,
                               ),
-                              decoration: InputDecoration(
-                                contentPadding: EdgeInsets.fromLTRB(0, 5, 5, 5),
+                              decoration: const InputDecoration(
+                                contentPadding: EdgeInsets.all(-12),
                                 border: InputBorder.none,
-                                suffixIcon: IconButton(
-                                  icon: Icon(Icons.date_range),
-                                  onPressed: () => _selectDate(context),
-                                  color: Color(0xffB2B5BB),
-                                ),
                               ),
                             ),
                           ),
                         ),
                       ],
                     ),
-                  )
-                ],
-              ),
-              Container(height: 15),
-              Text(
-                "Level".tr(),
-                style: const TextStyle(
-                  color: MyColors.grey_60,
-                  fontSize: 14,
-                  fontFamily: 'Poppins-Light',
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Container(height: 5),
-              Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(3),
-                ),
-                clipBehavior: Clip.antiAliasWithSaveLayer,
-                margin: const EdgeInsets.all(0),
-                elevation: 0,
-                child: Container(
-                  height: 50,
-                  alignment: Alignment.centerLeft,
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: TextField(
-                    enabled: false,
-                    maxLines: 1,
-                    controller: level,
-                    keyboardType: TextInputType.number,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontFamily: 'Poppins-Light',
-                      fontWeight: FontWeight.bold,
+                    const SizedBox(
+                      width: 10,
                     ),
-                    decoration: const InputDecoration(
-                      contentPadding: EdgeInsets.all(-12),
-                      border: InputBorder.none,
-                    ),
-                  ),
-                ),
-              ),
-              Container(height: 15),
-              Text(
-                "Departure".tr(),
-                style: const TextStyle(
-                  color: MyColors.grey_60,
-                  fontSize: 14,
-                  fontFamily: 'Poppins-Light',
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Container(height: 5),
-              Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(3),
-                ),
-                clipBehavior: Clip.antiAliasWithSaveLayer,
-                margin: const EdgeInsets.all(0),
-                elevation: 0,
-                child: Container(
-                  height: 50,
-                  width: MediaQuery.of(context).size.width * 0.6,
-                  alignment: Alignment.topRight,
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: TextField(
-                    maxLines: 1,
-                    controller: departure,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontFamily: 'Poppins-Light',
-                      fontWeight: FontWeight.bold,
-                    ),
-                    decoration: const InputDecoration(
-                      contentPadding: EdgeInsets.all(-12),
-                      border: InputBorder.none,
-                    ),
-                  ),
-                ),
-              ),
-              Container(height: 15),
-              // ==== Destination Wideget ===========
-              Row(
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Destination".tr(),
-                        style: const TextStyle(
-                          color: MyColors.grey_60,
-                          fontSize: 14,
-                          fontFamily: 'Poppins-Light',
-                          fontWeight: FontWeight.bold,
+                    Column(
+                      children: [
+                        Text(
+                          "Service Charge".tr(),
+                          style: const TextStyle(
+                            color: MyColors.grey_60,
+                            fontSize: 14,
+                            fontFamily: 'Poppins-Light',
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                      Container(height: 5),
-                      Card(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(3),
-                        ),
-                        clipBehavior: Clip.antiAliasWithSaveLayer,
-                        margin: const EdgeInsets.all(0),
-                        elevation: 0,
-                        child: Container(
-                          height: 50,
-                          width: MediaQuery.of(context).size.width * 0.5,
-                          alignment: Alignment.centerLeft,
-                          padding: const EdgeInsets.symmetric(horizontal: 5),
-                          child: Row(
-                            children: <Widget>[
-                              Container(width: 15),
-                              Expanded(
-                                child: DropdownButton<String>(
-                                  value: selectedDestination,
-                                  items:
-                                      destinationList.map((String destination) {
-                                    return DropdownMenuItem<String>(
-                                      value: destination,
-                                      child: Text(
-                                        destination,
-                                        style: const TextStyle(
-                                          fontSize: 16,
-                                          fontFamily: 'Poppins-Light',
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    );
-                                  }).toList(),
-                                  onChanged: (String? newValue) {
-                                    setState(() {
-                                      selectedDestination = newValue ?? '';
-                                      destination.text = newValue!;
-
-                                      // since the destination and tariff list are in the same order, we can use the index of the selected destination to get the corresponding tariff
-                                      int selectedIndex = destinationList
-                                          .indexWhere((destination) =>
-                                              destination == newValue);
-
-                                      // i added the following line to update the total capacity and service charge and tariff to update imediately after selecting destination
-                                      distance.text =
-                                          distanceList[selectedIndex]
-                                              .toString();
-                                      tariff.text =
-                                          tariff_list[selectedIndex].toString();
-
-                                      serviceCharge.text =
-                                          (tariff_list[selectedIndex] * 0.02)
-                                              .toString();
-                                    });
-                                  },
-                                  underline:
-                                      Container(), // Removes the underline
-                                ),
+                        Container(height: 5),
+                        Card(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(3),
+                          ),
+                          clipBehavior: Clip.antiAliasWithSaveLayer,
+                          margin: const EdgeInsets.all(0),
+                          elevation: 0,
+                          child: Container(
+                            height: 50,
+                            width: MediaQuery.of(context).size.width * 0.3,
+                            alignment: Alignment.centerLeft,
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child: TextField(
+                              enabled: false,
+                              maxLines: 1,
+                              controller: serviceCharge,
+                              keyboardType: TextInputType.number,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontFamily: 'Poppins-Light',
+                                fontWeight: FontWeight.bold,
                               ),
-                              // const Icon(Icons.expand_more, color: MyColors.grey_40),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(
-                    width: 10,
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Distance".tr(),
-                        style: const TextStyle(
-                          color: MyColors.grey_60,
-                          fontSize: 14,
-                          fontFamily: 'Poppins-Light',
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 5,
-                      ),
-                      Card(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(3),
-                        ),
-                        clipBehavior: Clip.antiAliasWithSaveLayer,
-                        margin: const EdgeInsets.all(0),
-                        elevation: 0,
-                        child: Container(
-                          width: 100,
-                          height: 50,
-                          alignment: Alignment.topLeft,
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          child: TextField(
-                            enabled: false,
-                            maxLines: 1,
-                            controller: distance,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontFamily: 'Poppins-Light',
-                              fontWeight: FontWeight.bold,
-                            ),
-                            decoration: const InputDecoration(
-                              contentPadding: EdgeInsets.all(-12),
-                              border: InputBorder.none,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              Container(height: 15),
-              // === Tarif and Service Charge Widgets ===
-              Row(
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Tariff".tr(),
-                        style: const TextStyle(
-                          color: MyColors.grey_60,
-                          fontSize: 14,
-                          fontFamily: 'Poppins-Light',
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Container(height: 5),
-                      Card(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(3),
-                        ),
-                        clipBehavior: Clip.antiAliasWithSaveLayer,
-                        margin: const EdgeInsets.all(0),
-                        elevation: 0,
-                        child: Container(
-                          height: 50,
-                          width: MediaQuery.of(context).size.width * 0.5,
-                          alignment: Alignment.centerLeft,
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          child: TextField(
-                            enabled: false,
-                            maxLines: 1,
-                            controller: tariff,
-                            keyboardType: TextInputType.number,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontFamily: 'Poppins-Light',
-                              fontWeight: FontWeight.bold,
-                            ),
-                            decoration: const InputDecoration(
-                              contentPadding: EdgeInsets.all(-12),
-                              border: InputBorder.none,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(
-                    width: 10,
-                  ),
-                  Column(
-                    children: [
-                      Text(
-                        "Service Charge".tr(),
-                        style: const TextStyle(
-                          color: MyColors.grey_60,
-                          fontSize: 14,
-                          fontFamily: 'Poppins-Light',
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Container(height: 5),
-                      Card(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(3),
-                        ),
-                        clipBehavior: Clip.antiAliasWithSaveLayer,
-                        margin: const EdgeInsets.all(0),
-                        elevation: 0,
-                        child: Container(
-                          height: 50,
-                          width: MediaQuery.of(context).size.width * 0.3,
-                          alignment: Alignment.centerLeft,
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                          child: TextField(
-                            enabled: false,
-                            maxLines: 1,
-                            controller: serviceCharge,
-                            keyboardType: TextInputType.number,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontFamily: 'Poppins-Light',
-                              fontWeight: FontWeight.bold,
-                            ),
-                            decoration: const InputDecoration(
-                              contentPadding: EdgeInsets.all(-12),
-                              border: InputBorder.none,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  )
-                ],
-              ),
-
-              Container(height: 15),
-              Text(
-                "Association".tr(),
-                style: const TextStyle(
-                  color: MyColors.grey_60,
-                  fontSize: 14,
-                  fontFamily: 'Poppins-Light',
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Container(height: 5),
-              Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(3),
-                ),
-                clipBehavior: Clip.antiAliasWithSaveLayer,
-                margin: const EdgeInsets.all(0),
-                elevation: 0,
-                child: Container(
-                  height: 50,
-                  alignment: Alignment.centerLeft,
-                  padding: const EdgeInsets.symmetric(horizontal: 5),
-                  child: Row(
-                    children: <Widget>[
-                      Container(width: 15),
-                      Expanded(
-                        child: DropdownButton<String>(
-                          value: selectedAssociation,
-                          items: associationList.map((String associ) {
-                            return DropdownMenuItem<String>(
-                              value: associ,
-                              child: Text(
-                                associ,
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontFamily: 'Poppins-Light',
-                                  fontWeight: FontWeight.bold,
-                                ),
+                              decoration: const InputDecoration(
+                                contentPadding: EdgeInsets.all(-12),
+                                border: InputBorder.none,
                               ),
-                            );
-                          }).toList(),
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              selectedAssociation = newValue ?? '';
-                              association.text = newValue!;
-                            });
-                          },
-                          underline: Container(), // Removes the underline
+                            ),
+                          ),
                         ),
-                      ),
-                      // const Icon(Icons.expand_more, color: MyColors.grey_40),
-                    ],
+                      ],
+                    )
+                  ],
+                ),
+
+                Container(height: 15),
+                Text(
+                  "Association".tr(),
+                  style: const TextStyle(
+                    color: MyColors.grey_60,
+                    fontSize: 14,
+                    fontFamily: 'Poppins-Light',
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-              ),
-              Container(height: 20),
-              SizedBox(
-                width: double.infinity,
-                height: 45,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: MyColors.primary, elevation: 0),
-                  child: Text(
-                    "SUBMIT".tr(),
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontFamily: 'Poppins-Regular',
-                      fontWeight: FontWeight.bold,
+                Container(height: 5),
+                Card(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(3),
+                  ),
+                  clipBehavior: Clip.antiAliasWithSaveLayer,
+                  margin: const EdgeInsets.all(0),
+                  elevation: 0,
+                  child: Container(
+                    height: 50,
+                    alignment: Alignment.centerLeft,
+                    padding: const EdgeInsets.symmetric(horizontal: 5),
+                    child: Row(
+                      children: <Widget>[
+                        Container(width: 15),
+                        Expanded(
+                          child: DropdownButton<String>(
+                            value: selectedAssociation,
+                            items: associationList.map((String associ) {
+                              return DropdownMenuItem<String>(
+                                value: associ,
+                                child: Text(
+                                  associ,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontFamily: 'Poppins-Light',
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                            onChanged: (String? newValue) {
+                              setState(() {
+                                selectedAssociation = newValue ?? '';
+                                association.text = newValue!;
+                              });
+                            },
+                            underline: Container(), // Removes the underline
+                          ),
+                        ),
+                        // const Icon(Icons.expand_more, color: MyColors.grey_40),
+                      ],
                     ),
                   ),
-                  onPressed: () async {
-                    String uniqueid =
-                        '${DateTime.now().year.toString()}${DateTime.now().month.toString()}${DateTime.now().day.toString()}${Random().nextInt(10000000)}';
-                    Ticket ticket = Ticket(
-                      tailure: Tailure.text,
-                      level: level.text,
-                      plate: plateNumber.text,
-                      date: DateTime.now(),
-                      destination: destination.text,
-                      departure: departure.text,
-                      uniqueId: Random().nextInt(10000000),
-                      tariff: double.parse(tariff.text),
-                      charge: double.parse(serviceCharge.text),
-                      association: association.text,
-                      distance: distance.text,
-                    );
-
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ResultPage(
-                          numberOfTickets: int.parse(no_of_ticket.text),
-                          ticket: ticket,
-                          totalCapacity: totalCapacity,
-                        ),
-                      ),
-                    );
-                  },
                 ),
-              )
-            ],
+                Container(height: 20),
+                SizedBox(
+                  width: double.infinity,
+                  height: 45,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: MyColors.primary, elevation: 0),
+                    child: Text(
+                      "SUBMIT".tr(),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontFamily: 'Poppins-Regular',
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    onPressed: () {
+                      if (_formKey.currentState!.validate()) {
+                        String uniqueid =
+                            '${DateTime.now().year.toString()}${DateTime.now().month.toString()}${DateTime.now().day.toString()}${Random().nextInt(10000000)}';
+                        Ticket ticket = Ticket(
+                          tailure: Tailure.text,
+                          level: level.text,
+                          plate: plateNumber.text,
+                          date: DateTime.now(),
+                          destination: destination.text,
+                          departure: departure.text,
+                          uniqueId: Random().nextInt(10000000),
+                          tariff: double.parse(tariff.text),
+                          charge: double.parse(serviceCharge.text),
+                          association: association.text,
+                          distance: distance.text,
+                        );
+
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ResultPage(
+                              numberOfTickets: int.parse(no_of_ticket.text),
+                              ticket: ticket,
+                              totalCapacity: totalCapacity,
+                            ),
+                          ),
+                        );
+                      }
+                    },
+                  ),
+                )
+              ],
+            ),
           ),
         ),
       ),

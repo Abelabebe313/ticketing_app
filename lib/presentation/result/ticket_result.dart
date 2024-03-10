@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -64,9 +65,9 @@ class ResultPageState extends State<ResultPage> {
             Navigator.pop(context);
           },
         ),
-        title: const Text(
-          "Result",
-          style: TextStyle(
+        title: Text(
+          "Result".tr(),
+          style: const TextStyle(
             color: Colors.white,
             fontSize: 20,
             fontWeight: FontWeight.bold,
@@ -87,12 +88,12 @@ class ResultPageState extends State<ResultPage> {
               ),
               child: Column(
                 children: [
-                  const Row(
+                   Row(
                     children: [
                       Text(
-                        "Passenger Information",
+                        "Passenger Information".tr(),
                         textAlign: TextAlign.center,
-                        style: TextStyle(
+                        style: const TextStyle(
                             color: Colors.black,
                             fontSize: 20,
                             fontWeight: FontWeight.bold),
@@ -102,9 +103,9 @@ class ResultPageState extends State<ResultPage> {
                   const SizedBox(height: 10),
                   Row(
                     children: [
-                      const Text(
-                        "Tailure: ",
-                        style: TextStyle(
+                       Text(
+                        "Tailor".tr(),
+                        style: const TextStyle(
                             color: Colors.black,
                             fontSize: 16,
                             fontWeight: FontWeight.bold),
@@ -120,9 +121,9 @@ class ResultPageState extends State<ResultPage> {
                   ),
                   Row(
                     children: [
-                      const Text(
-                        "Plate No: ",
-                        style: TextStyle(
+                       Text(
+                        "Bus Plate Number".tr(),
+                        style: const TextStyle(
                           color: Colors.black,
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -140,9 +141,9 @@ class ResultPageState extends State<ResultPage> {
                   ),
                   Row(
                     children: [
-                      const Text(
-                        "Departure: ",
-                        style: TextStyle(
+                       Text(
+                        "Departure".tr(),
+                        style: const TextStyle(
                             color: Colors.black,
                             fontSize: 16,
                             fontWeight: FontWeight.bold),
@@ -158,9 +159,9 @@ class ResultPageState extends State<ResultPage> {
                   ),
                   Row(
                     children: [
-                      const Text(
-                        "Destination: ",
-                        style: TextStyle(
+                       Text(
+                        "Destination".tr(),
+                        style: const TextStyle(
                             color: Colors.black,
                             fontSize: 16,
                             fontWeight: FontWeight.bold),
@@ -176,9 +177,9 @@ class ResultPageState extends State<ResultPage> {
                   ),
                   Row(
                     children: [
-                      const Text(
-                        "Level: ",
-                        style: TextStyle(
+                       Text(
+                        "Level".tr(),
+                        style: const TextStyle(
                             color: Colors.black,
                             fontSize: 16,
                             fontWeight: FontWeight.bold),
@@ -195,7 +196,7 @@ class ResultPageState extends State<ResultPage> {
                   Row(
                     children: [
                       const Text(
-                        "Unique ID: ",
+                        "Unique ID",
                         style: TextStyle(
                             color: Colors.black,
                             fontSize: 16,
@@ -212,9 +213,9 @@ class ResultPageState extends State<ResultPage> {
                   ),
                   Row(
                     children: [
-                      const Text(
-                        "Tariff: ",
-                        style: TextStyle(
+                       Text(
+                        "Tariff".tr(),
+                        style: const TextStyle(
                             color: Colors.black,
                             fontSize: 16,
                             fontWeight: FontWeight.bold),
@@ -230,9 +231,9 @@ class ResultPageState extends State<ResultPage> {
                   ),
                   Row(
                     children: [
-                      const Text(
-                        "Service Charge: ",
-                        style: TextStyle(
+                       Text(
+                        "Service Charge".tr(),
+                        style: const TextStyle(
                             color: Colors.black,
                             fontSize: 16,
                             fontWeight: FontWeight.bold),
@@ -248,9 +249,9 @@ class ResultPageState extends State<ResultPage> {
                   ),
                   Row(
                     children: [
-                      const Text(
-                        "Association: ",
-                        style: TextStyle(
+                       Text(
+                        "Association".tr(),
+                        style: const TextStyle(
                             color: Colors.black,
                             fontSize: 16,
                             fontWeight: FontWeight.bold),
@@ -266,9 +267,9 @@ class ResultPageState extends State<ResultPage> {
                   ),
                   Row(
                     children: [
-                      const Text(
-                        "Distance: ",
-                        style: TextStyle(
+                       Text(
+                        "Distance".tr(),
+                        style: const TextStyle(
                             color: Colors.black,
                             fontSize: 16,
                             fontWeight: FontWeight.bold),
@@ -284,9 +285,9 @@ class ResultPageState extends State<ResultPage> {
                   ),
                   Row(
                     children: [
-                      const Text(
-                        "Date: ",
-                        style: TextStyle(
+                       Text(
+                        "Date".tr(),
+                        style: const TextStyle(
                             color: Colors.black,
                             fontSize: 16,
                             fontWeight: FontWeight.bold),
@@ -335,7 +336,7 @@ class ResultPageState extends State<ResultPage> {
                   elevation: 0,
                 ),
                 child: Text(
-                  "Print Ticket",
+                  "Print".tr(),
                   style: MyText.subhead(context)!.copyWith(color: Colors.white),
                 ),
                 onPressed: () async {
@@ -405,8 +406,8 @@ class ResultPageState extends State<ResultPage> {
   Future<void> printMultipleTickets() async {
     await SunmiPrinter.initPrinter();
     Uint8List dalex = await _getImageFromAsset('assets/images/Untitled-2.jpg');
-
     await SunmiPrinter.startTransactionPrint(true);
+
     await SunmiPrinter.setAlignment(SunmiPrintAlign.CENTER);
     await SunmiPrinter.printImage(dalex);
     await SunmiPrinter.lineWrap(1);
@@ -559,10 +560,8 @@ class ResultPageState extends State<ResultPage> {
     await SunmiPrinter.setAlignment(SunmiPrintAlign.CENTER);
     await SunmiPrinter.printText('Inala gaarii!!');
     await SunmiPrinter.lineWrap(1);
-    await SunmiPrinter.setAlignment(SunmiPrintAlign.LEFT);
+    await SunmiPrinter.setAlignment(SunmiPrintAlign.CENTER);
     await SunmiPrinter.printText('Powered by: Dalex ',
-        style: SunmiStyle(fontSize: SunmiFontSize.XS));
-    await SunmiPrinter.printText('General Import and Wholesale',
         style: SunmiStyle(fontSize: SunmiFontSize.XS));
     await SunmiPrinter.lineWrap(3);
 

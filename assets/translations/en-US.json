@@ -36,5 +36,11 @@
     "Print":"Print",
     "Refresh":"Refresh",
     "Upload":"Upload",
-    "Sold tickets":"Sold tickets"
+    "Sold tickets":"Sold tickets",
+    "Result":"የትኬት ውጤት",
+    "Passenger Information":"የተሳፋሪ መረጃ",
+    "Association":"ማህበር",
+    "Unique ID":"መለያ ቁጥር",
+    "Pleaseenterthenumberoftickets":"Please enter the number of tickets",
+    "Pleaseenteravalidnumberoftickets":"Please enter a valid number of tickets"
 }
