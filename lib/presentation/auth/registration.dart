@@ -1,12 +1,15 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:transport_app/bloc/registration%20bloc/register_bloc.dart';
 import 'package:transport_app/bloc/registration%20bloc/register_event.dart';
 import 'package:transport_app/bloc/registration%20bloc/register_state.dart';
+import 'package:transport_app/models/update_model.dart';
 import 'package:transport_app/presentation/auth/login_page.dart';
-import 'package:transport_app/models/user.dart';
 import 'package:transport_app/presentation/home.dart';
 import 'package:transport_app/services/registrationService.dart';
+import 'package:http/http.dart' as http;
+import 'package:transport_app/utils/save_station.dart';
 
 class Registration extends StatefulWidget {
   const Registration({super.key});
@@ -18,6 +21,7 @@ class Registration extends StatefulWidget {
 String? errorMessage = '';
 
 class _RegistrationState extends State<Registration> {
+  // String? _selectedStation;
   final TextEditingController _controllerPhone = TextEditingController();
   final TextEditingController _controllerPassword = TextEditingController();
   final TextEditingController _confirmPasswordController =
@@ -26,6 +30,15 @@ class _RegistrationState extends State<Registration> {
   bool _isPasswordVisible = false;
   bool result = false;
   bool _isLoading = false;
+
+  List<StationInfo>? station_Info;
+  StationInfo? selectedStation;
+
+  @override
+  void initState() {
+    super.initState();
+    context.read<UserRgistrationBloc>().add(FetchStationInfoEvent());
+  }
 
   Widget _errorMessage() {
     return Text(errorMessage == '' ? '' : 'Humm ? $errorMessage');
@@ -53,6 +66,8 @@ class _RegistrationState extends State<Registration> {
                   confirmPassword: _confirmPasswordController.text,
                 ),
               );
+              print('Station Info: =--------=${selectedStation?.name}');
+              await saveStationToHive(selectedStation!);
         },
         child:
             _isLoading ? const CircularProgressIndicator() : Text('Register'),
@@ -79,6 +94,13 @@ class _RegistrationState extends State<Registration> {
   Widget build(BuildContext context) {
     return BlocConsumer<UserRgistrationBloc, RegisterState>(
       listener: (context, state) {
+        if (state is LoadedStationState) {
+          station_Info = state.stations;
+
+          setState(() {
+            _isLoading = false;
+          });
+        }
         if (state is LoadedRegisterUserState) {
           setState(() {
             _isLoading = false;
@@ -87,7 +109,7 @@ class _RegistrationState extends State<Registration> {
             const SnackBar(
               content: Text('Registration Successful'),
               backgroundColor: Colors.green,
-              duration: const Duration(seconds: 2),
+              duration: Duration(seconds: 2),
             ),
           );
           // Navigate to Home page on successful login
@@ -280,50 +302,106 @@ class _RegistrationState extends State<Registration> {
                       ),
                     )),
                 Padding(
-                    padding: const EdgeInsets.fromLTRB(25, 5, 25, 5),
-                    child: TextFormField(
-                      keyboardType: TextInputType.number,
-                      validator: (Value) {
-                        if (Value == null || Value.isEmpty) {
-                          return "pin cannot be empty";
-                        } else if (Value != _controllerPassword.text) {
-                          return "pin doesn't Match";
-                        }
-                        return null;
-                      },
-                      obscureText: !_isPasswordVisible,
-                      style: const TextStyle(
-                        color: Colors.black,
+                  padding: const EdgeInsets.fromLTRB(25, 5, 25, 5),
+                  child: TextFormField(
+                    keyboardType: TextInputType.number,
+                    validator: (Value) {
+                      if (Value == null || Value.isEmpty) {
+                        return "pin cannot be empty";
+                      } else if (Value != _controllerPassword.text) {
+                        return "pin doesn't Match";
+                      }
+                      return null;
+                    },
+                    obscureText: !_isPasswordVisible,
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontFamily: 'Poppins-Light',
+                    ),
+                    controller: _confirmPasswordController,
+                    decoration: InputDecoration(
+                      contentPadding: EdgeInsets.all(6),
+                      hintText: 'Confirm Pin',
+                      hintStyle: const TextStyle(
+                        color: Colors.grey,
                         fontFamily: 'Poppins-Light',
+                        fontSize: 14,
                       ),
-                      controller: _confirmPasswordController,
-                      decoration: InputDecoration(
-                        contentPadding: EdgeInsets.all(6),
-                        hintText: 'Confirm Pin',
-                        hintStyle: const TextStyle(
-                          color: Colors.grey,
-                          fontFamily: 'Poppins-Light',
-                          fontSize: 14,
-                        ),
-                        prefixIcon: const Icon(Icons.key, color: Colors.grey),
-                        suffix: _buildPasswordVisibilityToggle(),
-                        enabledBorder: const OutlineInputBorder(
-                            borderSide:
-                                BorderSide(color: Colors.grey, width: 1),
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(10),
-                            )),
-                        focusedBorder: const OutlineInputBorder(
-                          borderSide: BorderSide(
-                            color: Colors.blue,
-                            width: 1,
-                          ),
+                      prefixIcon: const Icon(Icons.key, color: Colors.grey),
+                      suffix: _buildPasswordVisibilityToggle(),
+                      enabledBorder: const OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.grey, width: 1),
                           borderRadius: BorderRadius.all(
                             Radius.circular(10),
-                          ),
+                          )),
+                      focusedBorder: const OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Colors.blue,
+                          width: 1,
+                        ),
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(10),
                         ),
                       ),
-                    )),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(25, 5, 25, 5),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      if (station_Info != null)
+                        DropdownButtonFormField<StationInfo>(
+                          value: selectedStation,
+                          onChanged: (value) {
+                            setState(() {
+                              selectedStation = value;
+                              
+                            });
+                          },
+                          items: station_Info!
+                              .map<DropdownMenuItem<StationInfo>>((station) {
+                            return DropdownMenuItem<StationInfo>(
+                              value: station,
+                              child: Padding(
+                                padding: const EdgeInsets.all(6),
+                                child: Text(
+                                  station.name!,
+                                  style: const TextStyle(
+                                    color: Colors.grey,
+                                    fontFamily: 'Poppins-Light',
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                          decoration: const InputDecoration(
+                            contentPadding: EdgeInsets.fromLTRB(6, 6, 6, 6),
+                            enabledBorder: OutlineInputBorder(
+                              borderSide:
+                                  BorderSide(color: Colors.grey, width: 1),
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(10),
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                color: Colors.blue,
+                                width: 1,
+                              ),
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(10),
+                              ),
+                            ),
+                          ),
+                          isExpanded: true,
+                          style: const TextStyle(color: Colors.grey),
+                        ),
+                    ],
+                  ),
+                ),
                 const SizedBox(
                   height: 30,
                 ),

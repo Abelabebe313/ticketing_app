@@ -37,8 +37,10 @@
     "Refresh":"አድስ",
     "Upload":"አስገባ",
     "Sold tickets":"የተሸጡ ቲኬቶች",
-    "Result":"Result",
-    "Passenger Information":"Passenger Information",
-    "Association":"Association",
-    "Unique ID":"Unique ID"
+    "Result":"የትኬት ውጤት",
+    "Passenger Information":"የተሳፋሪ መረጃ",
+    "Association":"ማህበር",
+    "Unique ID":"መለያ ቁጥር",
+    "Pleaseenterthenumberoftickets":"እባኮት ቲኬት ብዛት ያስገቡ",
+    "Pleaseenteravalidnumberoftickets":"እባኮት ትክክለኛ ቲኬት ብዛት ያስገቡ"
 }

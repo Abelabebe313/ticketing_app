@@ -6,14 +6,14 @@ import 'package:ionicons/ionicons.dart';
 class BusQueueCardWidget extends StatelessWidget {
   String plateNo;
   
-  String date;
+  String? date;
   String time;
   final VoidCallback onRemove;
   BusQueueCardWidget({
     Key? key,
     required this.plateNo,
     
-    required this.date,
+    this.date,
     required this.time,
     required this.onRemove,
   }) : super(key: key);
@@ -28,7 +28,7 @@ class BusQueueCardWidget extends StatelessWidget {
             return BusDetailsPopup(
                 busDetails: QueueModel(
               plateNumber: plateNo,
-              date: date,
+              date: date!,
               time: time,
             ));
           },
@@ -76,7 +76,7 @@ class BusQueueCardWidget extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(right: 20),
                   child: Text(
-                    date, // date goes here
+                    date!, // date goes here
                     style: const TextStyle(
                       color: Colors.black,
                       fontSize: 14,

@@ -4,11 +4,9 @@ import 'dart:math';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:transport_app/data/bus_data.dart';
-import 'package:transport_app/main.dart';
+import 'package:transport_app/models/update_model.dart';
+import 'package:transport_app/utils/ticket_generator.dart';
 import '../../core/my_colors.dart';
-import '../../models/bus.dart';
 import '../../models/ticket.dart';
 import '../result/ticket_result.dart';
 
@@ -34,256 +32,159 @@ class BuyTicketState extends State<BuyTicket> {
   final TextEditingController association = TextEditingController();
   final TextEditingController distance = TextEditingController();
 
-  // String? TicketTailer;
   int totalCapacity = 0;
-  List<Vehicle> _busList = [];
-  List<String> destinationList = [];
-  List<String> departureList = [];
-  List<String> associationList = [];
-  List<String> levelList = [];
-  List<String> distanceList = [];
-  List<int> tariff_list = [];
-  List<int> seat_capacity_list = [];
-  // intial value variables
-  Vehicle? selectedVehicle;
-  String? selectedDestination;
-  String? selectedDeparture;
-  String? selectedAssociation;
-  String? selectedLevel;
+  // vehicle list
+  List<VehicleList> vehicles_list = [];
+  VehicleList? selectedVehicle;
+  // destination list
+  List<DestinationList> destinationList = [];
+  DestinationList? selectedDestination;
+  List<TariffInfo> tariffList = [];
+  StationInfo? station_info;
 
   @override
   void initState() {
     String currentDate = DateTime.now().toLocal().toString().split(' ')[0];
     super.initState();
-    _loadBusQueueList();
-    _loadLevelList();
-    _loadDestinationList();
-    _loadDepartureList();
-    _loadTailerData();
-    _loadTariffData();
-    _loadCapacityData();
-    _loadAssociationList();
-    _loadDistanceList();
+    fetchStationFromHive();
+    getUser();
+    getVehicleListFromHive();
+    fetchDestinationListFromHive();
+    getTariffFromHive();
     date.text = currentDate;
   }
 
-  void _loadDistanceList() async {
-    // Open the destination list Hive box
-    final Box<String> distanceBox = await Hive.openBox<String>('distance');
+  Future<void> fetchStationFromHive() async {
     try {
-      // Retrieve the destination list from Hive box
-      String? distanceBoxJson = distanceBox.get('distance');
+      // Open Hive box for station
+      final box = await Hive.openBox<StationInfo>('station');
 
-      if (distanceBoxJson != null) {
-        List<dynamic> decodedList = json.decode(distanceBoxJson);
-
-        for (var item in decodedList) {
-          if (item is String) {
-            distanceList.add(item);
-          } else if (item is String) {
-            distanceList.add(item);
-          }
-        }
-      }
-    } catch (e) {
-      print('Error loading level list: $e');
-    } finally {
-      await distanceBox.close(); // Close the Hive box
-      setState(() {}); // Update the UI
-    }
-  }
-
-  void _loadLevelList() async {
-    // Open the destination list Hive box
-    final Box<String> levelBox = await Hive.openBox<String>('level');
-    try {
-      // Retrieve the destination list from Hive box
-      String? levelBoxJson = levelBox.get('level');
-
-      if (levelBoxJson != null) {
-        List<dynamic> decodedList = json.decode(levelBoxJson);
-
-        for (var item in decodedList) {
-          if (item is String) {
-            levelList.add(item);
-          } else if (item is String) {
-            levelList.add(item);
-          }
-        }
-      }
-    } catch (e) {
-      print('Error loading level list: $e');
-    } finally {
-      await levelBox.close(); // Close the Hive box
-      setState(() {}); // Update the UI
-    }
-  }
-
-  void _loadAssociationList() async {
-    // Open the destination list Hive box
-    final Box<String> associationBox =
-        await Hive.openBox<String>('association');
-
-    try {
-      // Retrieve the destination list from Hive box
-      String? associationBoxJson = associationBox.get('association');
-      if (associationBoxJson != null) {
-        List<dynamic> decodedList = json.decode(associationBoxJson);
-        associationList.addAll(decodedList.cast<String>());
+      // Check if the box is open
+      if (!box.isOpen) {
+        throw 'Hive box is not open';
       }
 
-      if (associationList.isNotEmpty) {
-        selectedAssociation = associationList[0];
-        association.text = associationList[0];
+      // Get the station from the box
+      final station = box.get('station');
+
+      // Log the contents of the box
+      print('Contents of the "station" box: $station');
+
+      // Assign the retrieved station to the variable
+      station_info = station;
+      if (station_info != null) {
+        setState(() {
+          departure.text = station_info!.name!;
+          print('=station_info=> ${station_info!.name}');
+        });
       } else {
-        print('association list is empty');
+        print('Station data is null');
       }
+
+      print('Station fetched from Hive successfully');
     } catch (e) {
-      print('Error loading association list: $e');
-    } finally {
-      await associationBox.close(); // Close the Hive box
-      setState(() {}); // Update the UI
+      print('Error fetching station from Hive: $e');
     }
   }
 
-  void _loadCapacityData() async {
-    final Box<String> capacityBox = await Hive.openBox<String>('capacity_list');
-
-    try {
-      // Retrieve capacity data from Hive box
-      String? capacityListJson = capacityBox.get('capacity_list');
-
-      // Clear the existing list
-      seat_capacity_list.clear();
-
-      if (capacityListJson != null) {
-        List<dynamic> decodedList = json.decode(capacityListJson);
-
-        // Convert the decoded list elements to integers
-        for (var item in decodedList) {
-          if (item is int) {
-            seat_capacity_list.add(item);
-          } else if (item is String) {
-            seat_capacity_list.add(int.parse(item));
-          }
-        }
-      }
-    } catch (e) {
-      print('Error loading capacity data: $e');
-    } finally {
-      await capacityBox.close(); // Close the Hive box
-      setState(() {}); // Update the UI
-    }
-  }
-
-  void _loadTariffData() async {
-    final Box<String> tariffBox = await Hive.openBox<String>('tariff_list');
-
-    try {
-      // Retrieve tariff data from Hive box
-      String? tariffListJson = tariffBox.get('tariff_list');
-
-      // Clear the existing list
-      tariff_list.clear();
-
-      if (tariffListJson != null) {
-        List<dynamic> decodedList = json.decode(tariffListJson);
-
-        // Convert the decoded list elements to integers
-        for (var item in decodedList) {
-          if (item is int) {
-            tariff_list.add(item);
-          } else if (item is String) {
-            tariff_list.add(int.parse(item));
-          }
-        }
-      }
-    } catch (e) {
-      print('Error loading tariff data: $e');
-    } finally {
-      await tariffBox.close(); // Close the Hive box
-      setState(() {}); // Update the UI
-    }
-  }
-
-  void _loadTailerData() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String tailorpref = prefs.getString('username') ?? '[]';
-
-    if (tailorpref.isNotEmpty) {
-      Tailure.text = tailorpref!;
+  Future<void> getUser() async {
+    final Box<String> userBox = await Hive.openBox<String>('username');
+    String? storedUsername = userBox.get('username');
+    // Check if username is retrieved successfully
+    if (storedUsername != null) {
+      print('Stored username: $storedUsername');
+      setState(() {
+        Tailure.text = storedUsername;
+      });
     } else {
-      print('desparture list is empty');
-    }
-    setState(() {});
-  }
-
-  void _loadDepartureList() async {
-    final Box<String> departureBox = await Hive.openBox<String>('departure');
-
-    try {
-      // Retrieve departure data from Hive box
-      String? selectedDeparture = departureBox.get('departure');
-
-      if (selectedDeparture != null && selectedDeparture.isNotEmpty) {
-        departure.text = selectedDeparture;
-      } else {
-        print('Departure list is empty');
-      }
-    } catch (e) {
-      print('Error loading departure list: $e');
-    } finally {
-      await departureBox.close(); // Close the Hive box
-      setState(() {}); // Update the UI
+      print('No username found in the box.');
     }
   }
 
-  void _loadBusQueueList() async {
-    final box = await Hive.openBox<String>(busList);
+  Future<void> getTariffFromHive() async {
     try {
-      // Retrieve data from Hive box
-      List<dynamic>? busQueueJsonList =
-          json.decode(box.get('bus_queue') ?? "[]");
-      _busList =
-          busQueueJsonList!.map((json) => Vehicle.fromJson(json)).toList();
+      // Open Hive box for tariffs
+      final box = await Hive.openBox<TariffInfo>('tariffs');
 
-      if (_busList.isNotEmpty) {
-        selectedVehicle = _busList[0];
-        plateNumber.text = _busList[0].plateNumber;
-      }
+      final List<TariffInfo> allDestinations = box.values.toList();
+      setState(() {
+        tariffList = allDestinations;
+      });
     } catch (e) {
-      // Handle exceptions appropriately
-      print("Error loading bus queue: $e");
-    } finally {
-      await box.close();
-      setState(() {});
+      print('Error fetching tariff by destination ID from Hive: $e');
     }
   }
 
-  void _loadDestinationList() async {
-    // Open the destination list Hive box
-    final Box<String> destinationBox =
-        await Hive.openBox<String>('destination_list');
-
+  Future<void> fetchDestinationListFromHive() async {
     try {
-      // Retrieve the destination list from Hive box
-      String? destinationJson = destinationBox.get('destination_list');
-      if (destinationJson != null) {
-        List<dynamic> decodedList = json.decode(destinationJson);
-        destinationList.addAll(decodedList.cast<String>());
-      }
+      // Open Hive box for destinations
+      final box = await Hive.openBox<DestinationList>('destinations');
 
-      if (destinationList.isNotEmpty) {
-        selectedDestination = destinationList[0];
-        destination.text = destinationList[0];
-      } else {
-        print('Destination list is empty');
-      }
+      // Retrieve all destination items from the box
+      final List<DestinationList> allDestinations = box.values.toList();
+
+      // Filter destinations based on ID
+      final List<DestinationList> filteredDestinations = allDestinations
+          .where((destination) => destination.stationId == station_info!.id)
+          .toList();
+
+      // Set destinationList to the filtered list
+      setState(() {
+        destinationList = filteredDestinations;
+        selectedDestination = filteredDestinations[0];
+      });
     } catch (e) {
-      print('Error loading destination list: $e');
-    } finally {
-      await destinationBox.close(); // Close the Hive box
-      setState(() {}); // Update the UI
+      print('Error retrieving and filtering destination list from Hive: $e');
+      // Handle error accordingly
+    }
+  }
+
+  // retrive vehicle list from hive
+
+  void getVehicleListFromHive() async {
+    try {
+      // Open Hive box for vehicles
+      final box = await Hive.openBox<VehicleList>('vehicles');
+
+      // Retrieve vehicle list from Hive
+      final List<VehicleList> vehicleList = box.values.toList();
+
+      // Filter destinations based on ID
+      final List<VehicleList> filteredVehicles = vehicleList
+          .where((vehicle) => vehicle.stationId == station_info!.id)
+          .toList();
+
+      print('Vehicle list retrieved from Hive successfully');
+      setState(() {
+        vehicles_list = filteredVehicles;
+        selectedVehicle = filteredVehicles[0];
+      });
+    } catch (e) {
+      print('Error retrieving vehicle list from Hive: $e');
+    }
+  }
+
+  // update vehicle list
+  void updateVehicleFields(VehicleList vehicle) {
+    plateNumber.text = vehicle.plateNo;
+    level.text = vehicle.level;
+    totalCapacity = int.tryParse(vehicle.capacity) ?? 0;
+    association.text = vehicle.associationName ?? '';
+  }
+
+  void updateDestinationFields(DestinationList destiantion) {
+    destination.text = destiantion.destination;
+    distance.text = destiantion.distance!;
+  }
+
+  Future<void> getTariffByDestinationId(String destinationId) async {
+    // Search for the tariff information with the given destination ID
+    for (TariffInfo tariffInfo in tariffList) {
+      if (tariffInfo.destinationId == destinationId) {
+        setState(() {
+          tariff.text = tariffInfo.tariff!;
+        });
+      }
     }
   }
 
@@ -446,7 +347,8 @@ class BuyTicketState extends State<BuyTicket> {
                             alignment: Alignment.topLeft,
                             padding: const EdgeInsets.symmetric(horizontal: 20),
                             child: TextFormField(
-                              validator: (value) => validateNoOfTicket(value, context),
+                              validator: (value) =>
+                                  validateNoOfTicket(value, context),
                               keyboardType: TextInputType.number,
                               maxLines: 1,
                               controller: no_of_ticket,
@@ -500,13 +402,14 @@ class BuyTicketState extends State<BuyTicket> {
                                 children: <Widget>[
                                   Container(width: 15),
                                   Expanded(
-                                    child: DropdownButton<Vehicle>(
+                                    child: DropdownButton<VehicleList>(
                                       value: selectedVehicle,
-                                      items: _busList.map((Vehicle vehicle) {
-                                        return DropdownMenuItem<Vehicle>(
+                                      items: vehicles_list
+                                          .map((VehicleList vehicle) {
+                                        return DropdownMenuItem<VehicleList>(
                                           value: vehicle,
                                           child: Text(
-                                            vehicle.plateNumber,
+                                            vehicle.plateNo,
                                             style: const TextStyle(
                                               fontSize: 16,
                                               fontFamily: 'Poppins-Light',
@@ -515,25 +418,11 @@ class BuyTicketState extends State<BuyTicket> {
                                           ),
                                         );
                                       }).toList(),
-                                      onChanged: (Vehicle? newValue) {
+                                      onChanged: (VehicleList? newValue) {
                                         setState(
                                           () {
                                             selectedVehicle = newValue;
-                                            plateNumber.text =
-                                                selectedVehicle!.plateNumber;
-                                            totalCapacity =
-                                                selectedVehicle!.totalCapacity;
-
-                                            int selectedIndex =
-                                                _busList.indexWhere((bus) =>
-                                                    bus.plateNumber ==
-                                                    selectedVehicle!
-                                                        .plateNumber);
-                                            level.text =
-                                                levelList[selectedIndex]
-                                                    .toString();
-                                            totalCapacity = seat_capacity_list[
-                                                selectedIndex];
+                                            updateVehicleFields(newValue!);
                                           },
                                         );
                                       },
@@ -711,14 +600,14 @@ class BuyTicketState extends State<BuyTicket> {
                               children: <Widget>[
                                 Container(width: 15),
                                 Expanded(
-                                  child: DropdownButton<String>(
+                                  child: DropdownButton<DestinationList>(
                                     value: selectedDestination,
                                     items: destinationList
-                                        .map((String destination) {
-                                      return DropdownMenuItem<String>(
+                                        .map((DestinationList destination) {
+                                      return DropdownMenuItem<DestinationList>(
                                         value: destination,
                                         child: Text(
-                                          destination,
+                                          destination.destination,
                                           style: const TextStyle(
                                             fontSize: 16,
                                             fontFamily: 'Poppins-Light',
@@ -727,33 +616,21 @@ class BuyTicketState extends State<BuyTicket> {
                                         ),
                                       );
                                     }).toList(),
-                                    onChanged: (String? newValue) {
-                                      setState(() {
-                                        selectedDestination = newValue ?? '';
-                                        destination.text = newValue!;
-
-                                        // since the destination and tariff list are in the same order, we can use the index of the selected destination to get the corresponding tariff
-                                        int selectedIndex = destinationList
-                                            .indexWhere((destination) =>
-                                                destination == newValue);
-
-                                        // i added the following line to update the total capacity and service charge and tariff to update imediately after selecting destination
-                                        distance.text =
-                                            distanceList[selectedIndex]
-                                                .toString();
-                                        tariff.text = tariff_list[selectedIndex]
-                                            .toString();
-
-                                        serviceCharge.text =
-                                            (tariff_list[selectedIndex] * 0.02)
-                                                .toString();
-                                      });
+                                    onChanged:
+                                        (DestinationList? newValue) async {
+                                      
+                                      setState(
+                                        () {
+                                          selectedDestination = newValue;
+                                          updateDestinationFields(newValue!);
+                                           getTariffByDestinationId(
+                                          selectedDestination!.id!);
+                                        },
+                                      );
                                     },
-                                    underline:
-                                        Container(), // Removes the underline
+                                    underline: Container(),
                                   ),
                                 ),
-                                // const Icon(Icons.expand_more, color: MyColors.grey_40),
                               ],
                             ),
                           ),
@@ -928,37 +805,21 @@ class BuyTicketState extends State<BuyTicket> {
                   child: Container(
                     height: 50,
                     alignment: Alignment.centerLeft,
-                    padding: const EdgeInsets.symmetric(horizontal: 5),
-                    child: Row(
-                      children: <Widget>[
-                        Container(width: 15),
-                        Expanded(
-                          child: DropdownButton<String>(
-                            value: selectedAssociation,
-                            items: associationList.map((String associ) {
-                              return DropdownMenuItem<String>(
-                                value: associ,
-                                child: Text(
-                                  associ,
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontFamily: 'Poppins-Light',
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              );
-                            }).toList(),
-                            onChanged: (String? newValue) {
-                              setState(() {
-                                selectedAssociation = newValue ?? '';
-                                association.text = newValue!;
-                              });
-                            },
-                            underline: Container(), // Removes the underline
-                          ),
-                        ),
-                        // const Icon(Icons.expand_more, color: MyColors.grey_40),
-                      ],
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: TextField(
+                      enabled: false,
+                      maxLines: 1,
+                      controller: association,
+                      keyboardType: TextInputType.number,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontFamily: 'Poppins-Light',
+                        fontWeight: FontWeight.bold,
+                      ),
+                      decoration: const InputDecoration(
+                        contentPadding: EdgeInsets.all(-12),
+                        border: InputBorder.none,
+                      ),
                     ),
                   ),
                 ),
@@ -980,8 +841,11 @@ class BuyTicketState extends State<BuyTicket> {
                     ),
                     onPressed: () {
                       if (_formKey.currentState!.validate()) {
-                        String uniqueid =
-                            '${DateTime.now().year.toString()}${DateTime.now().month.toString()}${DateTime.now().day.toString()}${Random().nextInt(10000000)}';
+                        DateTime today = DateTime.now();
+                        int counter = 100;
+                        String uniqueCounter =
+                            generateUniqueCounter(today, counter);
+
                         Ticket ticket = Ticket(
                           tailure: Tailure.text,
                           level: level.text,

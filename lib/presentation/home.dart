@@ -47,6 +47,7 @@ class _HomeState extends State<Home> {
     _pageController = PageController();
     // context.read<DataBloc>().add(LoadDataEvent());
     // BlocProvider.of<DataBloc>(context).add(GetAllDataEvent());
+    _startTimer();
   }
 
   @override
@@ -54,6 +55,14 @@ class _HomeState extends State<Home> {
     _pageController.dispose();
     _timer.cancel();
     super.dispose();
+  }
+
+  void _startTimer() {
+    // Start a timer that runs every 3-5 seconds
+    _timer = Timer.periodic(const Duration(seconds: 3), (Timer timer) {
+      // Call the event to fetch data when the timer ticks
+      BlocProvider.of<DataBloc>(context).add(GetAllDataEvent());
+    });
   }
 
   GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
@@ -330,65 +339,66 @@ class _HomeState extends State<Home> {
               SizedBox(
                 height: MediaQuery.of(context).size.height * 0.3,
               ),
-              Center(
-                child: SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.8,
-                  height: 50,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: MyColors.primary, elevation: 0),
-                    child: _isRefreshing
-                        ? const Center(
-                            child: CircularProgressIndicator(
-                              color: Colors.white,
-                            ),
-                          )
-                        : BlocConsumer<DataBloc, DataState>(
-                            listener: (context, state) {
-                              if (state is DataErrorState) {
-                                _showSnackbar('Failed to refresh!', Colors.red);
-                              } else if (state is DataLoadedState) {
-                                _showSnackbar('Successfully refreshed!',Colors.green);
-                              }
-                            },
-                            builder: (context, state) {
-                              return Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const Icon(Icons.refresh,
-                                      color: Colors.white),
-                                  const SizedBox(
-                                    width: 10,
-                                  ),
-                                  Text(
-                                    "Refresh".tr(),
-                                    style: MyText.subhead(context)!
-                                        .copyWith(color: Colors.white),
-                                  ),
-                                ],
-                              );
-                            },
-                          ),
-                    onPressed: () {
-                      print('refresh is pressed!!');
-                      setState(() {
-                        _isRefreshing = true;
-                      });
-                      Future.delayed(
-                        const Duration(seconds: 3),
-                        () {
-                          setState(() {
-                            _isRefreshing = false;
+              // Center(
+              //   child: SizedBox(
+              //     width: MediaQuery.of(context).size.width * 0.8,
+              //     height: 50,
+              //     child: ElevatedButton(
+              //       style: ElevatedButton.styleFrom(
+              //           backgroundColor: MyColors.primary, elevation: 0),
+              //       child: _isRefreshing
+              //           ? const Center(
+              //               child: CircularProgressIndicator(
+              //                 color: Colors.white,
+              //               ),
+              //             )
+              //           : BlocConsumer<DataBloc, DataState>(
+              //               listener: (context, state) {
+              //                 if (state is DataErrorState) {
+              //                   _showSnackbar('Failed to refresh!', Colors.red);
+              //                 } else if (state is DataLoadedState) {
+              //                   _showSnackbar(
+              //                       'Successfully refreshed!', Colors.green);
+              //                 }
+              //               },
+              //               builder: (context, state) {
+              //                 return Row(
+              //                   mainAxisAlignment: MainAxisAlignment.center,
+              //                   children: [
+              //                     const Icon(Icons.refresh,
+              //                         color: Colors.white),
+              //                     const SizedBox(
+              //                       width: 10,
+              //                     ),
+              //                     Text(
+              //                       "Refresh".tr(),
+              //                       style: MyText.subhead(context)!
+              //                           .copyWith(color: Colors.white),
+              //                     ),
+              //                   ],
+              //                 );
+              //               },
+              //             ),
+              //       onPressed: () {
+              //         print('refresh is pressed!!');
+              //         setState(() {
+              //           _isRefreshing = true;
+              //         });
+              //         Future.delayed(
+              //           const Duration(seconds: 3),
+              //           () {
+              //             setState(() {
+              //               _isRefreshing = false;
 
-                            BlocProvider.of<DataBloc>(context)
-                                .add(GetAllDataEvent());
-                          });
-                        },
-                      );
-                    },
-                  ),
-                ),
-              )
+              //               BlocProvider.of<DataBloc>(context)
+              //                   .add(GetAllDataEvent());
+              //             });
+              //           },
+              //         );
+              //       },
+              //     ),
+              //   ),
+              // )
             ],
           ),
         ),

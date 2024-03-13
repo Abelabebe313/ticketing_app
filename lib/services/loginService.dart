@@ -16,8 +16,10 @@ class UserLogin {
     // hive box implementation
     await Hive.openBox<String>(tokenHive);
     await Hive.openBox<String>(pin_code);
+    await Hive.openBox<String>('username');
     final Box<String> tokenBox = Hive.box<String>(tokenHive);
     final Box<String> pinBox = Hive.box<String>(pin_code);
+    final Box<String> userBox = Hive.box<String>('username');
     print(
         'inside login service try block ========>${phone} ${password}=========');
 
@@ -46,12 +48,8 @@ class UserLogin {
           // ==== hive storage for token and pin code!!!!!
           tokenBox.put('token', token);
           pinBox.put('pin', password);
+          userBox.put('username', username);
 
-          // Store token in SharedPreferences
-          final prefs = await SharedPreferences.getInstance();
-          prefs.setString('username', username);
-          // prefs.setString('access_token', token);
-          // prefs.setString('pin', password);
           log("token is saved: $token");
         }
 
@@ -65,6 +63,8 @@ class UserLogin {
     } catch (e) {
       log("error:: $e");
       throw Exception('An error occurred: $e');
+    } finally {
+      await Hive.close();
     }
   }
 }

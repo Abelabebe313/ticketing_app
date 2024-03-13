@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:transport_app/models/update_model.dart';
 
 abstract class RegisterEvent extends Equatable {
   const RegisterEvent();
@@ -20,3 +21,5 @@ class RegisterUserEvent extends RegisterEvent {
     required this.confirmPassword,
   });
 }
+
+class FetchStationInfoEvent extends RegisterEvent {}

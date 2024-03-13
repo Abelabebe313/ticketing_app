@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:transport_app/models/queue_model.dart';
+import 'package:transport_app/models/update_model.dart';
 import 'package:transport_app/presentation/widgets/bus_queue_card.dart';
 import '../../core/my_colors.dart';
 import '../../models/bus.dart';
@@ -17,67 +18,67 @@ class BusQueue extends StatefulWidget {
 }
 
 class BusQueueState extends State<BusQueue> {
-  List<Vehicle> _busList = [];
-  List<QueueModel> _busQueueList = [];
-  Vehicle? selectedVehicle;
+  List<VehicleList> _busList = [];
+  List<VehicleList> _busQueueList = [];
+  VehicleList? selectedVehicle;
 
   @override
   void initState() {
     super.initState();
     loadBusQueueList();
-    print(selectedVehicle?.plateNumber);
+    print(selectedVehicle?.plateNo);
   }
 
   void loadBusQueueList() async {
-    final vehicleBox = await Hive.openBox<String>('vehicle_list');
-    final busQueueBox = await Hive.openBox<String>('bus_queue');
+    try {
+      final box = await Hive.openBox<VehicleList>('vehicles');
+      final busQueueBox = await Hive.openBox<VehicleList>('bus_queue');
 
-    // Retrieve data for vehicle dropdown
-    String vehicleDropdownJson = vehicleBox.get('vehicle_list') ?? '[]';
-    List<dynamic> vehicleJsonList = json.decode(vehicleDropdownJson);
-    _busList = vehicleJsonList.map((json) => Vehicle.fromJson(json)).toList();
+      // Retrieve data for vehicle dropdown
+      _busList = box.values.toList();
 
-    // Retrieve data for vehicle queue
-    String busQueueJson = busQueueBox.get('bus_queue') ?? '[]';
-    List<dynamic> busQueueJsonList = json.decode(busQueueJson);
-    _busQueueList =
-        busQueueJsonList.map((json) => QueueModel.fromJson(json)).toList();
+      // Retrieve data for vehicle queue
+      _busQueueList = busQueueBox.values.toList();
 
-    if (_busList.isNotEmpty) {
-      selectedVehicle = _busList[0];
+      if (_busList.isNotEmpty) {
+        selectedVehicle = _busList[0];
+      }
+
+      // Close the Hive boxes
+      await box.close();
+      await busQueueBox.close();
+
+      setState(() {}); // Update the UI
+    } catch (e) {
+      print('Error loading data from Hive: $e');
     }
-
-    // Close the Hive boxes
-    await vehicleBox.close();
-    await busQueueBox.close();
-
-    setState(() {}); // Update the UI
   }
 
-  void _saveBusToQueue(Vehicle vehicle) async {
-    final busQueueBox = await Hive.openBox<String>('bus_queue');
-
+  void _saveBusToQueue(VehicleList vehicle) async {
     try {
+      final busQueueBox = await Hive.openBox<VehicleList>('bus_queue');
+
       // Check if the bus is not already in the queue
-      if (!_busQueueList.any((bus) => bus.plateNumber == vehicle.plateNumber)) {
-        QueueModel newBus = QueueModel(
-          plateNumber: vehicle.plateNumber,
+      if (!_busQueueList.any((bus) => bus.plateNo == vehicle.plateNo)) {
+        final newBus = VehicleList(
+          plateNo: vehicle.plateNo,
           date:
               '${DateTime.now().month}/${DateTime.now().day}/${DateTime.now().year}',
-          time: TimeOfDay.now().format(context),
+          level: vehicle.level, 
+          capacity: vehicle.capacity,
+          
         );
 
         _busQueueList.add(newBus);
 
         // Save the updated list to the Hive box
-        await busQueueBox.put('bus_queue',
-            json.encode(_busQueueList.map((bus) => bus.toJson()).toList()));
+        await busQueueBox.addAll(_busQueueList);
 
         // Refresh the UI
         setState(() {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Success'.tr()),
+              content: Text('Success'),
               backgroundColor: Colors.green,
               duration: const Duration(seconds: 2),
             ),
@@ -87,17 +88,17 @@ class BusQueueState extends State<BusQueue> {
         // Show a Snackbar if the bus is already in the queue
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('failure'.tr()),
+            content: Text('Bus is already in the queue'),
             backgroundColor: Colors.red,
             duration: const Duration(seconds: 2),
           ),
         );
       }
-    } catch (e) {
-      print('Error saving bus to queue: $e');
-    } finally {
+
       // Close the Hive box
       await busQueueBox.close();
+    } catch (e) {
+      print('Error saving bus to queue: $e');
     }
   }
 
@@ -130,7 +131,7 @@ class BusQueueState extends State<BusQueue> {
     );
   }
 
-  void _removeBusFromQueue(QueueModel bus) async {
+  void _removeBusFromQueue(VehicleList bus) async {
     bool? confirmed = await showConfirmationDialog();
     if (confirmed != null && confirmed) {
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -207,17 +208,17 @@ class BusQueueState extends State<BusQueue> {
                     width: 50,
                   ),
                   Expanded(
-                    child: DropdownButton<Vehicle>(
+                    child: DropdownButton<VehicleList>(
                       value: selectedVehicle,
-                      items: _busList.map((Vehicle vehicle) {
-                        return DropdownMenuItem<Vehicle>(
+                      items: _busList.map((VehicleList vehicle) {
+                        return DropdownMenuItem<VehicleList>(
                           value: vehicle,
                           child: Text(
-                            vehicle.plateNumber,
+                            vehicle.plateNo,
                           ),
                         );
                       }).toList(),
-                      onChanged: (Vehicle? newValue) {
+                      onChanged: (VehicleList? newValue) {
                         setState(() {
                           selectedVehicle = newValue;
                           _saveBusToQueue(selectedVehicle!);
@@ -290,11 +291,10 @@ class BusQueueState extends State<BusQueue> {
                       itemCount: _busQueueList.length,
                       itemBuilder: (context, index) {
                         return BusQueueCardWidget(
-                          plateNo: _busQueueList[index].plateNumber,
+                          plateNo: _busQueueList[index].plateNo,
                           date: _busQueueList[index].date,
-                          time: _busQueueList[index].time,
                           onRemove: () =>
-                              _removeBusFromQueue(_busQueueList[index]),
+                              _removeBusFromQueue(_busQueueList[index]), time: '',
                         );
                       },
                     ),

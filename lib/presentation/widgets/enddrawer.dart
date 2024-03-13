@@ -5,6 +5,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:transport_app/presentation/auth/login_page.dart';
+import 'package:transport_app/utils/clear_hive.dart';
 import 'package:transport_app/utils/clear_token.dart';
 
 class EndDrawers extends StatefulWidget {
@@ -93,9 +94,9 @@ class _EndDrawersState extends State<EndDrawers> {
               ),
             ),
             onTap: () async {
-              await clearPreference('user_registration');
               await clearPreference('bus_info');
               clearAuthToken();
+              clearAllHiveData();
               // ignore: use_build_context_synchronously
               Navigator.pushReplacement(
                 context,
