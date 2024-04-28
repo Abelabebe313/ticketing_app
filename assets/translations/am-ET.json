@@ -17,6 +17,7 @@
     "Date":"ቀን",
     "Departure":"መነሻ",
     "Destination":"መድረሻ",
+    "Distance":"ርቀት",
     "Tariff":"ታሪፍ",
     "Service Charge":"የአገልግሎት ክፍያ",
     "Association":"ማህበር",
@@ -35,5 +36,11 @@
     "Print":"አሳይ",
     "Refresh":"አድስ",
     "Upload":"አስገባ",
-    "Sold tickets":"የተሸጡ ቲኬቶች"
+    "Sold tickets":"የተሸጡ ቲኬቶች",
+    "Result":"የትኬት ውጤት",
+    "Passenger Information":"የተሳፋሪ መረጃ",
+    "Association":"ማህበር",
+    "Unique ID":"መለያ ቁጥር",
+    "Pleaseenterthenumberoftickets":"እባኮት ቲኬት ብዛት ያስገቡ",
+    "Pleaseenteravalidnumberoftickets":"እባኮት ትክክለኛ ቲኬት ብዛት ያስገቡ"
 }

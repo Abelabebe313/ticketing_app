@@ -11,7 +11,7 @@ import 'package:transport_app/presentation/result/sunmi_printer.dart';
 class BusDetailsPopup extends StatefulWidget {
   final QueueModel busDetails;
 
-  BusDetailsPopup({required this.busDetails});
+  const BusDetailsPopup({required this.busDetails});
 
   @override
   State<BusDetailsPopup> createState() => _BusDetailsPopupState();
@@ -24,7 +24,6 @@ class _BusDetailsPopupState extends State<BusDetailsPopup> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      icon: Icon(Icons.directions_bus),
       title: Text('Queue Details'.tr()),
       content: SingleChildScrollView(
         child: Column(
@@ -34,6 +33,7 @@ class _BusDetailsPopupState extends State<BusDetailsPopup> {
             Text('Plate No: ${widget.busDetails.plateNumber}'),
             Text('Date: ${widget.busDetails.date}'),
             Text('Time: ${widget.busDetails.time}'),
+            Text('Association: ${widget.busDetails.association}'),
             Container(
               height: 50,
               width: MediaQuery.of(context).size.width * 0.55,
@@ -88,7 +88,11 @@ class _BusDetailsPopupState extends State<BusDetailsPopup> {
             onPressed: () {
               Navigator.push(context, MaterialPageRoute(builder: (context) {
                 return SunmiPrinterPage(
+                  date: widget.busDetails.date,
+                  time: widget.busDetails.time,
+                  station: widget.busDetails.station,
                   plateNo: widget.busDetails.plateNumber,
+                  association: widget.busDetails.association,
                   distance: distanceController.text,
                   destination: destinationController.text,
                 );

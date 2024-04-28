@@ -72,6 +72,13 @@ class _PininputState extends State<Pininput> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              Padding(
+                padding: const EdgeInsets.all(15.0),
+                child: Text(
+                  'Baga gara Abbaa Taayitaa Geejjibaa Oromiyaa dhuftan',
+                  style: MyText.headline(context),
+                ),
+              ),
               Directionality(
                 // Specify direction if desired
                 textDirection: TextDirection.ltr,

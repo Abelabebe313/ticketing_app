@@ -17,6 +17,7 @@
     "Date":"Guyyaa",
     "Departure":"Bakka tokkoo gadhiisuu",
     "Destination":"Galma",
+    "Distance": "Fageenya",
     "Tariff":"Taarifa",
     "Service Charge":"Kaffaltii Tajaajilaa",
     "Association":"Waldaa",
@@ -35,5 +36,11 @@
     "Print":"Print",
     "Refresh":"Haaromsi",
     "Upload":"Olkaa'uu",
-    "Sold tickets":"Tikeetii gurgurame"
+    "Sold tickets":"Tikeetii gurgurame",
+    "Result":"Bu'aa",
+    "Passenger Information":"Odeeffannoo imaltootaa",
+    "Association":"dhaabbata",
+    "Unique ID":"Id addaa",
+    "Pleaseenterthenumberoftickets":"Please enter the number of tickets",
+    "Pleaseenteravalidnumberoftickets":"Please enter a valid number of tickets"
 }

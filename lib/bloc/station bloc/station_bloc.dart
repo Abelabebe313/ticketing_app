@@ -5,28 +5,10 @@ import 'package:transport_app/models/update_model.dart';
 import 'package:transport_app/models/user.dart';
 import 'package:transport_app/services/registrationService.dart';
 
-class UserRgistrationBloc extends Bloc<RegisterEvent, RegisterState> {
-  UserRgistrationBloc(RegisterState initialState)
+class StationBloc extends Bloc<FetchStationInfoEvent, RegisterState> {
+  StationBloc(RegisterState initialState)
       : super(RegisterUserInitial()) {
     final userService = UserRegistration();
-
-    on<RegisterUserEvent>((event, emit) async {
-      emit(RegisterUserLoading());
-      try {
-        final response = await userService.register(
-          UserModel(
-            name: event.name,
-            phone: event.phone,
-            password: event.password,
-            password_confirmation: event.confirmPassword,
-          ),
-        );
-        emit(LoadedRegisterUserState(
-            event.name, event.phone, event.password, event.confirmPassword));
-      } catch (e) {
-        emit(const RegisterUserError('Error logging in'));
-      }
-    });
 
     on<FetchStationInfoEvent>((event, emit) async {
       emit(RegisterUserLoading());
@@ -37,6 +19,5 @@ class UserRgistrationBloc extends Bloc<RegisterEvent, RegisterState> {
         emit(const RegisterUserError('Error fetching station information'));
       }
     });
-
   }
 }

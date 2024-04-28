@@ -7,7 +7,7 @@ import 'package:http/http.dart' as http;
 
 class ReportService {
   static const String baseUrl =
-      "https://api.horansoftware.com/api/public/api/tickets";
+      "https://api.noraticket.com/v1/public/api/tickets";
   Future<bool> upload(ReportModel report) async {
     await Hive.openBox<String>(tokenHive);
     final String? token = Hive.box<String>(tokenHive).get('token');

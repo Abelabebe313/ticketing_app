@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:transport_app/models/update_model.dart';
 
 abstract class RegisterState extends Equatable {
   const RegisterState();
@@ -32,4 +33,12 @@ class LoadedRegisterUserState extends RegisterState {
 
   @override
   List<Object> get props => [name , phoneNumber, password];
+}
+class LoadedStationState extends RegisterState {
+  final List<StationInfo> stations;
+
+  const LoadedStationState(this.stations);
+
+  @override
+  List<Object> get props => [stations];
 }

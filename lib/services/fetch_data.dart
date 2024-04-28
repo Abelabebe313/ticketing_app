@@ -1,29 +1,29 @@
 import 'dart:developer';
 import 'dart:convert';
-import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:transport_app/main.dart';
-import 'package:transport_app/models/bus.dart';
-import 'package:transport_app/models/data.dart';
-import 'package:transport_app/models/queue_model.dart';
+import 'package:transport_app/models/update_model.dart';
+import 'package:transport_app/utils/save_destinaiton_hive.dart';
+import 'package:transport_app/utils/save_tariffinfo_hive.dart';
+import 'package:transport_app/utils/save_vehicle_hive.dart';
 
 class DataService {
+  static const vehiclesList = 'vehicle_list';
+  static const busList = 'bus_queue';
   static const String baseUrl =
       "https://api.noraticket.com/v1/public/api/updates";
 
   Future<void> fetchData() async {
-    // hive box implementation
-    // final Box<String> vehiclesBox = Hive.box<String>(vehiclesList);
-
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    // hive box token
+    await Hive.openBox<String>(tokenHive);
+    
 
     // String token = prefs.getString('access_token') ?? '';
-    await Hive.openBox<String>(tokenHive);
+
     final String? token = Hive.box<String>(tokenHive).get('token');
-    await Hive.close();
-    print('ቶክኑ: $token');
+
+    print('ቶክኑ:- $token');
     try {
       final response = await http.get(
         Uri.parse('$baseUrl'),
@@ -36,148 +36,40 @@ class DataService {
       final responseData = json.decode(response.body);
 
       if (responseData['status'] == true) {
-        final vehicleListJson =
-            await responseData['data']['data'][0]['vehicle_list'];
-        final destinationList =
-            await responseData['data']['data'][0]['destination'];
-        final departure = await responseData['data']['data'][0]['departure'];
-        final tarifListJson = await responseData['data']['data'][0]['tariff'];
-        final capacityListJson =
-            await responseData['data']['data'][0]['capacity_list'];
-        //
-        // Check if the response has a 'vehicle_list' key
-        if (vehicleListJson != null) {
-          // ==========  convert String to List<Vehicle>  ========== //
-          List<Vehicle> carList = convertRegexToVehicleList(vehicleListJson);
+        /// ==== Vehicle List ==== ///
+        
 
-          List<QueueModel> busQueueList = [];
+        // Extract vehicle list
+        List<VehicleList> vehicleList =
+            (responseData['data']['vehicle_list'] as List)
+                .map((data) => VehicleList.fromJson(data))
+                .toList();
+        // Save vehicle list to Hive
+        await saveVehicleListToHive(vehicleList);
 
-          if (busQueueList.isEmpty) {
-            for (Vehicle vehicle in carList) {
-              // print('plate number: ${vehicle.plateNumber}');
-              busQueueList.add(QueueModel(
-                plateNumber: vehicle.plateNumber,
-                date:
-                    '${DateTime.now().month.toString()}/${DateTime.now().day.toString()}/${DateTime.now().year.toString()}',
-                time:
-                    "${TimeOfDay.now().hour.toString()}:${TimeOfDay.now().minute.toString()}",
-              ));
-            }
+        /// ==== destination List ==== ///
+        // Extract destination list
+        List<DestinationList> destinationList =
+            (responseData['data']['destination_list'] as List)
+                .map((data) => DestinationList.fromJson(data))
+                .toList();
+        // Save destination list to Hive
+        await saveDestinationListToHive(destinationList);
 
-            // hive put
-            // vehiclesBox.put('bus_queue',
-            //     json.encode(busQueueList.map((bus) => bus.toJson()).toList()));
-
-            // Save the updated list to SharedPreferences
-            await prefs.setString(
-              'bus_queue',
-              json.encode(busQueueList.map((bus) => bus.toJson()).toList()),
-            );
-            await prefs.setString(
-              'vehicle_list',
-              json.encode(busQueueList.map((bus) => bus.toJson()).toList()),
-            );
-          }
-        }
-        //
-        // check if the response has Destination List and add to sharedpreference
-        if (destinationList != null) {
-          List<String> destination =
-              convertRegexToDestinationList(destinationList);
-          String destinationString = json.encode(destination);
-          await prefs.setString('destination_list', destinationString);
-        }
-
-        // check if the response has Tariff List and add to sharedpreference
-        if (tarifListJson != null) {
-          List<int> tariff = convertRegexToTariffList(tarifListJson);
-          String tariffString = json.encode(tariff);
-          await prefs.setString('tariff_list', tariffString);
-        }
-
-        if (capacityListJson != null) {
-          List<int> tariff = convertRegexToCapacityList(capacityListJson);
-          String capacityString = json.encode(tariff);
-          await prefs.setString('capacity_list', capacityString);
-        }
-        // check departure add to sharedpreference
-        if (departure != null) {
-          // String departureString = json.encode(departure);
-          await prefs.setString('departure', departure);
-        }
-      } else {
-        print("error: *********> $responseData");
-        final errorMessage =
-            responseData['message'] as String? ?? 'Unknown error';
-        throw Exception(errorMessage);
+        /// ==== Tariff List ==== ///
+        /// Extract Tariff list
+        List<TariffInfo> tariffList =
+            (responseData['data']['tariff_info'] as List)
+                .map((data) => TariffInfo.fromJson(data))
+                .toList();
+        // Save Tariff list to Hive
+        await saveTariffListToHive(tariffList);
       }
     } catch (e) {
       print("error::++++++++++> $e");
       throw Exception('An error occurred: $e');
+    } finally {
+      await Hive.close();
     }
   }
-}
-
-// Regex to extract plate numbers from the response
-List<Vehicle> convertRegexToVehicleList(String regexString) {
-  List<String> plateNumbers = [];
-
-  // Extract plate numbers from the regex string
-  RegExp plateNumberRegex = RegExp(r'"([^"]*)"');
-  Iterable<Match> matches = plateNumberRegex.allMatches(regexString);
-
-  for (Match match in matches) {
-    plateNumbers.add(match.group(1)!);
-  }
-  // Create a list of Vehicle objects
-  List<Vehicle> vehicleList = plateNumbers.map((plateNumber) {
-    return Vehicle(
-      plateNumber: plateNumber,
-      totalCapacity: 20, // Set the default total capacity as needed
-    );
-  }).toList();
-
-  return vehicleList;
-}
-
-List<String> convertRegexToDestinationList(String regexString) {
-  List<String> destinations = [];
-
-  // Extract plate numbers from the regex string
-  RegExp destinationRegex = RegExp(r'"([^"]*)"');
-  Iterable<Match> matches = destinationRegex.allMatches(regexString);
-
-  for (Match match in matches) {
-    destinations.add(match.group(1)!);
-  }
-
-  return destinations;
-}
-
-List<int> convertRegexToTariffList(String regexString) {
-  List<int> tariff = [];
-
-  // Extract plate numbers from the regex string
-  RegExp tariffRegex = RegExp(r'"(\d+)"');
-  Iterable<Match> matches = tariffRegex.allMatches(regexString);
-
-  for (Match match in matches) {
-    tariff.add(int.parse(match.group(1)!));
-  }
-
-  return tariff;
-}
-
-List<int> convertRegexToCapacityList(String regexString) {
-  List<int> capacity = [];
-
-  // Extract capacity numbers from the regex string
-  RegExp capacityRegex = RegExp(r'"(\d+)"');
-  Iterable<Match> matches = capacityRegex.allMatches(regexString);
-
-  for (Match match in matches) {
-    capacity.add(int.parse(match.group(1)!));
-  }
-
-  return capacity;
 }

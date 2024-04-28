@@ -4,16 +4,18 @@ import 'package:transport_app/presentation/widgets/queue_details_card.dart';
 import 'package:ionicons/ionicons.dart';
 
 class BusQueueCardWidget extends StatelessWidget {
+  String station;
   String plateNo;
-  
-  String date;
+  String? association;
+  String? date;
   String time;
   final VoidCallback onRemove;
   BusQueueCardWidget({
     Key? key,
+    required this.station,
     required this.plateNo,
-    
-    required this.date,
+    required this.association,
+    this.date,
     required this.time,
     required this.onRemove,
   }) : super(key: key);
@@ -26,11 +28,14 @@ class BusQueueCardWidget extends StatelessWidget {
           context: context,
           builder: (BuildContext context) {
             return BusDetailsPopup(
-                busDetails: QueueModel(
-              plateNumber: plateNo,
-              date: date,
-              time: time,
-            ));
+              busDetails: QueueModel(
+                station: station,
+                plateNumber: plateNo,
+                date: date!,
+                time: time,
+                association: association!,
+              ),
+            );
           },
         );
       },
@@ -45,14 +50,14 @@ class BusQueueCardWidget extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              width: 50,
-              height: 50,
+              width: 30,
+              height: 30,
               margin: const EdgeInsets.only(left: 10),
               decoration: BoxDecoration(
                 color: Colors.grey.shade400,
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Center(
+              child: const Center(
                 child: Icon(Ionicons.bus),
               ),
             ),
@@ -62,39 +67,49 @@ class BusQueueCardWidget extends StatelessWidget {
                 plateNo, // plate number goes here
                 style: const TextStyle(
                   color: Colors.black,
-                  fontSize: 18,
+                  fontSize: 14,
                   fontWeight: FontWeight.bold,
                 ),
               ),
             ),
-            const Spacer(),
-            const Icon(Icons.access_time),
+            // const Spacer(),
+            // const Icon(Icons.access_time),
             const SizedBox(width: 10),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(right: 20),
-                  child: Text(
-                    date, // date goes here
-                    style: const TextStyle(
-                      color: Colors.black,
-                      fontSize: 14,
-                    ),
-                  ),
+            Padding(
+              padding: const EdgeInsets.only(right: 5),
+              child: Text(
+                date!, // date goes here
+                style: const TextStyle(
+                  color: Colors.black,
+                  fontSize: 14,
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(right: 20),
-                  child: Text(
-                    time,
-                    style: const TextStyle(
-                      color: Colors.black,
-                      fontSize: 14,
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
+            // Column(
+            //   mainAxisAlignment: MainAxisAlignment.center,
+            //   children: [
+            //     Padding(
+            //       padding: const EdgeInsets.only(right: 20),
+            //       child: Text(
+            //         date!, // date goes here
+            //         style: const TextStyle(
+            //           color: Colors.black,
+            //           fontSize: 14,
+            //         ),
+            //       ),
+            //     ),
+            //     Padding(
+            //       padding: const EdgeInsets.only(right: 20),
+            //       child: Text(
+            //         time,
+            //         style: const TextStyle(
+            //           color: Colors.black,
+            //           fontSize: 14,
+            //         ),
+            //       ),
+            //     ),
+            //   ],
+            // ),
             IconButton(
               onPressed: onRemove,
               icon: const Icon(

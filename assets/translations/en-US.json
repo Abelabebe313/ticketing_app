@@ -17,6 +17,7 @@
     "Date":"Date",
     "Departure":"Departure",
     "Destination":"Destination",
+    "Distance": "Distance",
     "Tariff":"Tariff",
     "Service Charge":"Service Charge",
     "Association":"Association",
@@ -35,5 +36,11 @@
     "Print":"Print",
     "Refresh":"Refresh",
     "Upload":"Upload",
-    "Sold tickets":"Sold tickets"
+    "Sold tickets":"Sold tickets",
+    "Result":"Result",
+    "Passenger Information":"Passenger Information",
+    "Association":"Association",
+    "Unique ID":"Unique ID",
+    "Pleaseenterthenumberoftickets":"Please enter the number of tickets",
+    "Pleaseenteravalidnumberoftickets":"Please enter a valid number of tickets"
 }

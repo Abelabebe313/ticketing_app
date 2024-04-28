@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:transport_app/bloc/data_bloc.dart';
@@ -7,30 +6,42 @@ import 'package:transport_app/bloc/registration%20bloc/register_bloc.dart';
 import 'package:transport_app/bloc/registration%20bloc/register_state.dart';
 import 'package:transport_app/bloc/upload/upload_bloc.dart';
 import 'package:transport_app/bloc/upload/upload_state.dart';
+import 'package:transport_app/hive_adapters/destination_adapter.dart';
+import 'package:transport_app/hive_adapters/station_adapter.dart';
+import 'package:transport_app/hive_adapters/tarif_adapter.dart';
+import 'package:transport_app/hive_adapters/vehicle_adapter.dart';
 import 'package:transport_app/presentation/auth/login_page.dart';
 import 'package:transport_app/presentation/auth/pinScreen.dart';
-import 'package:transport_app/data/bus_data.dart';
-import 'package:transport_app/models/bus.dart';
-import 'package:transport_app/models/queue_model.dart';
 import 'package:transport_app/services/fetch_data.dart';
-import 'package:transport_app/services/loginService.dart';
-
 import 'bloc/login bloc/login_bloc.dart';
-import 'presentation/home.dart';
-import 'presentation/splash/splash_screen.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:path_provider/path_provider.dart' as path_provider;
 
 const vehiclesList = 'vehicle_list';
+const busList = 'bus_queue';
+const capacityList = 'capacity_list';
+const tarifList = 'tariff_list';
+const destinationList = 'destination_list';
+const associationList = 'association_list';
 const tokenHive = 'token';
 const pin_code = 'pin';
+const departure = 'departure';
 
 void main() async {
   await Hive.initFlutter();
   await Hive.openBox<String>(tokenHive);
   await Hive.openBox<String>(pin_code);
   WidgetsFlutterBinding.ensureInitialized();
+  final appDocumentDir = await path_provider.getApplicationDocumentsDirectory();
+  Hive.init(appDocumentDir.path);
+  //
+  // Register Hive adapter
+  Hive.registerAdapter(VehicleListAdapter());
+  Hive.registerAdapter(DestinationListAdapter());
+  Hive.registerAdapter(TariffInfoAdapter());
+  Hive.registerAdapter(StationInfoAdapter());
 
   await EasyLocalization.ensureInitialized();
 
