@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:barcode_widget/barcode_widget.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sunmi_printer_plus/column_maker.dart';
 import 'package:sunmi_printer_plus/enums.dart';
@@ -12,9 +12,9 @@ import 'package:sunmi_printer_plus/sunmi_style.dart';
 import 'package:transport_app/models/report.dart';
 import 'package:transport_app/presentation/result/sunmi_printer.dart';
 import 'package:transport_app/utils/ticket_generator.dart';
+
 import '../../core/my_colors.dart';
 import '../../core/my_text.dart';
-import 'package:barcode_widget/barcode_widget.dart';
 import '../../models/ticket.dart';
 
 class ResultPage extends StatefulWidget {
@@ -105,7 +105,7 @@ class ResultPageState extends State<ResultPage> {
                   Row(
                     children: [
                       Text(
-                        "Tailor".tr(),
+                        "Tailor: ".tr(),
                         style: const TextStyle(
                           color: Colors.black,
                           fontSize: 16,
@@ -125,7 +125,7 @@ class ResultPageState extends State<ResultPage> {
                   Row(
                     children: [
                       Text(
-                        "Bus Plate Number".tr(),
+                        "Bus Plate Number: ".tr(),
                         style: const TextStyle(
                           color: Colors.black,
                           fontSize: 16,
@@ -145,7 +145,7 @@ class ResultPageState extends State<ResultPage> {
                   Row(
                     children: [
                       Text(
-                        "Departure".tr(),
+                        "Departure: ".tr(),
                         style: const TextStyle(
                             color: Colors.black,
                             fontSize: 16,
@@ -163,7 +163,7 @@ class ResultPageState extends State<ResultPage> {
                   Row(
                     children: [
                       Text(
-                        "Destination".tr(),
+                        "Destination: ".tr(),
                         style: const TextStyle(
                             color: Colors.black,
                             fontSize: 16,
@@ -181,7 +181,7 @@ class ResultPageState extends State<ResultPage> {
                   Row(
                     children: [
                       Text(
-                        "Level".tr(),
+                        "Level: ".tr(),
                         style: const TextStyle(
                             color: Colors.black,
                             fontSize: 16,
@@ -199,7 +199,7 @@ class ResultPageState extends State<ResultPage> {
                   Row(
                     children: [
                       const Text(
-                        "Unique ID",
+                        "Unique ID: ",
                         style: TextStyle(
                             color: Colors.black,
                             fontSize: 16,
@@ -217,7 +217,7 @@ class ResultPageState extends State<ResultPage> {
                   Row(
                     children: [
                       Text(
-                        "Tariff".tr(),
+                        "Tariff: ".tr(),
                         style: const TextStyle(
                             color: Colors.black,
                             fontSize: 16,
@@ -235,7 +235,7 @@ class ResultPageState extends State<ResultPage> {
                   Row(
                     children: [
                       Text(
-                        "Service Charge".tr(),
+                        "Service Charge: ".tr(),
                         style: const TextStyle(
                             color: Colors.black,
                             fontSize: 16,
@@ -253,7 +253,7 @@ class ResultPageState extends State<ResultPage> {
                   Row(
                     children: [
                       Text(
-                        "Association".tr(),
+                        "Association: ".tr(),
                         style: const TextStyle(
                             color: Colors.black,
                             fontSize: 16,
@@ -271,7 +271,7 @@ class ResultPageState extends State<ResultPage> {
                   Row(
                     children: [
                       Text(
-                        "Distance".tr(),
+                        "Distance: ".tr(),
                         style: const TextStyle(
                             color: Colors.black,
                             fontSize: 16,
@@ -289,7 +289,7 @@ class ResultPageState extends State<ResultPage> {
                   Row(
                     children: [
                       Text(
-                        "Date".tr(),
+                        "Date: ".tr(),
                         style: const TextStyle(
                             color: Colors.black,
                             fontSize: 16,

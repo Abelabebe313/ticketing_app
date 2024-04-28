@@ -1,5 +1,3 @@
-import 'dart:convert';
-import 'dart:math';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -8,8 +6,7 @@ import 'package:hive/hive.dart';
 import 'package:transport_app/bloc/data_bloc.dart';
 import 'package:transport_app/bloc/data_event.dart';
 import 'package:transport_app/models/update_model.dart';
-import 'package:transport_app/utils/counter_service.dart';
-import 'package:transport_app/utils/ticket_generator.dart';
+
 import '../../core/my_colors.dart';
 import '../../models/ticket.dart';
 import '../result/ticket_result.dart';
@@ -172,9 +169,9 @@ class BuyTicketState extends State<BuyTicket> {
 
   // update vehicle list
   void updateVehicleFields(VehicleList vehicle) {
-    plateNumber.text = vehicle.plateNo;
-    level.text = vehicle.level;
-    totalCapacity = int.tryParse(vehicle.capacity) ?? 0;
+    plateNumber.text = vehicle.plateNo!;
+    level.text = vehicle.level!;
+    totalCapacity = int.tryParse(vehicle.capacity!) ?? 0;
     association.text = vehicle.associationName ?? '';
   }
 
@@ -423,7 +420,7 @@ class BuyTicketState extends State<BuyTicket> {
                                               const TextFieldProps(
                                             keyboardType: TextInputType.number,
                                             decoration: InputDecoration(
-                                              hintText: "Gabatee...",
+                                              hintText: "Searchss...",
                                               hintStyle: TextStyle(
                                                 fontSize: 14,
                                                 fontFamily: 'Poppins-Light',
@@ -456,7 +453,7 @@ class BuyTicketState extends State<BuyTicket> {
                                         },
                                         selectedItem: selectedVehicle,
                                         itemAsString: (VehicleList vehicle) =>
-                                            vehicle.plateNo,
+                                            vehicle.plateNo!,
                                       ),
                                     ),
 

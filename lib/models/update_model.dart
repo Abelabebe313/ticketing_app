@@ -178,20 +178,20 @@ class VehicleList {
   String? id;
   String? stationId;
   String? associationName;
-  String level;
-  String plateNo;
+  String? level;
+  String? plateNo;
   String? type;
-  String capacity;
+  String? capacity;
   String? date;
 
   VehicleList(
       {this.id,
       this.stationId,
       this.associationName,
-      required this.level,
-      required this.plateNo,
+      this.level,
+      this.plateNo,
       this.type,
-      required this.capacity,
+      this.capacity,
       this.date});
 
   factory VehicleList.fromJson(Map<String, dynamic> json) {

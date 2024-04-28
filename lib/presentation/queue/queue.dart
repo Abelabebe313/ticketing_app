@@ -1,11 +1,13 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:transport_app/models/update_model.dart';
 import 'package:transport_app/presentation/widgets/bus_queue_card.dart';
+
 import '../../core/my_colors.dart';
 
 class BusQueue extends StatefulWidget {
@@ -87,9 +89,8 @@ class BusQueueState extends State<BusQueue> {
           plateNo: vehicle.plateNo,
           date:
               '${DateTime.now().month}/${DateTime.now().day}/${DateTime.now().year}',
-          level: vehicle.level, 
+          level: vehicle.level,
           capacity: vehicle.capacity,
-          
         );
 
         _busQueueList.add(newBus);
@@ -170,7 +171,7 @@ class BusQueueState extends State<BusQueue> {
       setState(() {});
     }
   }
-  
+
   final now = DateTime.now();
   @override
   Widget build(BuildContext context) {
@@ -238,7 +239,7 @@ class BusQueueState extends State<BusQueue> {
                         return DropdownMenuItem<VehicleList>(
                           value: vehicle,
                           child: Text(
-                            vehicle.plateNo,
+                            vehicle.plateNo!,
                           ),
                         );
                       }).toList(),
@@ -316,11 +317,12 @@ class BusQueueState extends State<BusQueue> {
                       itemBuilder: (context, index) {
                         return BusQueueCardWidget(
                           station: station_info?.name ?? '',
-                          plateNo: _busQueueList[index].plateNo,
+                          plateNo: _busQueueList[index].plateNo!,
                           date: _busQueueList[index].date,
                           association: _busQueueList[index].associationName,
                           onRemove: () =>
-                              _removeBusFromQueue(_busQueueList[index]), time: '',
+                              _removeBusFromQueue(_busQueueList[index]),
+                          time: '',
                         );
                       },
                     ),
