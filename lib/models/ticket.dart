@@ -5,7 +5,7 @@ class Ticket {
   DateTime date;
   String destination;
   String departure;
-  int uniqueId;
+  String uniqueId;
   double tariff;
   double charge;
   String association;

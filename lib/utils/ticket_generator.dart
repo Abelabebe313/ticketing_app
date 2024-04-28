@@ -4,7 +4,7 @@ String generateFormattedCounter(DateTime date, int counter) {
   String day = date.day.toString().padLeft(2, '0');
 
   // Format the counter with leading zeros
-  String formattedCounter = counter.toString().padLeft(5, '0');
+  String formattedCounter = counter.toString().padLeft(2, '0');
 
   // Concatenate all components to form the final string
   return '$year$month$day$formattedCounter';

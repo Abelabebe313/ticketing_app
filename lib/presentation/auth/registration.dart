@@ -346,60 +346,63 @@ class _RegistrationState extends State<Registration> {
                     ),
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(25, 5, 25, 5),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      if (station_Info != null)
-                        DropdownButtonFormField<StationInfo>(
-                          value: selectedStation,
-                          onChanged: (value) {
-                            setState(() {
-                              selectedStation = value;
-                              
-                            });
-                          },
-                          items: station_Info!
-                              .map<DropdownMenuItem<StationInfo>>((station) {
-                            return DropdownMenuItem<StationInfo>(
-                              value: station,
-                              child: Padding(
-                                padding: const EdgeInsets.all(6),
-                                child: Text(
-                                  station.name!,
-                                  style: const TextStyle(
-                                    color: Colors.grey,
-                                    fontFamily: 'Poppins-Light',
-                                    fontSize: 14,
+                SizedBox(
+                  height: 60,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(25, 5, 25, 5),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        if (station_Info != null)
+                          DropdownButtonFormField<StationInfo>(
+                            value: selectedStation,
+                            onChanged: (value) {
+                              setState(() {
+                                selectedStation = value;
+                                
+                              });
+                            },
+                            items: station_Info!
+                                .map<DropdownMenuItem<StationInfo>>((station) {
+                              return DropdownMenuItem<StationInfo>(
+                                value: station,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(6),
+                                  child: Text(
+                                    station.name!,
+                                    style: const TextStyle(
+                                      color: Colors.grey,
+                                      fontFamily: 'Poppins-Light',
+                                      fontSize: 14,
+                                    ),
                                   ),
                                 ),
+                              );
+                            }).toList(),
+                            decoration: const InputDecoration(
+                              contentPadding: EdgeInsets.fromLTRB(6, 6, 6, 6),
+                              enabledBorder: OutlineInputBorder(
+                                borderSide:
+                                    BorderSide(color: Colors.grey, width: 1),
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(10),
+                                ),
                               ),
-                            );
-                          }).toList(),
-                          decoration: const InputDecoration(
-                            contentPadding: EdgeInsets.fromLTRB(6, 6, 6, 6),
-                            enabledBorder: OutlineInputBorder(
-                              borderSide:
-                                  BorderSide(color: Colors.grey, width: 1),
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(10),
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: Colors.blue,
+                                  width: 1,
+                                ),
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(10),
+                                ),
                               ),
                             ),
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(
-                                color: Colors.blue,
-                                width: 1,
-                              ),
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(10),
-                              ),
-                            ),
+                            isExpanded: true,
+                            style: const TextStyle(color: Colors.grey),
                           ),
-                          isExpanded: true,
-                          style: const TextStyle(color: Colors.grey),
-                        ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
                 const SizedBox(

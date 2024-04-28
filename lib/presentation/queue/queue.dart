@@ -4,11 +4,9 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:transport_app/models/queue_model.dart';
 import 'package:transport_app/models/update_model.dart';
 import 'package:transport_app/presentation/widgets/bus_queue_card.dart';
 import '../../core/my_colors.dart';
-import '../../models/bus.dart';
 
 class BusQueue extends StatefulWidget {
   const BusQueue({Key? key});
@@ -21,12 +19,37 @@ class BusQueueState extends State<BusQueue> {
   List<VehicleList> _busList = [];
   List<VehicleList> _busQueueList = [];
   VehicleList? selectedVehicle;
+  StationInfo? station_info;
 
   @override
   void initState() {
     super.initState();
     loadBusQueueList();
+    fetchStationFromHive();
     print(selectedVehicle?.plateNo);
+  }
+
+  Future<void> fetchStationFromHive() async {
+    try {
+      // Open Hive box for station
+      final box = await Hive.openBox<StationInfo>('station');
+
+      // Check if the box is open
+      if (!box.isOpen) {
+        throw 'Hive box is not open';
+      }
+      // Get the station from the box
+      final station = box.get('station');
+      // Log the contents of the box
+      print('Contents of the "station" box: $station');
+
+      // Assign the retrieved station to the variable
+      station_info = station;
+
+      print('Station fetched from Hive successfully');
+    } catch (e) {
+      print('Error fetching station from Hive: $e');
+    }
   }
 
   void loadBusQueueList() async {
@@ -77,20 +100,20 @@ class BusQueueState extends State<BusQueue> {
         // Refresh the UI
         setState(() {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
+            const SnackBar(
               content: Text('Success'),
               backgroundColor: Colors.green,
-              duration: const Duration(seconds: 2),
+              duration: Duration(seconds: 2),
             ),
           );
         });
       } else {
         // Show a Snackbar if the bus is already in the queue
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text('Bus is already in the queue'),
             backgroundColor: Colors.red,
-            duration: const Duration(seconds: 2),
+            duration: Duration(seconds: 2),
           ),
         );
       }
@@ -147,7 +170,8 @@ class BusQueueState extends State<BusQueue> {
       setState(() {});
     }
   }
-
+  
+  final now = DateTime.now();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -291,8 +315,10 @@ class BusQueueState extends State<BusQueue> {
                       itemCount: _busQueueList.length,
                       itemBuilder: (context, index) {
                         return BusQueueCardWidget(
+                          station: station_info?.name ?? '',
                           plateNo: _busQueueList[index].plateNo,
                           date: _busQueueList[index].date,
+                          association: _busQueueList[index].associationName,
                           onRemove: () =>
                               _removeBusFromQueue(_busQueueList[index]), time: '',
                         );

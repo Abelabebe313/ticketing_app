@@ -11,6 +11,7 @@ import 'package:sunmi_printer_plus/sunmi_printer_plus.dart';
 import 'package:sunmi_printer_plus/sunmi_style.dart';
 import 'package:transport_app/models/report.dart';
 import 'package:transport_app/presentation/result/sunmi_printer.dart';
+import 'package:transport_app/utils/ticket_generator.dart';
 import '../../core/my_colors.dart';
 import '../../core/my_text.dart';
 import 'package:barcode_widget/barcode_widget.dart';
@@ -88,7 +89,7 @@ class ResultPageState extends State<ResultPage> {
               ),
               child: Column(
                 children: [
-                   Row(
+                  Row(
                     children: [
                       Text(
                         "Passenger Information".tr(),
@@ -103,25 +104,27 @@ class ResultPageState extends State<ResultPage> {
                   const SizedBox(height: 10),
                   Row(
                     children: [
-                       Text(
+                      Text(
                         "Tailor".tr(),
                         style: const TextStyle(
-                            color: Colors.black,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold),
+                          color: Colors.black,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       Text(
                         widget.ticket.tailure,
                         style: const TextStyle(
-                            color: Colors.black,
-                            fontSize: 16,
-                            fontWeight: FontWeight.normal),
+                          color: Colors.black,
+                          fontSize: 16,
+                          fontWeight: FontWeight.normal,
+                        ),
                       ),
                     ],
                   ),
                   Row(
                     children: [
-                       Text(
+                      Text(
                         "Bus Plate Number".tr(),
                         style: const TextStyle(
                           color: Colors.black,
@@ -141,7 +144,7 @@ class ResultPageState extends State<ResultPage> {
                   ),
                   Row(
                     children: [
-                       Text(
+                      Text(
                         "Departure".tr(),
                         style: const TextStyle(
                             color: Colors.black,
@@ -159,7 +162,7 @@ class ResultPageState extends State<ResultPage> {
                   ),
                   Row(
                     children: [
-                       Text(
+                      Text(
                         "Destination".tr(),
                         style: const TextStyle(
                             color: Colors.black,
@@ -177,7 +180,7 @@ class ResultPageState extends State<ResultPage> {
                   ),
                   Row(
                     children: [
-                       Text(
+                      Text(
                         "Level".tr(),
                         style: const TextStyle(
                             color: Colors.black,
@@ -213,7 +216,7 @@ class ResultPageState extends State<ResultPage> {
                   ),
                   Row(
                     children: [
-                       Text(
+                      Text(
                         "Tariff".tr(),
                         style: const TextStyle(
                             color: Colors.black,
@@ -231,7 +234,7 @@ class ResultPageState extends State<ResultPage> {
                   ),
                   Row(
                     children: [
-                       Text(
+                      Text(
                         "Service Charge".tr(),
                         style: const TextStyle(
                             color: Colors.black,
@@ -249,7 +252,7 @@ class ResultPageState extends State<ResultPage> {
                   ),
                   Row(
                     children: [
-                       Text(
+                      Text(
                         "Association".tr(),
                         style: const TextStyle(
                             color: Colors.black,
@@ -267,7 +270,7 @@ class ResultPageState extends State<ResultPage> {
                   ),
                   Row(
                     children: [
-                       Text(
+                      Text(
                         "Distance".tr(),
                         style: const TextStyle(
                             color: Colors.black,
@@ -285,7 +288,7 @@ class ResultPageState extends State<ResultPage> {
                   ),
                   Row(
                     children: [
-                       Text(
+                      Text(
                         "Date".tr(),
                         style: const TextStyle(
                             color: Colors.black,
@@ -351,27 +354,30 @@ class ResultPageState extends State<ResultPage> {
                   if (ticketsToPrint > remainingCapacity) {
                     ticketsToPrint = remainingCapacity;
                   }
-
+                  DateTime today = DateTime.now();
                   for (int i = 0; i < ticketsToPrint; i++) {
                     if (currentCount + i == widget.totalCapacity) {
                       saveReport();
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text("የትኬት ቁጥሩ ስለሞላ አባኮትን መውጫ ይቁረጡለት"),
+                          content: Text(
+                              "Lakkoofsi tikkeettii waan guutuuf, karaa ba'uu addaan kuta"),
                           backgroundColor: Colors.blue,
                           duration: Duration(seconds: 2),
                         ),
                       );
                       prefs.setInt(plateNumber, 0);
-                      Navigator.pop(context);
                       break;
                     } else {
-                      await printMultipleTickets();
+                      String uniqueCounter =
+                          generateUniqueCounter(today, currentCount + i + 1);
+
+                      await printMultipleTickets(uniqueCounter);
                       // Store vehicle ticket count
                       prefs.setInt(plateNumber, currentCount + i + 1);
-                      Navigator.pop(context);
                     }
                   }
+                  Navigator.pop(context);
                 },
               ),
             )
@@ -403,7 +409,7 @@ class ResultPageState extends State<ResultPage> {
     return await readFileBytes(iconPath);
   }
 
-  Future<void> printMultipleTickets() async {
+  Future<void> printMultipleTickets(String ticketCode) async {
     await SunmiPrinter.initPrinter();
     Uint8List dalex = await _getImageFromAsset('assets/images/Untitled-2.jpg');
     await SunmiPrinter.startTransactionPrint(true);
@@ -438,10 +444,7 @@ class ResultPageState extends State<ResultPage> {
     await SunmiPrinter.printRow(cols: [
       ColumnMaker(
           text: "Tikeetii Lakk", width: 18, align: SunmiPrintAlign.LEFT),
-      ColumnMaker(
-          text: '${widget.ticket.uniqueId}',
-          width: 12,
-          align: SunmiPrintAlign.RIGHT),
+      ColumnMaker(text: '$ticketCode', width: 12, align: SunmiPrintAlign.RIGHT),
     ]);
 
     await SunmiPrinter.printRow(cols: [
@@ -553,7 +556,7 @@ class ResultPageState extends State<ResultPage> {
     await SunmiPrinter.bold();
 
     await SunmiPrinter.resetBold();
-    await SunmiPrinter.printBarCode('${widget.ticket.uniqueId}', height: 30);
+    await SunmiPrinter.printBarCode(ticketCode, height: 30);
     await SunmiPrinter.printText('Nagahee dijitaalaa wajjiraan');
     await SunmiPrinter.setAlignment(SunmiPrintAlign.CENTER);
     await SunmiPrinter.printText('Alatti Hin Kafalinaa');

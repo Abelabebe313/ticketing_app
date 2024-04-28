@@ -1,13 +1,8 @@
 import 'dart:developer';
 import 'dart:convert';
-import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:transport_app/main.dart';
-import 'package:transport_app/models/bus.dart';
-import 'package:transport_app/models/data.dart';
-import 'package:transport_app/models/queue_model.dart';
 import 'package:transport_app/models/update_model.dart';
 import 'package:transport_app/utils/save_destinaiton_hive.dart';
 import 'package:transport_app/utils/save_tariffinfo_hive.dart';
@@ -22,12 +17,13 @@ class DataService {
   Future<void> fetchData() async {
     // hive box token
     await Hive.openBox<String>(tokenHive);
+    
 
     // String token = prefs.getString('access_token') ?? '';
 
     final String? token = Hive.box<String>(tokenHive).get('token');
 
-    print('ቶክኑ: $token');
+    print('ቶክኑ:- $token');
     try {
       final response = await http.get(
         Uri.parse('$baseUrl'),
@@ -41,6 +37,8 @@ class DataService {
 
       if (responseData['status'] == true) {
         /// ==== Vehicle List ==== ///
+        
+
         // Extract vehicle list
         List<VehicleList> vehicleList =
             (responseData['data']['vehicle_list'] as List)

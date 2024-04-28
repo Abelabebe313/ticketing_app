@@ -9,12 +9,20 @@ import 'dart:async';
 import 'package:sunmi_printer_plus/sunmi_printer_plus.dart';
 
 class SunmiPrinterPage extends StatefulWidget {
+  final String time;
+  final String date;
+  final String station;
   final String plateNo;
+  final String association;
   final String distance;
   final String destination;
   const SunmiPrinterPage(
       {Key? key,
+      required this.time,
+      required this.date,
+      required this.station,
       required this.plateNo,
+      required this.association,
       required this.distance,
       required this.destination})
       : super(key: key);
@@ -28,6 +36,7 @@ class _SunmiPrinterPageState extends State<SunmiPrinterPage> {
   int paperSize = 0;
   String serialNumber = "";
   String printerVersion = "";
+  final now = DateTime.now();
   @override
   void initState() {
     super.initState();
@@ -93,9 +102,9 @@ class _SunmiPrinterPageState extends State<SunmiPrinterPage> {
                       ],
                     ),
                     SizedBox(height: 10),
-                    const Row(
+                    Row(
                       children: [
-                        Text(
+                        const Text(
                           "Sa'aatii itti seene: ",
                           style: TextStyle(
                               color: Colors.black,
@@ -103,17 +112,17 @@ class _SunmiPrinterPageState extends State<SunmiPrinterPage> {
                               fontWeight: FontWeight.bold),
                         ),
                         Text(
-                          '12/12/1221',
-                          style: TextStyle(
+                          '${widget.date}-${widget.time}',
+                          style: const TextStyle(
                               color: Colors.black,
                               fontSize: 16,
                               fontWeight: FontWeight.normal),
                         ),
                       ],
                     ),
-                    const Row(
+                    Row(
                       children: [
-                        Text(
+                        const Text(
                           "Sa'aatii itti bahe",
                           style: TextStyle(
                               color: Colors.black,
@@ -121,8 +130,8 @@ class _SunmiPrinterPageState extends State<SunmiPrinterPage> {
                               fontWeight: FontWeight.bold),
                         ),
                         Text(
-                          '12/12/1221',
-                          style: TextStyle(
+                          '${now.day.toString()}/${now.month.toString()}/${now.year.toString()}-${now.hour.toString()}:${now.minute.toString()}:${now.second.toString()}', // time goes here
+                          style: const TextStyle(
                               color: Colors.black,
                               fontSize: 16,
                               fontWeight: FontWeight.normal),
@@ -159,7 +168,7 @@ class _SunmiPrinterPageState extends State<SunmiPrinterPage> {
                               fontWeight: FontWeight.bold),
                         ),
                         Text(
-                          widget.destination,
+                          widget.station,
                           style: const TextStyle(
                               color: Colors.black,
                               fontSize: 16,
@@ -260,7 +269,7 @@ class _SunmiPrinterPageState extends State<SunmiPrinterPage> {
                                 width: 18,
                                 align: SunmiPrintAlign.LEFT),
                             ColumnMaker(
-                                text: '12/12/1221',
+                                text: '${widget.date}-${widget.time}',
                                 width: 12,
                                 align: SunmiPrintAlign.RIGHT),
                           ]);
@@ -271,7 +280,7 @@ class _SunmiPrinterPageState extends State<SunmiPrinterPage> {
                                 align: SunmiPrintAlign.LEFT),
                             ColumnMaker(
                                 text:
-                                    '${DateTime.now().month.toString()}/${DateTime.now().day.toString()}/${DateTime.now().year.toString()}',
+                                    '${now.month.toString()}/${now.day.toString()}/${now.year.toString()}-${now.hour.toString()}:${now.minute.toString()}:${now.second.toString()}', // time goes here
                                 width: 12,
                                 align: SunmiPrintAlign.RIGHT),
                           ]);
@@ -282,7 +291,7 @@ class _SunmiPrinterPageState extends State<SunmiPrinterPage> {
                                 width: 18,
                                 align: SunmiPrintAlign.LEFT),
                             ColumnMaker(
-                                text: 'A23456',
+                                text: widget.plateNo,
                                 width: 12,
                                 align: SunmiPrintAlign.RIGHT),
                           ]);
@@ -294,7 +303,7 @@ class _SunmiPrinterPageState extends State<SunmiPrinterPage> {
                               align: SunmiPrintAlign.LEFT,
                             ),
                             ColumnMaker(
-                                text: 'Adama Peacock Station',
+                                text: widget.station,
                                 width: 12,
                                 align: SunmiPrintAlign.RIGHT),
                           ]);
@@ -306,7 +315,7 @@ class _SunmiPrinterPageState extends State<SunmiPrinterPage> {
                               align: SunmiPrintAlign.LEFT,
                             ),
                             ColumnMaker(
-                              text: 'Addis Ababa',
+                              text: widget.destination,
                               width: 12,
                               align: SunmiPrintAlign.RIGHT,
                             ),
@@ -318,7 +327,19 @@ class _SunmiPrinterPageState extends State<SunmiPrinterPage> {
                               align: SunmiPrintAlign.LEFT,
                             ),
                             ColumnMaker(
-                              text: '77 km',
+                              text: widget.distance,
+                              width: 12,
+                              align: SunmiPrintAlign.RIGHT,
+                            ),
+                          ]);
+                          await SunmiPrinter.printRow(cols: [
+                            ColumnMaker(
+                              text: "dhaabbata",
+                              width: 18,
+                              align: SunmiPrintAlign.LEFT,
+                            ),
+                            ColumnMaker(
+                              text: widget.association,
                               width: 12,
                               align: SunmiPrintAlign.RIGHT,
                             ),
