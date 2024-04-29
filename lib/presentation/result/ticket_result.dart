@@ -364,9 +364,8 @@ class ResultPageState extends State<ResultPage> {
                     print('$i = ticket printed');
 
                     saveReport();
-                    //uncomment the following
-                    // await printMultipleTickets(
-                    //     uniqueCounter, widget.totalCapacity);
+                    await printMultipleTickets(
+                        uniqueCounter, widget.totalCapacity);
                     // Store vehicle ticket count
                   }
                   //
