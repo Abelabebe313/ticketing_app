@@ -38,6 +38,7 @@ dependencies:
   esc_pos_utils: ^1.1.0
   barcode_widget: ^2.0.4
   dropdown_search: ^5.0.6
+  ethiopian_calendar: ^0.0.2
   
 flutter_launcher_icons:
   android: true

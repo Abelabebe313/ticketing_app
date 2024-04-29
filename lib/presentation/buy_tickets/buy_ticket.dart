@@ -440,7 +440,7 @@ class BuyTicketState extends State<BuyTicket> {
                                           showSearchBox: true,
                                           searchFieldProps:
                                               const TextFieldProps(
-                                            keyboardType: TextInputType.number,
+                                            // keyboardType: TextInputType.number,
                                             decoration: InputDecoration(
                                               hintText: "Searchss...",
                                               hintStyle: TextStyle(

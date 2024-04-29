@@ -30,14 +30,24 @@ class SoldTicketsState extends State<SoldTickets> {
   void initState() {
     super.initState();
     _loadReportList();
+    print('=================${_reportList}===================');
   }
 
   Future<void> _loadReportList() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     List<String> reportJsonList = prefs.getStringList('reports') ?? [];
-    List<ReportModel> reports = reportJsonList
-        .map((data) => ReportModel.fromJson(json.decode(data)))
-        .toList();
+    List<ReportModel> reports = [];
+
+    for (String data in reportJsonList) {
+      try {
+        ReportModel report = ReportModel.fromJson(json.decode(data));
+        reports.add(report);
+      } catch (e) {
+        print('Error decoding report JSON: $e');
+        // Handle the error as needed, such as skipping the invalid data
+      }
+    }
+
     reports = reports.reversed.toList();
 
     setState(() {
@@ -45,6 +55,20 @@ class SoldTicketsState extends State<SoldTickets> {
       _filteredReport = reports;
     });
   }
+
+  // Future<void> _loadReportList() async {
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   List<String> reportJsonList = prefs.getStringList('reports') ?? [];
+  //   List<ReportModel> reports = reportJsonList
+  //       .map((data) => ReportModel.fromJson(json.decode(data)))
+  //       .toList();
+  //   reports = reports.reversed.toList();
+
+  //   setState(() {
+  //     _reportList = reports;
+  //     _filteredReport = reports;
+  //   });
+  // }
 
   void _filterReport(String searchText) {
     setState(() {
@@ -130,6 +154,7 @@ class SoldTicketsState extends State<SoldTickets> {
                         ),
                   onPressed: () async {
                     // ReportService reportService = ReportService();
+
                     for (ReportModel report in _reportList) {
                       BlocProvider.of<UploadBloc>(context)
                           .add(UploadReportEvent(report: report));

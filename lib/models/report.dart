@@ -1,12 +1,14 @@
 class ReportModel {
   String name;
   int amount;
+  double totalServiceFee;
   String date;
   String plate;
 
   ReportModel({
     required this.name,
     required this.amount,
+    required this.totalServiceFee,
     required this.date,
     required this.plate,
   });
@@ -15,6 +17,7 @@ class ReportModel {
     return {
       'name': name,
       'amount': amount,
+      'totalServiceFee': totalServiceFee,
       'date': date,
       'plate': plate,
     };
@@ -24,6 +27,7 @@ class ReportModel {
     return ReportModel(
       name: json['name'] ?? '',
       amount: json['amount'] ?? 0,
+      totalServiceFee: json['totalServiceFee'] ?? 0.0,
       date: json['date'] ?? '',
       plate: json['plate'] ?? '',
     );
