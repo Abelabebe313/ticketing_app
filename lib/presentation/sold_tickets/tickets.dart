@@ -150,12 +150,9 @@ class SoldTicketsState extends State<SoldTickets> {
               // Search bar with a button to search for a specific user
               Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: TextField(
-                  onChanged:
-                      _filterReport, // Call _filterUsers method on text change
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    hintText: 'Search a Report',
+                child: Container(
+                  child: Text(
+                    'Waliigala tikkeettii gurgurame: ${_reportList.length}',
                   ),
                 ),
               ),
