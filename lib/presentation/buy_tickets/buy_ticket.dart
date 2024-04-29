@@ -182,7 +182,7 @@ class BuyTicketState extends State<BuyTicket> {
 
   Future<void> getTariffByDestinationId(String destinationId) async {
     // Search for the tariff information with the given destination ID
-    for (TariffInfo tariffInfo in tariffList) {
+    for (TariffInfo  tariffInfo in tariffList) {
       if (tariffInfo.destinationId == destinationId) {
         print('============> Tariff id: ${tariffInfo!.destinationId}');
         print('============> Tariff found: ${tariffInfo.tariff}');
