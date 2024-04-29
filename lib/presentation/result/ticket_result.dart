@@ -448,6 +448,7 @@ class ResultPageState extends State<ResultPage> {
       if (reportsData != null) {
         reportsJson.add(reportsData);
       }
+      
 
       // Encode the report data to JSON
       String reportJson = jsonEncode(report.toJson());
