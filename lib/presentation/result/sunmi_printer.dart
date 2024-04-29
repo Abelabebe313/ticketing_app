@@ -1,30 +1,42 @@
 import 'dart:typed_data';
 import 'package:barcode_widget/barcode_widget.dart' as Bbar;
+import 'package:ethiopian_calendar/ethiopian_date_converter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:sunmi_printer_plus/column_maker.dart';
 import 'package:sunmi_printer_plus/enums.dart';
 import 'dart:async';
-
 import 'package:sunmi_printer_plus/sunmi_printer_plus.dart';
+import 'package:sunmi_printer_plus/sunmi_style.dart';
+
+import '../../utils/ticket_generator.dart';
 
 class SunmiPrinterPage extends StatefulWidget {
   final String time;
   final String date;
   final String station;
   final String plateNo;
+  final String totalCapacity;
+  final String level;
+  final String tariff;
   final String association;
   final String distance;
   final String destination;
+  final String agent;
   const SunmiPrinterPage(
       {Key? key,
       required this.time,
       required this.date,
       required this.station,
       required this.plateNo,
+       required this.totalCapacity,
+      required this.level,
+      required this.tariff,
       required this.association,
       required this.distance,
-      required this.destination})
+      required this.destination,
+      required this.agent
+      })
       : super(key: key);
 
   @override
@@ -37,10 +49,16 @@ class _SunmiPrinterPageState extends State<SunmiPrinterPage> {
   String serialNumber = "";
   String printerVersion = "";
   final now = DateTime.now();
+  DateTime ethio_date = EthiopianDateConverter.convertToEthiopianDate(DateTime.now());
+  double totalMoney = 0.0;
   @override
   void initState() {
     super.initState();
-
+    setState(() {
+      totalMoney = int.parse(widget.totalCapacity)*double.parse(widget.tariff);
+      totalMoney = double.parse(totalMoney.toStringAsFixed(2));
+    });
+    
     _bindingPrinter().then((bool? isBind) async {
       SunmiPrinter.paperSize().then((int size) {
         setState(() {
@@ -102,35 +120,18 @@ class _SunmiPrinterPageState extends State<SunmiPrinterPage> {
                       ],
                     ),
                     SizedBox(height: 10),
+                    
                     Row(
                       children: [
                         const Text(
-                          "Sa'aatii itti seene: ",
+                          "Sa'aatii itti bahe:",
                           style: TextStyle(
                               color: Colors.black,
                               fontSize: 16,
                               fontWeight: FontWeight.bold),
                         ),
                         Text(
-                          '${widget.date}-${widget.time}',
-                          style: const TextStyle(
-                              color: Colors.black,
-                              fontSize: 16,
-                              fontWeight: FontWeight.normal),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        const Text(
-                          "Sa'aatii itti bahe",
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold),
-                        ),
-                        Text(
-                          '${now.day.toString()}/${now.month.toString()}/${now.year.toString()}-${now.hour.toString()}:${now.minute.toString()}:${now.second.toString()}', // time goes here
+                          '${ethio_date.day.toString()}/${ethio_date.month.toString()}/${ethio_date.year.toString()}-${ethio_date.hour.toString()}:${ethio_date.minute.toString()}:${ethio_date.second.toString()}', // time goes here
                           style: const TextStyle(
                               color: Colors.black,
                               fontSize: 16,
@@ -176,18 +177,18 @@ class _SunmiPrinterPageState extends State<SunmiPrinterPage> {
                         ),
                       ],
                     ),
-                    const Row(
+                    Row(
                       children: [
-                        Text(
-                          "Magaalaa Gahumsaa",
+                        const Text(
+                          "Magaalaa Gahumsaa: ",
                           style: TextStyle(
                               color: Colors.black,
                               fontSize: 16,
                               fontWeight: FontWeight.bold),
                         ),
                         Text(
-                          'Addis Ababa',
-                          style: TextStyle(
+                          widget.destination,
+                          style: const TextStyle(
                               color: Colors.black,
                               fontSize: 16,
                               fontWeight: FontWeight.normal),
@@ -197,14 +198,50 @@ class _SunmiPrinterPageState extends State<SunmiPrinterPage> {
                     Row(
                       children: [
                         const Text(
-                          "Fageenya",
+                          "Fageenya: ",
                           style: TextStyle(
                               color: Colors.black,
                               fontSize: 16,
                               fontWeight: FontWeight.bold),
                         ),
                         Text(
-                          widget.distance,
+                          "${widget.distance} km",
+                          style: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 16,
+                              fontWeight: FontWeight.normal),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        const Text(
+                          "Tessoo: ",
+                          style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          "${widget.totalCapacity} ",
+                          style: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 16,
+                              fontWeight: FontWeight.normal),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        const Text(
+                          "Total: ",
+                          style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          "${totalMoney} birr",
                           style: const TextStyle(
                               color: Colors.black,
                               fontSize: 16,
@@ -244,6 +281,9 @@ class _SunmiPrinterPageState extends State<SunmiPrinterPage> {
                   children: [
                     ElevatedButton(
                         onPressed: () async {
+                          final DateTime today = DateTime.now();
+                          String uniqueCounter =
+                              generateUniqueCounter(today, widget.plateNo[0].codeUnitAt(0));
                           print('print pressed');
                           await SunmiPrinter.initPrinter();
                           await SunmiPrinter.startTransactionPrint(true);
@@ -265,22 +305,23 @@ class _SunmiPrinterPageState extends State<SunmiPrinterPage> {
 
                           await SunmiPrinter.printRow(cols: [
                             ColumnMaker(
-                                text: "Sa'aatii itti seene",
-                                width: 18,
-                                align: SunmiPrintAlign.LEFT),
-                            ColumnMaker(
-                                text: '${widget.date}-${widget.time}',
-                                width: 12,
-                                align: SunmiPrintAlign.RIGHT),
-                          ]);
-                          await SunmiPrinter.printRow(cols: [
-                            ColumnMaker(
-                                text: "Sa'aatii itti bahe",
+                                text: "Sa'aatii itti bahe: ",
                                 width: 18,
                                 align: SunmiPrintAlign.LEFT),
                             ColumnMaker(
                                 text:
-                                    '${now.month.toString()}/${now.day.toString()}/${now.year.toString()}-${now.hour.toString()}:${now.minute.toString()}:${now.second.toString()}', // time goes here
+                                    '${ethio_date.day.toString()}/${ethio_date.month.toString()}/${ethio_date.year.toString()}:-${ethio_date.hour.toString()}:${ethio_date.minute.toString()}:${ethio_date.second.toString()}', // time goes here
+                                width: 12,
+                                align: SunmiPrintAlign.RIGHT),
+                          ]);
+
+                          await SunmiPrinter.printRow(cols: [
+                            ColumnMaker(
+                                text: "Agent Name:",
+                                width: 18,
+                                align: SunmiPrintAlign.LEFT),
+                            ColumnMaker(
+                                text: widget.agent,
                                 width: 12,
                                 align: SunmiPrintAlign.RIGHT),
                           ]);
@@ -298,7 +339,18 @@ class _SunmiPrinterPageState extends State<SunmiPrinterPage> {
 
                           await SunmiPrinter.printRow(cols: [
                             ColumnMaker(
-                              text: "Buufata:",
+                                text: "Sadarkaa",
+                                width: 18,
+                                align: SunmiPrintAlign.LEFT),
+                            ColumnMaker(
+                                text: widget.level,
+                                width: 12,
+                                align: SunmiPrintAlign.RIGHT),
+                          ]);
+
+                          await SunmiPrinter.printRow(cols: [
+                            ColumnMaker(
+                              text: "Ka'umsaa:",
                               width: 18,
                               align: SunmiPrintAlign.LEFT,
                             ),
@@ -327,14 +379,14 @@ class _SunmiPrinterPageState extends State<SunmiPrinterPage> {
                               align: SunmiPrintAlign.LEFT,
                             ),
                             ColumnMaker(
-                              text: widget.distance,
+                              text: "${widget.distance} km",
                               width: 12,
                               align: SunmiPrintAlign.RIGHT,
                             ),
                           ]);
                           await SunmiPrinter.printRow(cols: [
                             ColumnMaker(
-                              text: "dhaabbata",
+                              text: "Dhaabbata",
                               width: 18,
                               align: SunmiPrintAlign.LEFT,
                             ),
@@ -344,9 +396,35 @@ class _SunmiPrinterPageState extends State<SunmiPrinterPage> {
                               align: SunmiPrintAlign.RIGHT,
                             ),
                           ]);
+                          await SunmiPrinter.printRow(cols: [
+                            ColumnMaker(
+                              text: "Tessoo",
+                              width: 18,
+                              align: SunmiPrintAlign.LEFT,
+                            ),
+                            ColumnMaker(
+                              text: widget.totalCapacity,
+                              width: 12,
+                              align: SunmiPrintAlign.RIGHT,
+                            ),
+                          ]);
+                          await SunmiPrinter.printRow(cols: [
+                            ColumnMaker(
+                              text: "Total birr",
+                              width: 18,
+                              align: SunmiPrintAlign.LEFT,
+                            ),
+                            ColumnMaker(
+                              text: '$totalMoney',
+                              width: 12,
+                              align: SunmiPrintAlign.RIGHT,
+                            ),
+                          ]);
 
                           await SunmiPrinter.setAlignment(
                               SunmiPrintAlign.CENTER);
+                          await SunmiPrinter.printBarCode(uniqueCounter,
+                              height: 30);
                           await SunmiPrinter.lineWrap(2);
                           await SunmiPrinter.printText(
                               'Huubachiisa: Tikeetiin kun emala yeroo');
@@ -358,6 +436,10 @@ class _SunmiPrinterPageState extends State<SunmiPrinterPage> {
                               SunmiPrintAlign.CENTER);
                           await SunmiPrinter.printText('Inala gaarii!!');
                           await SunmiPrinter.lineWrap(2);
+                          await SunmiPrinter.setAlignment(
+                              SunmiPrintAlign.CENTER);
+                          await SunmiPrinter.printText('Powered by: Dalex ',
+                              style: SunmiStyle(fontSize: SunmiFontSize.XS));
 
                           await SunmiPrinter.exitTransactionPrint(true);
                         },

@@ -10,11 +10,11 @@ class Updates {
     status = json['status'];
     message = json['message'];
     errors = json['errors'];
-    data = json['data'] != null ? new Data.fromJson(json['data']) : null;
+    data = json['data'] != null ? Data.fromJson(json['data']) : null;
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
+    final Map<String, dynamic> data = Map<String, dynamic>();
     data['status'] = this.status;
     data['message'] = this.message;
     data['errors'] = this.errors;
@@ -41,31 +41,31 @@ class Data {
     if (json['station_info'] != null) {
       stationInfo = <StationInfo>[];
       json['station_info'].forEach((v) {
-        stationInfo!.add(new StationInfo.fromJson(v));
+        stationInfo!.add(StationInfo.fromJson(v));
       });
     }
     if (json['destination_list'] != null) {
       destinationList = <DestinationList>[];
       json['destination_list'].forEach((v) {
-        destinationList!.add(new DestinationList.fromJson(v));
+        destinationList!.add(DestinationList.fromJson(v));
       });
     }
     if (json['tariff_info'] != null) {
       tariffInfo = <TariffInfo>[];
       json['tariff_info'].forEach((v) {
-        tariffInfo!.add(new TariffInfo.fromJson(v));
+        tariffInfo!.add(TariffInfo.fromJson(v));
       });
     }
     if (json['vehicle_list'] != null) {
       vehicleList = <VehicleList>[];
       json['vehicle_list'].forEach((v) {
-        vehicleList!.add(new VehicleList.fromJson(v));
+        vehicleList!.add(VehicleList.fromJson(v));
       });
     }
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
+    final Map<String, dynamic> data = Map<String, dynamic>();
     if (this.stationInfo != null) {
       data['station_info'] = this.stationInfo!.map((v) => v.toJson()).toList();
     }
@@ -102,7 +102,7 @@ class StationInfo {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
+    final Map<String, dynamic> data = Map<String, dynamic>();
     data['id'] = this.id;
     data['name'] = this.name;
     data['location'] = this.location;
@@ -135,7 +135,7 @@ class DestinationList {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
+    final Map<String, dynamic> data = Map<String, dynamic>();
     data['id'] = id;
     data['station_id'] = stationId;
     data['destination'] = destination;
@@ -148,12 +148,18 @@ class TariffInfo {
   String? stationId;
   String? destinationId;
   String? tariff;
+  String? level_1;
+  String? level_2;
+  String? level_3;
   String? updatedDate;
 
   TariffInfo({
     this.stationId,
     this.destinationId,
     this.tariff,
+    this.level_1,
+    this.level_2,
+    this.level_3,
     this.updatedDate,
   });
 
@@ -161,14 +167,20 @@ class TariffInfo {
     stationId = json['station_id'];
     destinationId = json['destination_id'];
     tariff = json['tariff'];
+    level_1 = json['level_1'];
+    level_2 = json['level_2'];
+    level_3 = json['level_3'];
     updatedDate = json['updated_date'];
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
+    final Map<String, dynamic> data = Map<String, dynamic>();
     data['station_id'] = this.stationId;
     data['destination_id'] = this.destinationId;
     data['tariff'] = this.tariff;
+    data['level_1'] = this.level_1;
+    data['level_2'] = this.level_2;
+    data['level_3'] = this.level_3;
     data['updated_date'] = this.updatedDate;
     return data;
   }
@@ -208,7 +220,7 @@ class VehicleList {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
+    final Map<String, dynamic> data = Map<String, dynamic>();
     data['id'] = this.id;
     data['station_id'] = this.stationId;
     data['association_name'] = this.associationName;

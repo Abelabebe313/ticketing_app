@@ -1,4 +1,3 @@
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive/hive.dart';
@@ -11,8 +10,6 @@ import 'package:transport_app/bloc/registration%20bloc/register_state.dart';
 import 'package:transport_app/models/update_model.dart';
 import 'package:transport_app/presentation/auth/registration.dart';
 import 'package:transport_app/presentation/home.dart';
-import 'package:transport_app/services/loginService.dart';
-import 'package:transport_app/utils/save_station.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -38,6 +35,14 @@ class _LoginPageState extends State<LoginPage> {
   void initState() {
     super.initState();
     context.read<UserRgistrationBloc>().add(FetchStationInfoEvent());
+    context.read<UserRgistrationBloc>().stream.listen((state) {
+      if (state is LoadedStationState) {
+        station_Info = state.stations;
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    });
   }
 
   Widget _errorMessage() {
@@ -116,57 +121,42 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocListener(
-      listeners: [
-        BlocListener<UserRgistrationBloc, RegisterState>(
-          listener: (context, state) {
-            if (state is LoadedStationState) {
-              station_Info = state.stations;
-              setState(() {
-                _isLoading = false;
-              });
-            }
-          },
-        ),
-        BlocListener<UserBloc, UserState>(
-          listener: (context, state) {
-            if (state is LoadedUserState) {
-              setState(() {
-                _isLoading = false;
-              });
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Successfully Logged in'),
-                  backgroundColor: Colors.green,
-                  duration: Duration(seconds: 2),
-                ),
-              );
-              // Navigate to Home page on successful login
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => Home()),
-              );
-            } else if (state is UserLoading) {
-              setState(() {
-                _isLoading = true;
-              });
-            } else if (state is UserError) {
-              // Show error message
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(state.errorMessage),
-                  backgroundColor: Colors.red,
-                  duration: const Duration(seconds: 2),
-                ),
-              );
-              setState(() {
-                _isLoading = false;
-              });
-            }
-          },
-        ),
-      ],
-      child: Scaffold(
+    return BlocConsumer<UserBloc, UserState>(listener: (context, state) {
+      if (state is LoadedUserState) {
+        setState(() {
+          _isLoading = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Successfully Logged in'),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 2),
+          ),
+        );
+        // Navigate to Home page on successful login
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => Home()),
+        );
+      } else if (state is UserLoading) {
+        setState(() {
+          _isLoading = true;
+        });
+      } else if (state is UserError) {
+        // Show error message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(state.errorMessage),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }, builder: (context, state) {
+      return Scaffold(
         backgroundColor: Colors.white,
         body: SingleChildScrollView(
           child: Column(
@@ -307,7 +297,7 @@ class _LoginPageState extends State<LoginPage> {
               Padding(
                 padding: const EdgeInsets.fromLTRB(40, 5, 40, 5),
                 child: (station_Info != null)
-                    ? Expanded(
+                    ? SizedBox(
                         child: DropdownButtonFormField<StationInfo>(
                           value: l_SelectedStation,
                           onChanged: (value) {
@@ -395,7 +385,7 @@ class _LoginPageState extends State<LoginPage> {
             ],
           ),
         ),
-      ),
-    );
+      );
+    });
   }
 }

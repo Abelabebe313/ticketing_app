@@ -182,12 +182,34 @@ class BuyTicketState extends State<BuyTicket> {
 
   Future<void> getTariffByDestinationId(String destinationId) async {
     // Search for the tariff information with the given destination ID
-    for (TariffInfo tariffInfo in tariffList) {
+    for (TariffInfo  tariffInfo in tariffList) {
       if (tariffInfo.destinationId == destinationId) {
+        print('============> Tariff id: ${tariffInfo!.destinationId}');
+        print('============> Tariff found: ${tariffInfo.tariff}');
+
+        print('============> Tariff found: ${tariffInfo.level_1}');
+        print('============> Selected destination ID: $destinationId');
+        print('============> selectedVehicle: ${selectedVehicle!.level!}');
         setState(() {
-          tariff.text = tariffInfo.tariff!;
-          serviceCharge.text =
-              (int.parse(tariffInfo.tariff!) * 0.02).toString();
+          if (selectedVehicle != null) {
+            if (selectedVehicle!.level == 'Level 1') {
+              tariff.text = tariffInfo.level_1 ?? '';
+              serviceCharge.text =
+                  (double.parse(tariffInfo.level_1!) * 0.02).toString();
+            } else if (selectedVehicle!.level == 'Level 2') {
+              tariff.text = tariffInfo.level_2 ?? '';
+              serviceCharge.text =
+                  (double.parse(tariffInfo.level_2!) * 0.02).toString();
+            } else if (selectedVehicle!.level == 'Level 3') {
+              tariff.text = tariffInfo.level_3 ?? '';
+              serviceCharge.text =
+                  (double.parse(tariffInfo.level_3!) * 0.02).toString();
+            } else {
+              tariff.text = tariffInfo.tariff ?? '';
+              serviceCharge.text =
+                  (double.parse(tariffInfo.tariff!) * 0.02).toString();
+            }
+          }
         });
       }
     }
@@ -418,7 +440,7 @@ class BuyTicketState extends State<BuyTicket> {
                                           showSearchBox: true,
                                           searchFieldProps:
                                               const TextFieldProps(
-                                            keyboardType: TextInputType.number,
+                                            // keyboardType: TextInputType.number,
                                             decoration: InputDecoration(
                                               hintText: "Searchss...",
                                               hintStyle: TextStyle(
@@ -447,6 +469,8 @@ class BuyTicketState extends State<BuyTicket> {
                                           setState(
                                             () {
                                               selectedVehicle = newValue;
+                                              getTariffByDestinationId(
+                                                  selectedDestination!.id!);
                                               updateVehicleFields(newValue!);
                                             },
                                           );

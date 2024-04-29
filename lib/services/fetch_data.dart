@@ -1,5 +1,5 @@
-import 'dart:developer';
 import 'dart:convert';
+
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:transport_app/main.dart';
@@ -17,7 +17,6 @@ class DataService {
   Future<void> fetchData() async {
     // hive box token
     await Hive.openBox<String>(tokenHive);
-    
 
     // String token = prefs.getString('access_token') ?? '';
 
@@ -36,8 +35,7 @@ class DataService {
       final responseData = json.decode(response.body);
 
       if (responseData['status'] == true) {
-        /// ==== Vehicle List ==== ///
-        
+        /// ==== Vehicle List ==== /
 
         // Extract vehicle list
         List<VehicleList> vehicleList =

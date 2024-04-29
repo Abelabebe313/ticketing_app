@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -7,12 +9,6 @@ import 'package:transport_app/bloc/upload/upload_event.dart';
 import 'package:transport_app/bloc/upload/upload_state.dart';
 import 'package:transport_app/core/my_colors.dart';
 import 'package:transport_app/models/report.dart';
-import 'package:transport_app/models/ticket.dart';
-import 'package:transport_app/presentation/home.dart';
-import 'package:transport_app/services/report_upload.dart';
-import 'dart:convert';
-
-import '../result/ticket_result.dart';
 
 class SoldTickets extends StatefulWidget {
   const SoldTickets({Key? key});
@@ -22,7 +18,15 @@ class SoldTickets extends StatefulWidget {
 }
 
 class SoldTicketsState extends State<SoldTickets> {
-  List<ReportModel> _reportList = [];
+  List<ReportModel> _reportList = [
+    ReportModel(
+      amount: 1,
+      date: '2021-10-10',
+      name: 'John Doe',
+      plate: 'KAA 123',
+      totalServiceFee: 100,
+    )
+  ];
   List<ReportModel> _filteredReport = [];
   bool _isLoading = false;
 
@@ -30,21 +34,58 @@ class SoldTicketsState extends State<SoldTickets> {
   void initState() {
     super.initState();
     _loadReportList();
+    print('=================${_reportList}===================');
   }
 
   Future<void> _loadReportList() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    List<String> reportJsonList = prefs.getStringList('reports') ?? [];
-    List<ReportModel> reports = reportJsonList
-        .map((data) => ReportModel.fromJson(json.decode(data)))
-        .toList();
-    reports = reports.reversed.toList();
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? reportJson = prefs.getString('reports');
 
-    setState(() {
-      _reportList = reports;
-      _filteredReport = reports;
-    });
+      List<ReportModel> reports = [];
+
+      // Add pre-existing report
+      reports.add(ReportModel(
+        amount: 1,
+        date: '2021-10-10',
+        name: 'Test Report',
+        plate: 'KAA 123',
+        totalServiceFee: 100,
+      ));
+
+      if (reportJson != null && reportJson.isNotEmpty) {
+        List<dynamic> decodedList = json.decode(reportJson);
+        List<ReportModel> sharedPreferencesReports = decodedList
+            .map<ReportModel>((json) => ReportModel.fromJson(json))
+            .toList();
+        reports.addAll(sharedPreferencesReports);
+      }
+
+      reports = reports.reversed.toList();
+
+      setState(() {
+        _reportList = reports;
+        _filteredReport = reports;
+      });
+    } catch (e) {
+      print('Error loading report list: $e');
+      // Handle the error as needed
+    }
   }
+
+  // Future<void> _loadReportList() async {
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   List<String> reportJsonList = prefs.getStringList('reports') ?? [];
+  //   List<ReportModel> reports = reportJsonList
+  //       .map((data) => ReportModel.fromJson(json.decode(data)))
+  //       .toList();
+  //   reports = reports.reversed.toList();
+
+  //   setState(() {
+  //     _reportList = reports;
+  //     _filteredReport = reports;
+  //   });
+  // }
 
   void _filterReport(String searchText) {
     setState(() {
@@ -130,6 +171,7 @@ class SoldTicketsState extends State<SoldTickets> {
                         ),
                   onPressed: () async {
                     // ReportService reportService = ReportService();
+
                     for (ReportModel report in _reportList) {
                       BlocProvider.of<UploadBloc>(context)
                           .add(UploadReportEvent(report: report));
