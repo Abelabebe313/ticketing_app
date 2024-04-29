@@ -115,15 +115,22 @@ class SoldTicketsState extends State<SoldTickets> {
           setState(() {
             _isLoading = true;
           });
-        } else if (state is UploadError) {
-          // Show error message
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.errorMessage),
-              backgroundColor: Colors.red,
-              duration: const Duration(seconds: 2),
+            const SnackBar(
+              content: Text("Report Uplaoded"),
+              backgroundColor: Colors.green,
+              duration: Duration(seconds: 2),
             ),
           );
+        } else if (state is UploadError) {
+          // Show error message
+          // ScaffoldMessenger.of(context).showSnackBar(
+          //   SnackBar(
+          //     content: Text(state.errorMessage),
+          //     backgroundColor: Colors.red,
+          //     duration: const Duration(seconds: 2),
+          //   ),
+          // );
         }
       },
       builder: (context, state) {
