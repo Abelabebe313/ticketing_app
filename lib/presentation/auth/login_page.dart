@@ -257,7 +257,7 @@ class _LoginPageState extends State<LoginPage> {
                   controller: _controllerPassword,
                   decoration: InputDecoration(
                     contentPadding: EdgeInsets.all(6),
-                    hintText: 'Pin',
+                    hintText: 'Pin (4 digit)',
                     hintStyle: const TextStyle(
                       color: Colors.grey,
                       fontFamily: 'Poppins-Light',

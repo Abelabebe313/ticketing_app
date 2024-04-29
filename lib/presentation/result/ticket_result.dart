@@ -362,7 +362,7 @@ class ResultPageState extends State<ResultPage> {
                     String uniqueCounter =
                         generateUniqueCounter(today, currentCount + i + 1);
                     print('$i = ticket printed');
-                    
+
                     saveReport();
                     //uncomment the following
                     // await printMultipleTickets(
@@ -425,11 +425,45 @@ class ResultPageState extends State<ResultPage> {
     await _saveReportLocally(report);
   }
 
+  // Future<void> _saveReportLocally(ReportModel report) async {
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   List<String> reportsJson = prefs.getStringList('reports') ?? [];
+
+  //   reportsJson.add(jsonEncode(report.toJson()));
+  //   await prefs.setStringList('reports', reportsJson);
+  // }
+
   Future<void> _saveReportLocally(ReportModel report) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    List<String> reportsJson = prefs.getStringList('reports') ?? [];
-    reportsJson.add(jsonEncode(report.toJson()));
-    await prefs.setStringList('reports', reportsJson);
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? reportsData = prefs.getString('reports');
+
+      // Print the fetched data to see its type and value
+      print('Fetched reportsData: $reportsData');
+
+      // Initialize reportsJson as an empty list of Strings
+      List<String> reportsJson = [];
+
+      // If reportsData is not null and is of type String, add it to reportsJson
+      if (reportsData != null) {
+        reportsJson.add(reportsData);
+      }
+
+      // Encode the report data to JSON
+      String reportJson = jsonEncode(report.toJson());
+
+      // Add the JSON-encoded report to the list
+      reportsJson.add(reportJson);
+
+      // Save the list of JSON strings to SharedPreferences
+      await prefs.setString('reports', reportsJson.join(','));
+
+      // Print the saved reportsJson to verify its value
+      print('Saved reportsJson: $reportsJson');
+    } catch (e) {
+      print('Error saving report locally: $e');
+      // Handle the error as needed
+    }
   }
 
   Future<Uint8List> _getImageFromAsset(String iconPath) async {

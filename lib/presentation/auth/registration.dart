@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:transport_app/bloc/registration%20bloc/register_bloc.dart';
@@ -8,7 +7,6 @@ import 'package:transport_app/models/update_model.dart';
 import 'package:transport_app/presentation/auth/login_page.dart';
 import 'package:transport_app/presentation/home.dart';
 import 'package:transport_app/services/registrationService.dart';
-import 'package:http/http.dart' as http;
 import 'package:transport_app/utils/save_station.dart';
 
 class Registration extends StatefulWidget {
@@ -38,6 +36,14 @@ class _RegistrationState extends State<Registration> {
   void initState() {
     super.initState();
     context.read<UserRgistrationBloc>().add(FetchStationInfoEvent());
+    // listen to state
+    context.read<UserRgistrationBloc>().stream.listen((state) {
+      if (state is LoadedStationState) {
+        setState(() {
+          station_Info = state.stations;
+        });
+      }
+    });
   }
 
   Widget _errorMessage() {
@@ -66,8 +72,8 @@ class _RegistrationState extends State<Registration> {
                   confirmPassword: _confirmPasswordController.text,
                 ),
               );
-              print('Station Info: =--------=${selectedStation?.name}');
-              await saveStationToHive(selectedStation!);
+          print('Station Info: =--------=${selectedStation?.name}');
+          await saveStationToHive(selectedStation!);
         },
         child:
             _isLoading ? const CircularProgressIndicator() : Text('Register'),
@@ -94,13 +100,13 @@ class _RegistrationState extends State<Registration> {
   Widget build(BuildContext context) {
     return BlocConsumer<UserRgistrationBloc, RegisterState>(
       listener: (context, state) {
-        if (state is LoadedStationState) {
-          station_Info = state.stations;
+        // if (state is LoadedStationState) {
+        //   station_Info = state.stations;
 
-          setState(() {
-            _isLoading = false;
-          });
-        }
+        //   setState(() {
+        //     _isLoading = false;
+        //   });
+        // }
         if (state is LoadedRegisterUserState) {
           setState(() {
             _isLoading = false;
@@ -359,7 +365,6 @@ class _RegistrationState extends State<Registration> {
                             onChanged: (value) {
                               setState(() {
                                 selectedStation = value;
-                                
                               });
                             },
                             items: station_Info!

@@ -1,18 +1,17 @@
 import 'dart:async';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:transport_app/bloc/data_bloc.dart';
 import 'package:transport_app/bloc/data_event.dart';
-import 'package:transport_app/bloc/data_state.dart';
-import 'package:transport_app/core/my_text.dart';
-import 'package:transport_app/presentation/widgets/home_shimmer.dart';
 import 'package:transport_app/presentation/widgets/language_dropdowns.dart';
+
 import '../core/my_colors.dart';
 import 'buy_tickets/buy_ticket.dart';
-import 'widgets/enddrawer.dart';
 import 'queue/queue.dart';
 import 'sold_tickets/tickets.dart';
+import 'widgets/enddrawer.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -38,7 +37,7 @@ class _HomeState extends State<Home> {
   ];
 
   late PageController _pageController;
-  late Timer _timer;
+  Timer _timer = Timer.periodic(const Duration(seconds: 3), (timer) {});
   bool _isRefreshing = false;
 
   @override
