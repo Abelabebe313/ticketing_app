@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:barcode_widget/barcode_widget.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:ethiopian_calendar/ethiopian_date_converter.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sunmi_printer_plus/column_maker.dart';
@@ -33,6 +34,8 @@ class ResultPage extends StatefulWidget {
 
 class ResultPageState extends State<ResultPage> {
   bool printBinded = false;
+  DateTime ethio_date =
+      EthiopianDateConverter.convertToEthiopianDate(DateTime.now());
   @override
   void initState() {
     super.initState();
@@ -296,7 +299,7 @@ class ResultPageState extends State<ResultPage> {
                             fontWeight: FontWeight.bold),
                       ),
                       Text(
-                        widget.ticket.date.toString(),
+                        '${ethio_date.day.toString()}/${ethio_date.month.toString()}/${ethio_date.year.toString()}-${ethio_date.hour.toString()}:${ethio_date.minute.toString()}:${ethio_date.second.toString()}', // time goes here
                         style: const TextStyle(
                             color: Colors.black,
                             fontSize: 16,
@@ -355,29 +358,52 @@ class ResultPageState extends State<ResultPage> {
                     ticketsToPrint = remainingCapacity;
                   }
                   DateTime today = DateTime.now();
-                  for (int i = 0; i < ticketsToPrint; i++) {
-                    if (currentCount + i == widget.totalCapacity) {
-                      saveReport();
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text(
-                              "Lakkoofsi tikkeettii waan guutuuf, karaa ba'uu addaan kuta"),
-                          backgroundColor: Colors.blue,
-                          duration: Duration(seconds: 2),
-                        ),
-                      );
-                      prefs.setInt(plateNumber, 0);
-                      break;
-                    } else {
-                      String uniqueCounter =
-                          generateUniqueCounter(today, currentCount + i + 1);
-
-                      await printMultipleTickets(uniqueCounter);
-                      // Store vehicle ticket count
-                      prefs.setInt(plateNumber, currentCount + i + 1);
-                    }
+                  for (int i = 0; i < widget.numberOfTickets; i++) {
+                    String uniqueCounter =
+                        generateUniqueCounter(today, currentCount + i + 1);
+                    print('$i = ticket printed');
+                    
+                    saveReport();
+                    //uncomment the following
+                    // await printMultipleTickets(
+                    //     uniqueCounter, widget.totalCapacity);
+                    // Store vehicle ticket count
                   }
-                  Navigator.pop(context);
+                  //
+                  // for (int i = 0; i < ticketsToPrint; i++) {
+                  //   if (currentCount + 1 == widget.totalCapacity) {
+                  //     saveReport();
+
+                  //     prefs.setInt(plateNumber, 0);
+
+                  //     ScaffoldMessenger.of(context).showSnackBar(
+                  //       const SnackBar(
+                  //         content: Text(
+                  //             "Lakkoofsi tikkeettii waan guutuuf, karaa ba'uu addaan kuta"),
+                  //         backgroundColor: Colors.blue,
+                  //         duration: Duration(seconds: 2),
+                  //       ),
+                  //     );
+                  //     break;
+                  //   } else {
+                  //     String uniqueCounter =
+                  //         generateUniqueCounter(today, currentCount + i + 1);
+                  //     ScaffoldMessenger.of(context).showSnackBar(
+                  //       SnackBar(
+                  //         content: Text("printiting sucesss: $i "),
+                  //         backgroundColor: Colors.green,
+                  //         duration: Duration(seconds: 2),
+                  //       ),
+                  //     );
+                  //     //uncomment the following
+
+                  //     // await printMultipleTickets(
+                  //     //     uniqueCounter, widget.totalCapacity);
+                  //     // Store vehicle ticket count
+                  //     prefs.setInt(plateNumber, currentCount + i + 1);
+                  //   }
+                  // }
+                  // Navigator.pop(context);
                 },
               ),
             )
@@ -392,24 +418,25 @@ class ResultPageState extends State<ResultPage> {
     ReportModel report = ReportModel(
       name: widget.ticket.tailure, // Add the actual name
       amount: widget.totalCapacity, // Add the actual amount
+      totalServiceFee: (widget.ticket.tariff * 0.02) * widget.totalCapacity,
       date: currentDate, // Add the actual date
       plate: widget.ticket.plate,
     );
-    _saveReportLocally(report);
+    await _saveReportLocally(report);
   }
 
-  void _saveReportLocally(ReportModel report) async {
+  Future<void> _saveReportLocally(ReportModel report) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     List<String> reportsJson = prefs.getStringList('reports') ?? [];
     reportsJson.add(jsonEncode(report.toJson()));
-    prefs.setStringList('reports', reportsJson);
+    await prefs.setStringList('reports', reportsJson);
   }
 
   Future<Uint8List> _getImageFromAsset(String iconPath) async {
     return await readFileBytes(iconPath);
   }
 
-  Future<void> printMultipleTickets(String ticketCode) async {
+  Future<void> printMultipleTickets(String ticketCode, int seat) async {
     await SunmiPrinter.initPrinter();
     Uint8List dalex = await _getImageFromAsset('assets/images/Untitled-2.jpg');
     await SunmiPrinter.startTransactionPrint(true);
@@ -426,7 +453,7 @@ class ResultPageState extends State<ResultPage> {
     await SunmiPrinter.setAlignment(SunmiPrintAlign.CENTER);
 
     await SunmiPrinter.printRow(cols: [
-      ColumnMaker(text: "Ka'unsaa", width: 18, align: SunmiPrintAlign.LEFT),
+      ColumnMaker(text: "Ka'umsaa", width: 16, align: SunmiPrintAlign.LEFT),
       ColumnMaker(
           text: widget.ticket.departure,
           width: 12,
@@ -462,7 +489,7 @@ class ResultPageState extends State<ResultPage> {
 
     await SunmiPrinter.printRow(cols: [
       ColumnMaker(text: "Teessoo", width: 18, align: SunmiPrintAlign.LEFT),
-      ColumnMaker(text: '24', width: 12, align: SunmiPrintAlign.RIGHT),
+      ColumnMaker(text: '${seat}', width: 12, align: SunmiPrintAlign.RIGHT),
     ]);
 
     await SunmiPrinter.printRow(cols: [
@@ -473,7 +500,7 @@ class ResultPageState extends State<ResultPage> {
       ),
       ColumnMaker(
           text:
-              '${widget.ticket.date.day}/${widget.ticket.date.month}/${widget.ticket.date.year}-${widget.ticket.date.hour}:${widget.ticket.date.minute}:${widget.ticket.date.second}',
+              '${ethio_date.day.toString()}/${ethio_date.month.toString()}/${ethio_date.year.toString()}:-${ethio_date.hour.toString()}:${ethio_date.minute.toString()}:${ethio_date.second.toString()}',
           width: 17,
           align: SunmiPrintAlign.RIGHT),
     ]);
@@ -507,7 +534,7 @@ class ResultPageState extends State<ResultPage> {
         align: SunmiPrintAlign.LEFT,
       ),
       ColumnMaker(
-        text: '100 km',
+        text: '${widget.ticket.distance.toString()} km',
         width: 12,
         align: SunmiPrintAlign.RIGHT,
       ),
@@ -532,7 +559,7 @@ class ResultPageState extends State<ResultPage> {
         align: SunmiPrintAlign.LEFT,
       ),
       ColumnMaker(
-        text: '${widget.ticket.charge} Birr',
+        text: '${double.parse(widget.ticket.charge.toStringAsFixed(3))} Birr',
         width: 10,
         align: SunmiPrintAlign.RIGHT,
       ),
