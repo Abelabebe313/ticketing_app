@@ -14,6 +14,7 @@ class ReportService {
     await Hive.openBox<String>(tokenHive);
     final String? token = Hive.box<String>(tokenHive).get('token');
     await Hive.close();
+    print('---------------------token: $token');
     final station_box = await Hive.openBox<StationInfo>('station');
     final String? station_id = station_box.get('station_id')?.id;
 
