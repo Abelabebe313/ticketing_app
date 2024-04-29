@@ -18,15 +18,7 @@ class SoldTickets extends StatefulWidget {
 }
 
 class SoldTicketsState extends State<SoldTickets> {
-  List<ReportModel> _reportList = [
-    ReportModel(
-      amount: 1,
-      date: '2021-10-10',
-      name: 'John Doe',
-      plate: 'KAA 123',
-      totalServiceFee: 100,
-    )
-  ];
+  List<ReportModel> _reportList = [];
   List<ReportModel> _filteredReport = [];
   bool _isLoading = false;
 
