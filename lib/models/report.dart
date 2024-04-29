@@ -24,12 +24,13 @@ class ReportModel {
   }
 
   factory ReportModel.fromJson(Map<String, dynamic> json) {
-    return ReportModel(
-      name: json['name'] ?? '',
-      amount: json['amount'] ?? 0,
-      totalServiceFee: json['totalServiceFee'] ?? 0.0,
-      date: json['date'] ?? '',
-      plate: json['plate'] ?? '',
-    );
-  }
+  return ReportModel(
+    name: json['name'] ?? '',
+    amount: json['amount'] ?? 0,
+    totalServiceFee: json['totalServiceFee']?.toDouble() ?? 0.0,
+    date: json['date'] ?? '',
+    plate: json['plate'] ?? '',
+  );
+}
+
 }

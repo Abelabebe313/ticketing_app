@@ -36,6 +36,10 @@ class SoldTicketsState extends State<SoldTickets> {
   Future<void> _loadReportList() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     List<String> reportJsonList = prefs.getStringList('reports') ?? [];
+
+    // Print the contents of reportJsonList
+    print('Report JSON List: $reportJsonList');
+
     List<ReportModel> reports = [];
 
     for (String data in reportJsonList) {

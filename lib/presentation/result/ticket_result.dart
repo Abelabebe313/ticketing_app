@@ -368,6 +368,7 @@ class ResultPageState extends State<ResultPage> {
                     // await printMultipleTickets(
                     //     uniqueCounter, widget.totalCapacity);
                     // Store vehicle ticket count
+                    Navigator.pop(context);
                   }
                   //
                   // for (int i = 0; i < ticketsToPrint; i++) {
