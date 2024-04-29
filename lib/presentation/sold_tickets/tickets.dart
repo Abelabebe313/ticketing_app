@@ -41,19 +41,14 @@ class SoldTicketsState extends State<SoldTickets> {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? reportJson = prefs.getString('reports');
-
+      print('Fetched reportsData: $reportJson');
       List<ReportModel> reports = [];
 
-      // Add pre-existing report
-      reports.add(ReportModel(
-        amount: 1,
-        date: '2021-10-10',
-        name: 'Test Report',
-        plate: 'KAA 123',
-        totalServiceFee: 100,
-      ));
-
       if (reportJson != null && reportJson.isNotEmpty) {
+        // Enclose the reportJson string within square brackets to create a valid JSON array
+        reportJson = '[$reportJson]';
+
+        // Decode the JSON array
         List<dynamic> decodedList = json.decode(reportJson);
         List<ReportModel> sharedPreferencesReports = decodedList
             .map<ReportModel>((json) => ReportModel.fromJson(json))
