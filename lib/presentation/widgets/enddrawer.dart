@@ -1,6 +1,3 @@
-import 'dart:developer';
-import 'dart:io';
-
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -97,6 +94,10 @@ class _EndDrawersState extends State<EndDrawers> {
               await clearPreference('bus_info');
               clearAuthToken();
               clearAllHiveData();
+              // clear Hive.box<String>(pin_code) ('pin');
+
+              clearBox('pin');
+
               // ignore: use_build_context_synchronously
               Navigator.pushReplacement(
                 context,

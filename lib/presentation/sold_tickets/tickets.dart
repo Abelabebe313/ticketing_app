@@ -18,15 +18,7 @@ class SoldTickets extends StatefulWidget {
 }
 
 class SoldTicketsState extends State<SoldTickets> {
-  List<ReportModel> _reportList = [
-    ReportModel(
-      amount: 1,
-      date: '2021-10-10',
-      name: 'John Doe',
-      plate: 'KAA 123',
-      totalServiceFee: 100,
-    )
-  ];
+  List<ReportModel> _reportList = [];
   List<ReportModel> _filteredReport = [];
   bool _isLoading = false;
 
@@ -41,19 +33,14 @@ class SoldTicketsState extends State<SoldTickets> {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? reportJson = prefs.getString('reports');
-
+      print('Fetched reportsData: $reportJson');
       List<ReportModel> reports = [];
 
-      // Add pre-existing report
-      reports.add(ReportModel(
-        amount: 1,
-        date: '2021-10-10',
-        name: 'Test Report',
-        plate: 'KAA 123',
-        totalServiceFee: 100,
-      ));
-
       if (reportJson != null && reportJson.isNotEmpty) {
+        // Enclose the reportJson string within square brackets to create a valid JSON array
+        reportJson = '[$reportJson]';
+
+        // Decode the JSON array
         List<dynamic> decodedList = json.decode(reportJson);
         List<ReportModel> sharedPreferencesReports = decodedList
             .map<ReportModel>((json) => ReportModel.fromJson(json))
@@ -128,15 +115,22 @@ class SoldTicketsState extends State<SoldTickets> {
           setState(() {
             _isLoading = true;
           });
-        } else if (state is UploadError) {
-          // Show error message
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.errorMessage),
-              backgroundColor: Colors.red,
-              duration: const Duration(seconds: 2),
+            const SnackBar(
+              content: Text("Report Uplaoded"),
+              backgroundColor: Colors.green,
+              duration: Duration(seconds: 2),
             ),
           );
+        } else if (state is UploadError) {
+          // Show error message
+          // ScaffoldMessenger.of(context).showSnackBar(
+          //   SnackBar(
+          //     content: Text(state.errorMessage),
+          //     backgroundColor: Colors.red,
+          //     duration: const Duration(seconds: 2),
+          //   ),
+          // );
         }
       },
       builder: (context, state) {

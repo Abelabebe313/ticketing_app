@@ -1,5 +1,8 @@
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:path_provider/path_provider.dart' as path_provider;
 import 'package:transport_app/bloc/data_bloc.dart';
 import 'package:transport_app/bloc/login%20bloc/login_state.dart';
 import 'package:transport_app/bloc/registration%20bloc/register_bloc.dart';
@@ -13,11 +16,8 @@ import 'package:transport_app/hive_adapters/vehicle_adapter.dart';
 import 'package:transport_app/presentation/auth/login_page.dart';
 import 'package:transport_app/presentation/auth/pinScreen.dart';
 import 'package:transport_app/services/fetch_data.dart';
+
 import 'bloc/login bloc/login_bloc.dart';
-import 'package:easy_localization/easy_localization.dart';
-import 'package:hive/hive.dart';
-import 'package:hive_flutter/hive_flutter.dart';
-import 'package:path_provider/path_provider.dart' as path_provider;
 
 const vehiclesList = 'vehicle_list';
 const busList = 'bus_queue';
@@ -59,6 +59,7 @@ void main() async {
   );
 }
 
+//
 class MyApp extends StatelessWidget {
   const MyApp({Key? key});
 
