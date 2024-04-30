@@ -10,6 +10,7 @@ import 'package:transport_app/presentation/widgets/language_dropdowns.dart';
 import '../core/my_colors.dart';
 import 'buy_tickets/buy_ticket.dart';
 import 'queue/queue.dart';
+import 'sold_tickets/pinScreen.dart';
 import 'sold_tickets/tickets.dart';
 import 'widgets/enddrawer.dart';
 
@@ -278,7 +279,7 @@ class _HomeState extends State<Home> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const SoldTickets(), //
+                        builder: (context) => const SoldTicketPininput(), //
                       ),
                     );
                   },

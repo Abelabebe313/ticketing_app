@@ -244,8 +244,24 @@ class ResultPageState extends State<ResultPage> {
                             fontSize: 16,
                             fontWeight: FontWeight.bold),
                       ),
+                      Text('${double.parse((widget.ticket.charge).toStringAsFixed(3))}',
+                        style: const TextStyle(
+                            color: Colors.black,
+                            fontSize: 16,
+                            fontWeight: FontWeight.normal),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
                       Text(
-                        widget.ticket.charge.toString(),
+                        "Total: ".tr(),
+                        style: const TextStyle(
+                            color: Colors.black,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold),
+                      ),
+                      Text('${double.parse((widget.ticket.tariff + widget.ticket.charge).toStringAsFixed(3))}',
                         style: const TextStyle(
                             color: Colors.black,
                             fontSize: 16,
@@ -348,26 +364,40 @@ class ResultPageState extends State<ResultPage> {
                 onPressed: () async {
                   SharedPreferences prefs =
                       await SharedPreferences.getInstance();
-                  String plateNumber = widget.ticket.plate;
-                  int currentCount = prefs.getInt(plateNumber) ?? 0;
-
-                  int remainingCapacity = widget.totalCapacity - currentCount;
-                  int ticketsToPrint = widget.numberOfTickets;
-
-                  if (ticketsToPrint > remainingCapacity) {
-                    ticketsToPrint = remainingCapacity;
-                  }
                   DateTime today = DateTime.now();
-                  for (int i = 0; i < widget.numberOfTickets; i++) {
-                    String uniqueCounter =
-                        generateUniqueCounter(today, currentCount + i + 1);
-                    print('$i = ticket printed');
-
-                    saveReport();
-                    await printMultipleTickets(
-                        uniqueCounter, widget.totalCapacity);
-                    // Store vehicle ticket count
+                  if(widget.numberOfTickets > widget.totalCapacity) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                            "Lakkoofsi tikkeettii maxxansuuf barbaachisu dandeettii waliigalaa caala"),
+                        backgroundColor: Colors.red,
+                        duration: Duration(seconds: 3),
+                      ),
+                    );
+                    return;
                   }
+                  for (int i = 0; i < widget.numberOfTickets; i++) {
+                    String uniqueCounter = generateUniqueCounter(
+                        today, widget.numberOfTickets + i + 1);
+                    print('$i = ticket printed');
+                    double commission = widget.ticket.tariff * 0.02;
+
+                    // Get the previous commission value from SharedPreferences
+                    double previousCommission =
+                        prefs.getDouble('dailyReport') ?? 0.0;
+                    // Increment the commission by adding the new commission to the previous value
+                    double updatedCommission = previousCommission + commission;
+
+                    // Update the commission value in SharedPreferences
+                    prefs.setDouble('dailyReport', updatedCommission);
+                    //
+                    // print ticket
+                    await printMultipleTickets(
+                      uniqueCounter,
+                      widget.totalCapacity,
+                    );
+                  }
+                  Navigator.pop(context);
                   //
                   // for (int i = 0; i < ticketsToPrint; i++) {
                   //   if (currentCount + 1 == widget.totalCapacity) {
@@ -447,7 +477,6 @@ class ResultPageState extends State<ResultPage> {
       if (reportsData != null) {
         reportsJson.add(reportsData);
       }
-      
 
       // Encode the report data to JSON
       String reportJson = jsonEncode(report.toJson());
@@ -606,7 +635,7 @@ class ResultPageState extends State<ResultPage> {
         align: SunmiPrintAlign.LEFT,
       ),
       ColumnMaker(
-        text: '${widget.ticket.tariff + widget.ticket.charge} Birr',
+        text: '${double.parse((widget.ticket.tariff + widget.ticket.charge).toStringAsFixed(3))} Birr',
         width: 12,
         align: SunmiPrintAlign.RIGHT,
       ),
