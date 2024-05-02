@@ -1,11 +1,11 @@
-import 'dart:typed_data';
+import 'dart:async';
+
 import 'package:barcode_widget/barcode_widget.dart' as Bbar;
 import 'package:ethiopian_calendar/ethiopian_date_converter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:sunmi_printer_plus/column_maker.dart';
 import 'package:sunmi_printer_plus/enums.dart';
-import 'dart:async';
 import 'package:sunmi_printer_plus/sunmi_printer_plus.dart';
 import 'package:sunmi_printer_plus/sunmi_style.dart';
 
@@ -29,14 +29,13 @@ class SunmiPrinterPage extends StatefulWidget {
       required this.date,
       required this.station,
       required this.plateNo,
-       required this.totalCapacity,
+      required this.totalCapacity,
       required this.level,
       required this.tariff,
       required this.association,
       required this.distance,
       required this.destination,
-      required this.agent
-      })
+      required this.agent})
       : super(key: key);
 
   @override
@@ -49,16 +48,18 @@ class _SunmiPrinterPageState extends State<SunmiPrinterPage> {
   String serialNumber = "";
   String printerVersion = "";
   final now = DateTime.now();
-  DateTime ethio_date = EthiopianDateConverter.convertToEthiopianDate(DateTime.now());
+  DateTime ethio_date =
+      EthiopianDateConverter.convertToEthiopianDate(DateTime.now());
   double totalMoney = 0.0;
   @override
   void initState() {
     super.initState();
     setState(() {
-      totalMoney = int.parse(widget.totalCapacity)*double.parse(widget.tariff);
+      totalMoney =
+          int.parse(widget.totalCapacity) * double.parse(widget.tariff);
       totalMoney = double.parse(totalMoney.toStringAsFixed(2));
     });
-    
+
     _bindingPrinter().then((bool? isBind) async {
       SunmiPrinter.paperSize().then((int size) {
         setState(() {
@@ -120,7 +121,6 @@ class _SunmiPrinterPageState extends State<SunmiPrinterPage> {
                       ],
                     ),
                     SizedBox(height: 10),
-                    
                     Row(
                       children: [
                         const Text(
@@ -136,6 +136,26 @@ class _SunmiPrinterPageState extends State<SunmiPrinterPage> {
                               color: Colors.black,
                               fontSize: 16,
                               fontWeight: FontWeight.normal),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        const Text(
+                          "Level: ",
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          widget.level,
+                          style: const TextStyle(
+                            color: Colors.black,
+                            fontSize: 16,
+                            fontWeight: FontWeight.normal,
+                          ),
                         ),
                       ],
                     ),
@@ -216,6 +236,24 @@ class _SunmiPrinterPageState extends State<SunmiPrinterPage> {
                     Row(
                       children: [
                         const Text(
+                          "Single Tariff: ",
+                          style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          "${widget.tariff} birr",
+                          style: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 16,
+                              fontWeight: FontWeight.normal),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        const Text(
                           "Tessoo: ",
                           style: TextStyle(
                               color: Colors.black,
@@ -282,8 +320,8 @@ class _SunmiPrinterPageState extends State<SunmiPrinterPage> {
                     ElevatedButton(
                         onPressed: () async {
                           final DateTime today = DateTime.now();
-                          String uniqueCounter =
-                              generateUniqueCounter(today, widget.plateNo[0].codeUnitAt(0));
+                          String uniqueCounter = generateUniqueCounter(
+                              today, widget.plateNo[0].codeUnitAt(0));
                           print('print pressed');
                           await SunmiPrinter.initPrinter();
                           await SunmiPrinter.startTransactionPrint(true);

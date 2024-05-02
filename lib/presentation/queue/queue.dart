@@ -22,6 +22,8 @@ class BusQueueState extends State<BusQueue> {
   final TextEditingController departure = TextEditingController();
   final TextEditingController date = TextEditingController();
   final TextEditingController tariff = TextEditingController();
+  final TextEditingController total_seat = TextEditingController();
+
   final TextEditingController serviceCharge = TextEditingController();
   final TextEditingController association = TextEditingController();
   final TextEditingController distance = TextEditingController();
@@ -64,7 +66,8 @@ class BusQueueState extends State<BusQueue> {
       print('No username found in the box.');
     }
   }
-   Future<void> getTariffByDestinationId(String destinationId) async {
+
+  Future<void> getTariffByDestinationId(String destinationId) async {
     // Search for the tariff information with the given destination ID
     for (TariffInfo tariffInfo in tariffList) {
       if (tariffInfo.destinationId == destinationId) {
@@ -89,10 +92,16 @@ class BusQueueState extends State<BusQueue> {
               serviceCharge.text =
                   (double.parse(tariffInfo.level_3!) * 0.02).toString();
             } else {
-              tariff.text = tariffInfo.tariff ?? '';
-              serviceCharge.text =
-                  (double.parse(tariffInfo.tariff!) * 0.02).toString();
+              tariff.text = tariffInfo.level_1 ?? '';
             }
+            total_seat.text = selectedVehicle?.capacity.toString() ?? '1';
+            association.text = selectedVehicle?.associationName ?? '';
+          } else {
+            tariff.text = tariffInfo.level_1 ?? '';
+            serviceCharge.text =
+                (double.parse(tariffInfo.level_1!) * 0.02).toString();
+            total_seat.text = selectedVehicle?.capacity.toString() ?? '1';
+            association.text = selectedVehicle?.associationName ?? '';
           }
         });
       }
@@ -200,7 +209,7 @@ class BusQueueState extends State<BusQueue> {
     plateNumber.text = vehicle.plateNo!;
     level.text = vehicle.level!;
     totalCapacity = int.tryParse(vehicle.capacity!) ?? 0;
-    association.text = vehicle.associationName ?? '';
+    association.text = selectedVehicle?.associationName ?? '';
   }
 
   void updateDestinationFields(DestinationList destiantion) {
@@ -330,7 +339,7 @@ class BusQueueState extends State<BusQueue> {
                                       () {
                                         selectedVehicle = newValue;
                                         getTariffByDestinationId(
-                                                  selectedDestination!.id!);
+                                            selectedDestination!.id!);
                                         updateVehicleFields(newValue!);
                                       },
                                     );
@@ -404,6 +413,8 @@ class BusQueueState extends State<BusQueue> {
                                   setState(
                                     () {
                                       selectedDestination = newValue;
+                                      getTariffByDestinationId(
+                                          selectedDestination!.id!);
                                       updateDestinationFields(newValue!);
                                     },
                                   );
@@ -513,6 +524,55 @@ class BusQueueState extends State<BusQueue> {
               height: 15,
             ),
             //
+
+            // ====== Association ======
+            //
+            Container(height: 15),
+            Text(
+              "Total Capacity (Seat)".tr(),
+              style: const TextStyle(
+                color: MyColors.grey_60,
+                fontSize: 14,
+                fontFamily: 'Poppins-Light',
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            Container(height: 5),
+            Card(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(3),
+              ),
+              clipBehavior: Clip.antiAliasWithSaveLayer,
+              margin: const EdgeInsets.all(0),
+              elevation: 0,
+              child: Container(
+                height: 50,
+                alignment: Alignment.centerLeft,
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: TextField(
+                  maxLines: 1,
+                  controller: total_seat,
+
+                  // defualt value = selectedVehicle!.capacity ?? '',
+
+                  keyboardType: TextInputType.number,
+
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontFamily: 'Poppins-Light',
+                    fontWeight: FontWeight.bold,
+                  ),
+                  decoration: const InputDecoration(
+                    contentPadding: EdgeInsets.all(-12),
+                    border: InputBorder.none,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(
+              height: 15,
+            ),
+            //
             //  ==== submit button ====
             //
             SizedBox(
@@ -536,7 +596,7 @@ class BusQueueState extends State<BusQueue> {
                   //     generateUniqueCounter(today, counter);
                   // int counter = await CounterService.generateNextNumber();
 
-                  Navigator.pushReplacement(
+                  Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => SunmiPrinterPage(
@@ -546,10 +606,11 @@ class BusQueueState extends State<BusQueue> {
                         plateNo: plateNumber.text,
                         level: level.text,
                         tariff: tariff.text,
-                        totalCapacity:selectedVehicle!.capacity ?? '',
+                        totalCapacity: total_seat.text,
                         association: association.text,
                         distance: distance.text,
-                        destination: destination.text, agent: Tailure.text,
+                        destination: destination.text,
+                        agent: Tailure.text,
                       ),
                     ),
                   );
