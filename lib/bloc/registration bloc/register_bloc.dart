@@ -28,15 +28,6 @@ class UserRgistrationBloc extends Bloc<RegisterEvent, RegisterState> {
       }
     });
 
-    on<FetchStationInfoEvent>((event, emit) async {
-      emit(RegisterUserLoading());
-      try {
-        final response = await userService.fetchStationInfo();
-        emit(LoadedStationState(response));
-      } catch (e) {
-        emit(const RegisterUserError('Error fetching station information'));
-      }
-    });
 
   }
 }

@@ -28,21 +28,9 @@ class _LoginPageState extends State<LoginPage> {
   bool _isPasswordVisible = false;
   bool result = false;
 
-  List<StationInfo>? station_Info;
-  StationInfo? l_SelectedStation;
-
   @override
   void initState() {
     super.initState();
-    context.read<UserRgistrationBloc>().add(FetchStationInfoEvent());
-    context.read<UserRgistrationBloc>().stream.listen((state) {
-      if (state is LoadedStationState) {
-        station_Info = state.stations;
-        setState(() {
-          _isLoading = false;
-        });
-      }
-    });
   }
 
   Widget _errorMessage() {
@@ -70,8 +58,7 @@ class _LoginPageState extends State<LoginPage> {
                   password: _controllerPassword.text,
                 ),
               );
-          print('Station Info: =--------=${l_SelectedStation?.name}');
-          await saveStationToHive(l_SelectedStation!);
+          await saveStationToHive();
         },
         child: _isLoading
             ? const CircularProgressIndicator(
@@ -102,7 +89,13 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Future<void> saveStationToHive(StationInfo station) async {
+  Future<void> saveStationToHive() async {
+    StationInfo station = StationInfo(
+      id: "6",
+      name: "Gindhiir",
+      location: "Gindhiir",
+      departure: "Gindhiir",
+    );
     try {
       // Open Hive box for station
       final box = await Hive.openBox<StationInfo>('station');
@@ -293,59 +286,6 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(40, 5, 40, 5),
-                child: (station_Info != null)
-                    ? SizedBox(
-                        child: DropdownButtonFormField<StationInfo>(
-                          value: l_SelectedStation,
-                          onChanged: (value) {
-                            setState(() {
-                              l_SelectedStation = value;
-                            });
-                          },
-                          items: station_Info!
-                              .map<DropdownMenuItem<StationInfo>>((station) {
-                            return DropdownMenuItem<StationInfo>(
-                              value: station,
-                              child: Padding(
-                                padding: const EdgeInsets.all(6),
-                                child: Text(
-                                  station.name!,
-                                  style: const TextStyle(
-                                    color: Colors.grey,
-                                    fontFamily: 'Poppins-Light',
-                                    fontSize: 14,
-                                  ),
-                                ),
-                              ),
-                            );
-                          }).toList(),
-                          decoration: const InputDecoration(
-                            contentPadding: EdgeInsets.fromLTRB(6, 6, 6, 6),
-                            enabledBorder: OutlineInputBorder(
-                              borderSide:
-                                  BorderSide(color: Colors.grey, width: 1),
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(10),
-                              ),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(
-                                color: Colors.blue,
-                                width: 1,
-                              ),
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(10),
-                              ),
-                            ),
-                          ),
-                          isExpanded: true,
-                          style: const TextStyle(color: Colors.grey),
-                        ),
-                      )
-                    : Container(),
               ),
               const SizedBox(
                 height: 20,

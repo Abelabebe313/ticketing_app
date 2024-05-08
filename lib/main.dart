@@ -18,6 +18,8 @@ import 'package:transport_app/presentation/auth/pinScreen.dart';
 import 'package:transport_app/services/fetch_data.dart';
 
 import 'bloc/login bloc/login_bloc.dart';
+import 'bloc/station bloc/station_bloc.dart';
+import 'bloc/station bloc/station_state.dart';
 
 const vehiclesList = 'vehicle_list';
 const busList = 'bus_queue';
@@ -78,6 +80,9 @@ class MyApp extends StatelessWidget {
         ),
         BlocProvider<UploadBloc>(
           create: (context) => UploadBloc(UploadInitial()),
+        ),
+        BlocProvider<StationBloc>(
+          create: (context) => StationBloc(StationInfoInitial()),
         ),
       ],
       // create: (context) => DataBloc(DataService()),

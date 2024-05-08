@@ -7,7 +7,7 @@ abstract class StationInfoState extends Equatable {
   @override
   List<Object> get props => [];
 }
-
+class StationInfoInitial extends StationInfoState {}
 class StationInfoLoading extends StationInfoState {}
 
 class StationInfoSuccess extends StationInfoState {
