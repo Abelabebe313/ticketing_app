@@ -4,9 +4,6 @@ import 'package:hive/hive.dart';
 import 'package:transport_app/bloc/login%20bloc/login_bloc.dart';
 import 'package:transport_app/bloc/login%20bloc/login_event.dart';
 import 'package:transport_app/bloc/login%20bloc/login_state.dart';
-import 'package:transport_app/bloc/registration%20bloc/register_bloc.dart';
-import 'package:transport_app/bloc/registration%20bloc/register_event.dart';
-import 'package:transport_app/bloc/registration%20bloc/register_state.dart';
 import 'package:transport_app/models/update_model.dart';
 import 'package:transport_app/presentation/auth/registration.dart';
 import 'package:transport_app/presentation/home.dart';
@@ -31,6 +28,13 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _controllerPassword.dispose();
+    _phoneController.dispose();
+    super.dispose();
   }
 
   Widget _errorMessage() {

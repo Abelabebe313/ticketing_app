@@ -341,13 +341,17 @@ class _SunmiPrinterPageState extends State<SunmiPrinterPage> {
                   children: [
                     ElevatedButton(
                         onPressed: () async {
+                          _saveReport(
+                            widget.agent,
+                            totalMoney.toString(),
+                            widget.plateNo,
+                          );
                           final DateTime today = DateTime.now();
                           String uniqueCounter = generateUniqueCounter(
                               today, widget.plateNo[0].codeUnitAt(0));
                           print('print pressed');
                           // Save the report to the database
-                          _saveReport(widget.agent, totalMoney.toString(),
-                              widget.plateNo);
+                           
 
                           await SunmiPrinter.initPrinter();
                           await SunmiPrinter.startTransactionPrint(true);

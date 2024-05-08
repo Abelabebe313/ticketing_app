@@ -253,7 +253,6 @@ class SoldTicketsState extends State<SoldTickets> {
                         title: Text('Name: ${report.name}'),
                         subtitle: Text('Plate: ${report.plate}'),
                         trailing: Text('date: ${report.date}'),
-
                         // Add more details here if needed
                       ),
                     );

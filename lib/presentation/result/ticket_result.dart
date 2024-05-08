@@ -475,7 +475,7 @@ class ResultPageState extends State<ResultPage> {
                         widget.totalCapacity,
                       );
                     }
-                    Navigator.pop(context);
+                    // Navigator.pop(context);
                     
                   },
                 ),
@@ -492,165 +492,88 @@ class ResultPageState extends State<ResultPage> {
     return await readFileBytes(iconPath);
   }
 
-  Future<void> printMultipleTickets(String ticketCode, int seat) async {
+ Future<void> printMultipleTickets(String ticketCode, int seat) async {
     await SunmiPrinter.initPrinter();
-    Uint8List dalex = await _getImageFromAsset('assets/images/Untitled-2.jpg');
+    Uint8List dalex = await _getImageFromAsset('assets/images/Untitled-2@3x.jpg');
     await SunmiPrinter.startTransactionPrint(true);
 
     await SunmiPrinter.setAlignment(SunmiPrintAlign.CENTER);
     await SunmiPrinter.printImage(dalex);
-    await SunmiPrinter.lineWrap(1);
+    // await SunmiPrinter.lineWrap(1);
 
-    await SunmiPrinter.bold();
+    // await SunmiPrinter.bold();
     await SunmiPrinter.setAlignment(SunmiPrintAlign.CENTER);
     await SunmiPrinter.printText('Tikeetii imaltootaa!');
 
-    await SunmiPrinter.line();
+    // await SunmiPrinter.line();
     await SunmiPrinter.setAlignment(SunmiPrintAlign.CENTER);
-
-    await SunmiPrinter.printRow(cols: [
-      ColumnMaker(text: "Ka'umsaa", width: 16, align: SunmiPrintAlign.LEFT),
-      ColumnMaker(
-          text: widget.ticket.departure,
-          width: 12,
-          align: SunmiPrintAlign.RIGHT),
-    ]);
-
-    await SunmiPrinter.printRow(cols: [
-      ColumnMaker(text: "Gahunsaa", width: 18, align: SunmiPrintAlign.LEFT),
-      ColumnMaker(
-          text: widget.ticket.destination,
-          width: 12,
-          align: SunmiPrintAlign.RIGHT),
-    ]);
-
-    await SunmiPrinter.printRow(cols: [
-      ColumnMaker(
-          text: "Tikeetii Lakk", width: 18, align: SunmiPrintAlign.LEFT),
-      ColumnMaker(text: '$ticketCode', width: 12, align: SunmiPrintAlign.RIGHT),
-    ]);
-
-    await SunmiPrinter.printRow(cols: [
-      ColumnMaker(
-          text: "Lakkoofsa gabatee", width: 18, align: SunmiPrintAlign.LEFT),
-      ColumnMaker(
-          text: widget.ticket.plate, width: 12, align: SunmiPrintAlign.RIGHT),
-    ]);
-
-    await SunmiPrinter.printRow(cols: [
-      ColumnMaker(text: "Sadarkaa", width: 18, align: SunmiPrintAlign.LEFT),
-      ColumnMaker(
-          text: widget.ticket.level, width: 12, align: SunmiPrintAlign.RIGHT),
-    ]);
-
-    await SunmiPrinter.printRow(cols: [
-      ColumnMaker(text: "Teessoo", width: 18, align: SunmiPrintAlign.LEFT),
-      ColumnMaker(text: '${seat}', width: 12, align: SunmiPrintAlign.RIGHT),
-    ]);
-
-    await SunmiPrinter.printRow(cols: [
-      ColumnMaker(
-        text: "Guyyaa",
-        width: 13,
-        align: SunmiPrintAlign.LEFT,
-      ),
-      ColumnMaker(
-          text:
-              '${ethio_date.day.toString()}/${ethio_date.month.toString()}/${ethio_date.year.toString()}:-${ethio_date.hour.toString()}:${ethio_date.minute.toString()}:${ethio_date.second.toString()}',
-          width: 17,
-          align: SunmiPrintAlign.RIGHT),
-    ]);
-
-    await SunmiPrinter.printRow(cols: [
-      ColumnMaker(
-        text: "Agent",
-        width: 18,
-        align: SunmiPrintAlign.LEFT,
-      ),
-      ColumnMaker(
-          text: widget.ticket.tailure, width: 12, align: SunmiPrintAlign.RIGHT),
-    ]);
-
-    await SunmiPrinter.printRow(cols: [
-      ColumnMaker(
-        text: "Waldaa",
-        width: 18,
-        align: SunmiPrintAlign.LEFT,
-      ),
-      ColumnMaker(
-          text: widget.ticket.association,
-          width: 12,
-          align: SunmiPrintAlign.RIGHT),
-    ]);
-
-    await SunmiPrinter.printRow(cols: [
-      ColumnMaker(
-        text: "fageenya",
-        width: 18,
-        align: SunmiPrintAlign.LEFT,
-      ),
-      ColumnMaker(
-        text: '${widget.ticket.distance.toString()} km',
-        width: 12,
-        align: SunmiPrintAlign.RIGHT,
-      ),
-    ]);
-
-    await SunmiPrinter.printRow(cols: [
-      ColumnMaker(
-        text: "Taarifa",
-        width: 18,
-        align: SunmiPrintAlign.LEFT,
-      ),
-      ColumnMaker(
-          text: '${widget.ticket.tariff} Birr',
-          width: 12,
-          align: SunmiPrintAlign.RIGHT),
-    ]);
-
-    await SunmiPrinter.printRow(cols: [
-      ColumnMaker(
-        text: "Kaffaltii tajaajilaa",
-        width: 20,
-        align: SunmiPrintAlign.LEFT,
-      ),
-      ColumnMaker(
-        text: '${double.parse(widget.ticket.charge.toStringAsFixed(3))} Birr',
-        width: 10,
-        align: SunmiPrintAlign.RIGHT,
-      ),
-    ]);
-
-    await SunmiPrinter.printRow(cols: [
-      ColumnMaker(
-        text: "Ida'ama",
-        width: 18,
-        align: SunmiPrintAlign.LEFT,
-      ),
-      ColumnMaker(
-        text:
-            '${double.parse((widget.ticket.tariff + widget.ticket.charge).toStringAsFixed(3))} Birr',
-        width: 12,
-        align: SunmiPrintAlign.RIGHT,
-      ),
-    ]);
+    await SunmiPrinter.bold();
+    await SunmiPrinter.printText(
+        "Ka'umsaa ----------------${widget.ticket.departure}",
+        style: SunmiStyle(fontSize: SunmiFontSize.SM));
+    await SunmiPrinter.bold();
+    await SunmiPrinter.printText(
+        "Gahunsaa ------------------${widget.ticket.destination}",
+        style: SunmiStyle(fontSize: SunmiFontSize.SM));
+    await SunmiPrinter.bold();
+    await SunmiPrinter.printText(
+        "Tikeetii Lakk --------------${ticketCode}",
+        style: SunmiStyle(fontSize: SunmiFontSize.SM));
+    await SunmiPrinter.bold();
+    await SunmiPrinter.printText(
+        "Lakkoofsa gabatee --------------${widget.ticket.plate}",
+        style: SunmiStyle(fontSize: SunmiFontSize.SM));
+    await SunmiPrinter.bold();
+    await SunmiPrinter.printText(
+        "Sadarkaa ------------------${widget.ticket.level}",
+        style: SunmiStyle(fontSize: SunmiFontSize.SM));
+    await SunmiPrinter.bold();
+    await SunmiPrinter.printText("Teessoo ------------------${seat}",
+        style: SunmiStyle(fontSize: SunmiFontSize.SM));
+    await SunmiPrinter.bold();
+    await SunmiPrinter.printText(
+        "Guyyaa ------------------${ethio_date.day.toString()}/${ethio_date.month.toString()}/${ethio_date.year.toString()}:-${ethio_date.hour.toString()}:${ethio_date.minute.toString()}",
+        style: SunmiStyle(fontSize: SunmiFontSize.SM));
+    await SunmiPrinter.bold();
+    await SunmiPrinter.printText(
+        "Agent ------------------${widget.ticket.tailure}",
+        style: SunmiStyle(fontSize: SunmiFontSize.SM));
+    await SunmiPrinter.bold();
+    await SunmiPrinter.printText(
+        "Waldaa ------------------${widget.ticket.association}",
+        style: SunmiStyle(fontSize: SunmiFontSize.SM));
+    await SunmiPrinter.bold();
+    await SunmiPrinter.printText(
+        "Fageenya ------------------${widget.ticket.distance.toString()} km",
+        style: SunmiStyle(fontSize: SunmiFontSize.SM));
+    await SunmiPrinter.bold();
+    await SunmiPrinter.printText("Taarifa --------------${widget.ticket.tariff} Birr",
+        style: SunmiStyle(fontSize: SunmiFontSize.SM));
+    await SunmiPrinter.bold();
+    await SunmiPrinter.printText(
+        "Kaffaltii tajaajilaa --------${double.parse(widget.ticket.charge.toStringAsFixed(3))} Birr",
+        style: SunmiStyle(fontSize: SunmiFontSize.SM));
+    await SunmiPrinter.bold();
+    await SunmiPrinter.printText(
+        "Ida'ama ---------------------${double.parse((widget.ticket.tariff + widget.ticket.charge).toStringAsFixed(3))} Birr",
+        style: SunmiStyle(fontSize: SunmiFontSize.SM));
 
     await SunmiPrinter.setAlignment(SunmiPrintAlign.CENTER);
 
     await SunmiPrinter.bold();
 
     await SunmiPrinter.resetBold();
-    await SunmiPrinter.printBarCode(ticketCode, height: 30);
+    await SunmiPrinter.printBarCode(ticketCode, height: 20);
     await SunmiPrinter.printText('Nagahee dijitaalaa wajjiraan');
     await SunmiPrinter.setAlignment(SunmiPrintAlign.CENTER);
     await SunmiPrinter.printText('Alatti Hin Kafalinaa');
     await SunmiPrinter.setAlignment(SunmiPrintAlign.CENTER);
     await SunmiPrinter.printText('Inala gaarii!!');
-    await SunmiPrinter.lineWrap(1);
-    await SunmiPrinter.setAlignment(SunmiPrintAlign.CENTER);
-    await SunmiPrinter.printText('Powered by: Dalex ',
-        style: SunmiStyle(fontSize: SunmiFontSize.XS));
-    await SunmiPrinter.lineWrap(3);
+    await SunmiPrinter.lineWrap(2);
+    // await SunmiPrinter.setAlignment(SunmiPrintAlign.CENTER);
+    // await SunmiPrinter.printText('Powered by: Dalex ',
+    //     style: SunmiStyle(fontSize: SunmiFontSize.XS));
+    // await SunmiPrinter.lineWrap(3);
 
     await SunmiPrinter.exitTransactionPrint(true);
   }

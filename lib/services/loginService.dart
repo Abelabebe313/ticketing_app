@@ -1,6 +1,9 @@
+// ignore_for_file: prefer_interpolation_to_compose_strings
+
 import 'dart:convert';
 import 'dart:developer';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:http/http.dart' as http;
@@ -13,6 +16,7 @@ class UserLogin {
       "https://api.noraticket.com/v1/public/api/auth/login";
 
   Future<bool> login(String phone, String password) async {
+    final Dio dio = Dio();
     // hive box implementation
     await Hive.openBox<String>(tokenHive);
     await Hive.openBox<String>(pin_code);
@@ -24,19 +28,25 @@ class UserLogin {
         'inside login service try block ========>${phone} ${password}=========');
 
     try {
-      Map<String, dynamic> data = {
+      Map<String, dynamic> user = {
         "phone": phone,
         "password": password,
       };
-      final response = await http.post(
-        Uri.parse('$baseUrl'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(data),
+      Map<String, dynamic> data = user;
+      print('========= Data ======' + data.toString());
+      final response = await dio.post(
+        baseUrl,
+        options: Options(
+            validateStatus: (status) {
+              return status! < 500;
+            },
+            headers: {'Content-Type': 'application/json'}),
+        data: data,
       );
 
-      final responseData = json.decode(response.body) as Map<String, dynamic>;
-
-      if (response.statusCode == 200 && responseData['status'] == true) {
+      print('========= Second part ======' + response.data.toString());
+      if (response.statusCode == 200) {
+        final responseData = response.data as Map<String, dynamic>;
         // log("fetched: $responseData");
 
         final String token = await responseData['data']['access_token'];
@@ -55,10 +65,8 @@ class UserLogin {
 
         return responseData['status'];
       } else {
-        log("error: $responseData");
-        final errorMessage =
-            responseData['message'] as String? ?? 'Unknown error';
-        throw Exception(errorMessage);
+        print('Unexpected status code: ${response.statusCode}');
+        throw Exception('Unexpected status code: ${response.statusCode}');
       }
     } catch (e) {
       log("error:: $e");

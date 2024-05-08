@@ -619,4 +619,24 @@ class BusQueueState extends State<BusQueue> {
       ),
     );
   }
+
+  Future<void> _saveReport(String agent, String amount, String plate) async {
+    DateTime today = DateTime.now();
+    ReportLocalDataSource dataSource = ReportLocalDataSource();
+    int amountInt = int.parse(amount);
+    // Calculate the totalServiceFee as 2% of the amount
+    double amountValue = double.parse(amount);
+    double serviceFee = amountValue * 0.02;
+
+    // Create a ReportModel instance
+    ReportModel report = ReportModel(
+      name: agent,
+      amount: amountInt, // Convert amount to int
+      totalServiceFee: serviceFee,
+      date: today.toString(),
+      plate: plate,
+    );
+
+    await dataSource.setReport(report); // Save the report to the database
+  }
 }

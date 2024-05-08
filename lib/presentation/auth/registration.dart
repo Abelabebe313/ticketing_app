@@ -55,7 +55,7 @@ class _RegistrationState extends State<Registration> {
           context.read<UserRgistrationBloc>().add(
                 RegisterUserEvent(
                   name: _fullNameController.text,
-                  phone: _controllerPhone.text,
+                  phone: '+251'+_controllerPhone.text,
                   password: _controllerPassword.text,
                   confirmPassword: _confirmPasswordController.text,
                 ),
