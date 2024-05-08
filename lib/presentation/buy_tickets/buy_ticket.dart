@@ -29,7 +29,6 @@ class BuyTicketState extends State<BuyTicket> {
   final TextEditingController date = TextEditingController();
   final TextEditingController tariff = TextEditingController();
   final TextEditingController serviceCharge = TextEditingController();
-  final TextEditingController no_of_ticket = TextEditingController();
   final TextEditingController association = TextEditingController();
   final TextEditingController distance = TextEditingController();
 
@@ -231,25 +230,7 @@ class BuyTicketState extends State<BuyTicket> {
     }
   }
 
-  // Updated validation function to return error message
-  String? validateNoOfTicket(String? value, BuildContext context) {
-    if (value == null || value.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Please enter the number of tickets"),
-          backgroundColor: Colors.red,
-          duration: Duration(seconds: 2),
-        ),
-      );
-      return 'Please enter the number of tickets';
-    }
-    int? numberOfTickets = int.tryParse(value);
-    if (numberOfTickets == null || numberOfTickets <= 0) {
-      return 'Please enter a valid number of tickets';
-    }
-    // Return null if validation passes
-    return null;
-  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -298,105 +279,52 @@ class BuyTicketState extends State<BuyTicket> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  Row(
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Tailor".tr(),
-                            style: const TextStyle(
-                              color: MyColors.grey_60,
-                              fontSize: 14,
-                              fontFamily: 'Poppins-Light',
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(
-                            height: 5,
-                          ),
-                          Card(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(3),
-                            ),
-                            clipBehavior: Clip.antiAliasWithSaveLayer,
-                            margin: const EdgeInsets.all(0),
-                            elevation: 0,
-                            child: Container(
-                              height: 50,
-                              width: MediaQuery.of(context).size.width * 0.5,
-                              alignment: Alignment.topRight,
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 20),
-                              child: TextField(
-                                maxLines: 1,
-                                controller: Tailure,
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontFamily: 'Poppins-Light',
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                decoration: const InputDecoration(
-                                  contentPadding: EdgeInsets.all(-12),
-                                  border: InputBorder.none,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
+                      Text(
+                        "Tailor".tr(),
+                        style: const TextStyle(
+                          color: MyColors.grey_60,
+                          fontSize: 14,
+                          fontFamily: 'Poppins-Light',
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       const SizedBox(
-                        width: 10,
+                        height: 5,
                       ),
-                      Column(
-                        children: [
-                          Text(
-                            "No of ticket".tr(),
+                      Card(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(3),
+                        ),
+                        clipBehavior: Clip.antiAliasWithSaveLayer,
+                        margin: const EdgeInsets.all(0),
+                        elevation: 0,
+                        child: Container(
+                          height: 50,
+                          alignment: Alignment.topRight,
+                          padding:
+                              const EdgeInsets.symmetric(horizontal: 20),
+                          child: TextField(
+                            maxLines: 1,
+                            controller: Tailure,
                             style: const TextStyle(
-                              color: MyColors.grey_60,
-                              fontSize: 14,
+                              fontSize: 16,
                               fontFamily: 'Poppins-Light',
                               fontWeight: FontWeight.bold,
                             ),
-                          ),
-                          const SizedBox(
-                            height: 5,
-                          ),
-                          Card(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(3),
-                            ),
-                            clipBehavior: Clip.antiAliasWithSaveLayer,
-                            margin: const EdgeInsets.all(0),
-                            elevation: 0,
-                            child: Container(
-                              width: 100,
-                              height: 50,
-                              alignment: Alignment.topLeft,
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 20),
-                              child: TextFormField(
-                                validator: (value) =>
-                                    validateNoOfTicket(value, context),
-                                keyboardType: TextInputType.number,
-                                maxLines: 1,
-                                controller: no_of_ticket,
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontFamily: 'Poppins-Light',
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                decoration: const InputDecoration(
-                                  contentPadding: EdgeInsets.all(-12),
-                                  border: InputBorder.none,
-                                  errorStyle: TextStyle(color: Colors.red),
-                                ),
-                              ),
+                            decoration: const InputDecoration(
+                              contentPadding: EdgeInsets.all(-12),
+                              border: InputBorder.none,
                             ),
                           ),
-                        ],
+                        ),
                       ),
                     ],
+                  ),
+                  const SizedBox(
+                    width: 10,
                   ),
 
                   Container(height: 15),
@@ -480,36 +408,6 @@ class BuyTicketState extends State<BuyTicket> {
                                             vehicle.plateNo!,
                                       ),
                                     ),
-
-                                    // orginal drop down
-                                    // Expanded(
-                                    //   child: DropdownButton<VehicleList>(
-                                    //     value: selectedVehicle,
-                                    //     items: vehicles_list
-                                    //         .map((VehicleList vehicle) {
-                                    //       return DropdownMenuItem<VehicleList>(
-                                    //         value: vehicle,
-                                    //         child: Text(
-                                    //           vehicle.plateNo,
-                                    //           style: const TextStyle(
-                                    //             fontSize: 16,
-                                    //             fontFamily: 'Poppins-Light',
-                                    //             fontWeight: FontWeight.bold,
-                                    //           ),
-                                    //         ),
-                                    //       );
-                                    //     }).toList(),
-                                    //     onChanged: (VehicleList? newValue) {
-                                    //       setState(
-                                    //         () {
-                                    //           selectedVehicle = newValue;
-                                    //           updateVehicleFields(newValue!);
-                                    //         },
-                                    //       );
-                                    //     },
-                                    //     underline: Container(),
-                                    //   ),
-                                    // ),
                                   ],
                                 ), // Handle the case when busList is empty
                               ),
@@ -944,7 +842,6 @@ class BuyTicketState extends State<BuyTicket> {
                             context,
                             MaterialPageRoute(
                               builder: (context) => ResultPage(
-                                numberOfTickets: int.parse(no_of_ticket.text),
                                 ticket: ticket,
                                 totalCapacity: totalCapacity,
                               ),

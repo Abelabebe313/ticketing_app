@@ -100,13 +100,13 @@ class _RegistrationState extends State<Registration> {
   Widget build(BuildContext context) {
     return BlocConsumer<UserRgistrationBloc, RegisterState>(
       listener: (context, state) {
-        // if (state is LoadedStationState) {
-        //   station_Info = state.stations;
+        if (state is LoadedStationState) {
+          station_Info = state.stations;
 
-        //   setState(() {
-        //     _isLoading = false;
-        //   });
-        // }
+          setState(() {
+            _isLoading = false;
+          });
+        }
         if (state is LoadedRegisterUserState) {
           setState(() {
             _isLoading = false;
@@ -136,6 +136,9 @@ class _RegistrationState extends State<Registration> {
               duration: const Duration(seconds: 2),
             ),
           );
+          setState(() {
+            _isLoading = false;
+          });
         }
       },
       builder: (context, state) {

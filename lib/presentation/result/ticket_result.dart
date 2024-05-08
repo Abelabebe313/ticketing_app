@@ -19,20 +19,18 @@ import '../../core/my_text.dart';
 import '../../models/ticket.dart';
 
 class ResultPage extends StatefulWidget {
-  final int numberOfTickets;
   final int totalCapacity;
   final Ticket ticket;
   const ResultPage(
-      {super.key,
-      required this.ticket,
-      required this.numberOfTickets,
-      required this.totalCapacity});
+      {super.key, required this.ticket, required this.totalCapacity});
 
   @override
   ResultPageState createState() => ResultPageState();
 }
 
 class ResultPageState extends State<ResultPage> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final TextEditingController no_of_ticket = TextEditingController();
   bool printBinded = false;
   DateTime ethio_date =
       EthiopianDateConverter.convertToEthiopianDate(DateTime.now());
@@ -46,6 +44,26 @@ class ResultPageState extends State<ResultPage> {
         });
       });
     });
+  }
+
+  // Updated validation function to return error message
+  String? validateNoOfTicket(String? value, BuildContext context) {
+    if (value == null || value.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Please enter the number of tickets"),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return 'Please enter the number of tickets';
+    }
+    int? numberOfTickets = int.tryParse(value);
+    if (numberOfTickets == null || numberOfTickets <= 0) {
+      return 'Please enter a valid number of tickets';
+    }
+    // Return null if validation passes
+    return null;
   }
 
   /// must binding ur printer at first init in app
@@ -78,422 +96,397 @@ class ResultPageState extends State<ResultPage> {
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        scrollDirection: Axis.vertical,
-        child: Column(
-          children: [
-            // User infomration Name: name, Phone: phone, Bus Number: busNumber and Seat Number: seatNumber
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      Text(
-                        "Passenger Information".tr(),
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                            color: Colors.black,
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold),
+      body: Form(
+        key: _formKey,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(20),
+          scrollDirection: Axis.vertical,
+          child: Column(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Enter Number of ticket".tr(),
+                      style: const TextStyle(
+                        color: Colors.black,
+                        fontSize: 16,
+                        fontFamily: 'Poppins-Light',
+                        fontWeight: FontWeight.bold,
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      Text(
-                        "Tailor: ".tr(),
-                        style: const TextStyle(
-                          color: Colors.black,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                    ),
+                    const SizedBox(
+                      height: 5,
+                    ),
+                    Card(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(3),
+                      ),
+                      clipBehavior: Clip.antiAliasWithSaveLayer,
+                      margin: const EdgeInsets.all(0),
+                      elevation: 0,
+                      child: Container(
+                        height: 50,
+                        alignment: Alignment.topLeft,
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: TextFormField(
+                          validator: (value) =>
+                              validateNoOfTicket(value, context),
+                          keyboardType: TextInputType.number,
+                          maxLines: 1,
+                          controller: no_of_ticket,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontFamily: 'Poppins-Light',
+                            fontWeight: FontWeight.bold,
+                          ),
+                          decoration: const InputDecoration(
+                            contentPadding: EdgeInsets.all(-12),
+                            border: InputBorder.none,
+                            errorStyle: TextStyle(color: Colors.red),
+                          ),
                         ),
                       ),
-                      Text(
-                        widget.ticket.tailure,
-                        style: const TextStyle(
-                          color: Colors.black,
-                          fontSize: 16,
-                          fontWeight: FontWeight.normal,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Text(
-                        "Bus Plate Number: ".tr(),
-                        style: const TextStyle(
-                          color: Colors.black,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        widget.ticket.plate,
-                        style: const TextStyle(
-                          color: Colors.black,
-                          fontSize: 16,
-                          fontWeight: FontWeight.normal,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Text(
-                        "Departure: ".tr(),
-                        style: const TextStyle(
-                            color: Colors.black,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold),
-                      ),
-                      Text(
-                        widget.ticket.departure.toString(),
-                        style: const TextStyle(
-                            color: Colors.black,
-                            fontSize: 16,
-                            fontWeight: FontWeight.normal),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Text(
-                        "Destination: ".tr(),
-                        style: const TextStyle(
-                            color: Colors.black,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold),
-                      ),
-                      Text(
-                        widget.ticket.destination.toString(),
-                        style: const TextStyle(
-                            color: Colors.black,
-                            fontSize: 16,
-                            fontWeight: FontWeight.normal),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Text(
-                        "Level: ".tr(),
-                        style: const TextStyle(
-                            color: Colors.black,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold),
-                      ),
-                      Text(
-                        widget.ticket.level.toString(),
-                        style: const TextStyle(
-                            color: Colors.black,
-                            fontSize: 16,
-                            fontWeight: FontWeight.normal),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      const Text(
-                        "Unique ID: ",
-                        style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold),
-                      ),
-                      Text(
-                        widget.ticket.uniqueId.toString(),
-                        style: const TextStyle(
-                            color: Colors.black,
-                            fontSize: 16,
-                            fontWeight: FontWeight.normal),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Text(
-                        "Tariff: ".tr(),
-                        style: const TextStyle(
-                            color: Colors.black,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold),
-                      ),
-                      Text(
-                        widget.ticket.tariff.toString(),
-                        style: const TextStyle(
-                            color: Colors.black,
-                            fontSize: 16,
-                            fontWeight: FontWeight.normal),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Text(
-                        "Service Charge: ".tr(),
-                        style: const TextStyle(
-                            color: Colors.black,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold),
-                      ),
-                      Text('${double.parse((widget.ticket.charge).toStringAsFixed(3))}',
-                        style: const TextStyle(
-                            color: Colors.black,
-                            fontSize: 16,
-                            fontWeight: FontWeight.normal),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Text(
-                        "Total: ".tr(),
-                        style: const TextStyle(
-                            color: Colors.black,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold),
-                      ),
-                      Text('${double.parse((widget.ticket.tariff + widget.ticket.charge).toStringAsFixed(3))}',
-                        style: const TextStyle(
-                            color: Colors.black,
-                            fontSize: 16,
-                            fontWeight: FontWeight.normal),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Text(
-                        "Association: ".tr(),
-                        style: const TextStyle(
-                            color: Colors.black,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold),
-                      ),
-                      Text(
-                        widget.ticket.association.toString(),
-                        style: const TextStyle(
-                            color: Colors.black,
-                            fontSize: 16,
-                            fontWeight: FontWeight.normal),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Text(
-                        "Distance: ".tr(),
-                        style: const TextStyle(
-                            color: Colors.black,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold),
-                      ),
-                      Text(
-                        widget.ticket.distance.toString(),
-                        style: const TextStyle(
-                            color: Colors.black,
-                            fontSize: 16,
-                            fontWeight: FontWeight.normal),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Text(
-                        "Date: ".tr(),
-                        style: const TextStyle(
-                            color: Colors.black,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold),
-                      ),
-                      Text(
-                        '${ethio_date.day.toString()}/${ethio_date.month.toString()}/${ethio_date.year.toString()}-${ethio_date.hour.toString()}:${ethio_date.minute.toString()}:${ethio_date.second.toString()}', // time goes here
-                        style: const TextStyle(
-                            color: Colors.black,
-                            fontSize: 16,
-                            fontWeight: FontWeight.normal),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-
-            // QR Code
-            const SizedBox(height: 20),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.only(
-                  left: 10, right: 10, top: 40, bottom: 20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Center(
-                child: BarcodeWidget(
-                  barcode: Barcode.code128(),
-                  data: widget.ticket.uniqueId.toString(),
-                  width: 200,
-                  height: 80,
+                    ),
+                  ],
                 ),
               ),
-            ),
-
-            const SizedBox(height: 10),
-            Container(height: 15),
-            SizedBox(
-              width: double.infinity,
-              height: 45,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  elevation: 0,
+              const SizedBox(height: 10),
+              // User infomration Name: name, Phone: phone, Bus Number: busNumber and Seat Number: seatNumber
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10),
                 ),
-                child: Text(
-                  "Print".tr(),
-                  style: MyText.subhead(context)!.copyWith(color: Colors.white),
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          "Passenger Information".tr(),
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        Text(
+                          "Tailor: ".tr(),
+                          style: const TextStyle(
+                            color: Colors.black,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          widget.ticket.tailure,
+                          style: const TextStyle(
+                            color: Colors.black,
+                            fontSize: 16,
+                            fontWeight: FontWeight.normal,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Text(
+                          "Bus Plate Number: ".tr(),
+                          style: const TextStyle(
+                            color: Colors.black,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          widget.ticket.plate,
+                          style: const TextStyle(
+                            color: Colors.black,
+                            fontSize: 16,
+                            fontWeight: FontWeight.normal,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Text(
+                          "Departure: ".tr(),
+                          style: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          widget.ticket.departure.toString(),
+                          style: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 16,
+                              fontWeight: FontWeight.normal),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Text(
+                          "Destination: ".tr(),
+                          style: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          widget.ticket.destination.toString(),
+                          style: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 16,
+                              fontWeight: FontWeight.normal),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Text(
+                          "Level: ".tr(),
+                          style: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          widget.ticket.level.toString(),
+                          style: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 16,
+                              fontWeight: FontWeight.normal),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        const Text(
+                          "Unique ID: ",
+                          style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          widget.ticket.uniqueId.toString(),
+                          style: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 16,
+                              fontWeight: FontWeight.normal),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Text(
+                          "Tariff: ".tr(),
+                          style: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          widget.ticket.tariff.toString(),
+                          style: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 16,
+                              fontWeight: FontWeight.normal),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Text(
+                          "Service Charge: ".tr(),
+                          style: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          '${double.parse((widget.ticket.charge).toStringAsFixed(3))}',
+                          style: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 16,
+                              fontWeight: FontWeight.normal),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Text(
+                          "Total: ".tr(),
+                          style: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          '${double.parse((widget.ticket.tariff + widget.ticket.charge).toStringAsFixed(3))}',
+                          style: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 16,
+                              fontWeight: FontWeight.normal),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Text(
+                          "Association: ".tr(),
+                          style: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          widget.ticket.association.toString(),
+                          style: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 16,
+                              fontWeight: FontWeight.normal),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Text(
+                          "Distance: ".tr(),
+                          style: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          widget.ticket.distance.toString(),
+                          style: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 16,
+                              fontWeight: FontWeight.normal),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Text(
+                          "Date: ".tr(),
+                          style: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          '${ethio_date.day.toString()}/${ethio_date.month.toString()}/${ethio_date.year.toString()}-${ethio_date.hour.toString()}:${ethio_date.minute.toString()}:${ethio_date.second.toString()}', // time goes here
+                          style: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 16,
+                              fontWeight: FontWeight.normal),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-                onPressed: () async {
-                  SharedPreferences prefs =
-                      await SharedPreferences.getInstance();
-                  DateTime today = DateTime.now();
-                  if(widget.numberOfTickets > widget.totalCapacity) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text(
-                            "Lakkoofsi tikkeettii maxxansuuf barbaachisu dandeettii waliigalaa caala"),
-                        backgroundColor: Colors.red,
-                        duration: Duration(seconds: 3),
-                      ),
-                    );
-                    return;
-                  }
-                  for (int i = 0; i < widget.numberOfTickets; i++) {
-                    String uniqueCounter = generateUniqueCounter(
-                        today, widget.numberOfTickets + i + 1);
-                    print('$i = ticket printed');
-                    double commission = widget.ticket.tariff * 0.02;
-
-                    // Get the previous commission value from SharedPreferences
-                    double previousCommission =
-                        prefs.getDouble('dailyReport') ?? 0.0;
-                    // Increment the commission by adding the new commission to the previous value
-                    double updatedCommission = previousCommission + commission;
-
-                    // Update the commission value in SharedPreferences
-                    prefs.setDouble('dailyReport', updatedCommission);
-                    //
-                    // print ticket
-                    await printMultipleTickets(
-                      uniqueCounter,
-                      widget.totalCapacity,
-                    );
-                  }
-                  Navigator.pop(context);
-                  //
-                  // for (int i = 0; i < ticketsToPrint; i++) {
-                  //   if (currentCount + 1 == widget.totalCapacity) {
-                  //     saveReport();
-
-                  //     prefs.setInt(plateNumber, 0);
-
-                  //     ScaffoldMessenger.of(context).showSnackBar(
-                  //       const SnackBar(
-                  //         content: Text(
-                  //             "Lakkoofsi tikkeettii waan guutuuf, karaa ba'uu addaan kuta"),
-                  //         backgroundColor: Colors.blue,
-                  //         duration: Duration(seconds: 2),
-                  //       ),
-                  //     );
-                  //     break;
-                  //   } else {
-                  //     String uniqueCounter =
-                  //         generateUniqueCounter(today, currentCount + i + 1);
-                  //     ScaffoldMessenger.of(context).showSnackBar(
-                  //       SnackBar(
-                  //         content: Text("printiting sucesss: $i "),
-                  //         backgroundColor: Colors.green,
-                  //         duration: Duration(seconds: 2),
-                  //       ),
-                  //     );
-                  //     //uncomment the following
-
-                  //     // await printMultipleTickets(
-                  //     //     uniqueCounter, widget.totalCapacity);
-                  //     // Store vehicle ticket count
-                  //     prefs.setInt(plateNumber, currentCount + i + 1);
-                  //   }
-                  // }
-                  // Navigator.pop(context);
-                },
               ),
-            )
-          ],
+        
+              // QR Code
+              const SizedBox(height: 20),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.only(
+                    left: 10, right: 10, top: 40, bottom: 20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Center(
+                  child: BarcodeWidget(
+                    barcode: Barcode.code128(),
+                    data: widget.ticket.uniqueId.toString(),
+                    width: 200,
+                    height: 80,
+                  ),
+                ),
+              ),
+        
+              const SizedBox(height: 10),
+              Container(height: 15),
+              SizedBox(
+                width: double.infinity,
+                height: 45,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    elevation: 0,
+                  ),
+                  child: Text(
+                    "Print".tr(),
+                    style: MyText.subhead(context)!.copyWith(color: Colors.white),
+                  ),
+                  onPressed: () async {
+                    SharedPreferences prefs =
+                        await SharedPreferences.getInstance();
+                    DateTime today = DateTime.now();
+                    int numberOfTickets = int.parse(no_of_ticket.text);
+                    if (numberOfTickets > widget.totalCapacity) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                              "Lakkoofsi tikkeettii maxxansuuf barbaachisu dandeettii waliigalaa caala"),
+                          backgroundColor: Colors.red,
+                          duration: Duration(seconds: 3),
+                        ),
+                      );
+                      return;
+                    }
+                    for (int i = 0; i < numberOfTickets; i++) {
+                      String uniqueCounter =
+                          generateUniqueCounter(today, numberOfTickets + i + 1);
+                      print('$i = ticket printed');
+                      double commission = widget.ticket.tariff * 0.02;
+        
+                      // Get the previous commission value from SharedPreferences
+                      double previousCommission =
+                          prefs.getDouble('dailyReport') ?? 0.0;
+                      // Increment the commission by adding the new commission to the previous value
+                      double updatedCommission = previousCommission + commission;
+        
+                      // Update the commission value in SharedPreferences
+                      prefs.setDouble('dailyReport', updatedCommission);
+                      //
+                      // print ticket
+                      await printMultipleTickets(
+                        uniqueCounter,
+                        widget.totalCapacity,
+                      );
+                    }
+                    Navigator.pop(context);
+                    
+                  },
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );
   }
 
-  // Future<void> saveReport() async {
-  //   String currentDate = DateTime.now().toLocal().toString().split(' ')[0];
-  //   ReportModel report = ReportModel(
-  //     name: widget.ticket.tailure, // Add the actual name
-  //     amount: widget.totalCapacity, // Add the actual amount
-  //     totalServiceFee: (widget.ticket.tariff * 0.02) * widget.totalCapacity,
-  //     date: currentDate, // Add the actual date
-  //     plate: widget.ticket.plate,
-  //   );
-  //   await _saveReportLocally(report);
-  // }
-
-  // Future<void> _saveReportLocally(ReportModel report) async {
-  //   SharedPreferences prefs = await SharedPreferences.getInstance();
-  //   List<String> reportsJson = prefs.getStringList('reports') ?? [];
-
-  //   reportsJson.add(jsonEncode(report.toJson()));
-  //   await prefs.setStringList('reports', reportsJson);
-  // }
-
-  Future<void> _saveReportLocally(ReportModel report) async {
-    try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? reportsData = prefs.getString('reports');
-
-      // Print the fetched data to see its type and value
-      print('Fetched reportsData: $reportsData');
-
-      // Initialize reportsJson as an empty list of Strings
-      List<String> reportsJson = [];
-
-      // If reportsData is not null and is of type String, add it to reportsJson
-      if (reportsData != null) {
-        reportsJson.add(reportsData);
-      }
-
-      // Encode the report data to JSON
-      String reportJson = jsonEncode(report.toJson());
-
-      // Add the JSON-encoded report to the list
-      reportsJson.add(reportJson);
-
-      // Save the list of JSON strings to SharedPreferences
-      await prefs.setString('reports', reportsJson.join(','));
-
-      // Print the saved reportsJson to verify its value
-      print('Saved reportsJson: $reportsJson');
-    } catch (e) {
-      print('Error saving report locally: $e');
-      // Handle the error as needed
-    }
-  }
 
   Future<Uint8List> _getImageFromAsset(String iconPath) async {
     return await readFileBytes(iconPath);
@@ -635,7 +628,8 @@ class ResultPageState extends State<ResultPage> {
         align: SunmiPrintAlign.LEFT,
       ),
       ColumnMaker(
-        text: '${double.parse((widget.ticket.tariff + widget.ticket.charge).toStringAsFixed(3))} Birr',
+        text:
+            '${double.parse((widget.ticket.tariff + widget.ticket.charge).toStringAsFixed(3))} Birr',
         width: 12,
         align: SunmiPrintAlign.RIGHT,
       ),
