@@ -442,17 +442,17 @@ class ResultPageState extends State<ResultPage> {
     );
   }
 
-  Future<void> saveReport() async {
-    String currentDate = DateTime.now().toLocal().toString().split(' ')[0];
-    ReportModel report = ReportModel(
-      name: widget.ticket.tailure, // Add the actual name
-      amount: widget.totalCapacity, // Add the actual amount
-      totalServiceFee: (widget.ticket.tariff * 0.02) * widget.totalCapacity,
-      date: currentDate, // Add the actual date
-      plate: widget.ticket.plate,
-    );
-    await _saveReportLocally(report);
-  }
+  // Future<void> saveReport() async {
+  //   String currentDate = DateTime.now().toLocal().toString().split(' ')[0];
+  //   ReportModel report = ReportModel(
+  //     name: widget.ticket.tailure, // Add the actual name
+  //     amount: widget.totalCapacity, // Add the actual amount
+  //     totalServiceFee: (widget.ticket.tariff * 0.02) * widget.totalCapacity,
+  //     date: currentDate, // Add the actual date
+  //     plate: widget.ticket.plate,
+  //   );
+  //   await _saveReportLocally(report);
+  // }
 
   // Future<void> _saveReportLocally(ReportModel report) async {
   //   SharedPreferences prefs = await SharedPreferences.getInstance();

@@ -9,6 +9,8 @@ import 'package:sunmi_printer_plus/enums.dart';
 import 'package:sunmi_printer_plus/sunmi_printer_plus.dart';
 import 'package:sunmi_printer_plus/sunmi_style.dart';
 
+import '../../data/report.dart';
+import '../../models/report.dart';
 import '../../utils/ticket_generator.dart';
 
 class SunmiPrinterPage extends StatefulWidget {
@@ -83,6 +85,26 @@ class _SunmiPrinterPageState extends State<SunmiPrinterPage> {
         printBinded = isBind!;
       });
     });
+  }
+
+  void _saveReport(String agent, String amount, String plate) async {
+    DateTime today = DateTime.now();
+    ReportLocalDataSource dataSource = ReportLocalDataSource();
+    int amountInt = int.parse(amount);
+    // Calculate the totalServiceFee as 2% of the amount
+    double amountValue = double.parse(amount);
+    double serviceFee = amountValue * 0.02;
+
+    // Create a ReportModel instance
+    ReportModel report = ReportModel(
+      name: agent,
+      amount: amountInt, // Convert amount to int
+      totalServiceFee: serviceFee,
+      date: today.toString(),
+      plate: plate,
+    );
+
+    await dataSource.setReport(report); // Save the report to the database
   }
 
   /// must binding ur printer at first init in app
@@ -323,6 +345,10 @@ class _SunmiPrinterPageState extends State<SunmiPrinterPage> {
                           String uniqueCounter = generateUniqueCounter(
                               today, widget.plateNo[0].codeUnitAt(0));
                           print('print pressed');
+                          // Save the report to the database
+                          _saveReport(widget.agent, totalMoney.toString(),
+                              widget.plateNo);
+
                           await SunmiPrinter.initPrinter();
                           await SunmiPrinter.startTransactionPrint(true);
                           Uint8List dalex = await _getImageFromAsset(

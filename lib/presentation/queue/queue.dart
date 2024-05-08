@@ -5,6 +5,8 @@ import 'package:hive/hive.dart';
 import 'package:transport_app/models/update_model.dart';
 
 import '../../core/my_colors.dart';
+import '../../data/report.dart';
+import '../../models/report.dart';
 import '../result/sunmi_printer.dart';
 
 class BusQueue extends StatefulWidget {
@@ -591,11 +593,6 @@ class BusQueueState extends State<BusQueue> {
                   ),
                 ),
                 onPressed: () async {
-                  // DateTime today = DateTime.now();
-                  // String uniqueCounter =
-                  //     generateUniqueCounter(today, counter);
-                  // int counter = await CounterService.generateNextNumber();
-
                   Navigator.push(
                     context,
                     MaterialPageRoute(
