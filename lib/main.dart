@@ -73,7 +73,7 @@ class MyApp extends StatelessWidget {
           create: (context) => DataBloc(DataService()),
         ),
         BlocProvider<UserBloc>(
-          create: (context) => UserBloc(UserInitial()),
+          create: (context) => UserBloc(LoginInitial()),
         ),
         BlocProvider<UserRgistrationBloc>(
           create: (context) => UserRgistrationBloc(RegisterUserInitial()),

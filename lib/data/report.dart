@@ -6,6 +6,7 @@ class ReportLocalDataSource {
   final DatabaseHelper _databaseHelper = DatabaseHelper();
 
   Future<void> setReport(ReportModel report) async {
+    print('report saving...');
     final db = await _databaseHelper.database;
     await db.insert('report', report.toJson());
     print('report added successfully');

@@ -400,10 +400,28 @@ class ResultPageState extends State<ResultPage> {
                         ),
                       ],
                     ),
+                    Row(
+                      children: [
+                        Text(
+                          "Total Passenger: ".tr(),
+                          style: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          '${widget.totalCapacity}',
+                          style: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 16,
+                              fontWeight: FontWeight.normal),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               ),
-        
+
               // QR Code
               const SizedBox(height: 20),
               Container(
@@ -423,7 +441,7 @@ class ResultPageState extends State<ResultPage> {
                   ),
                 ),
               ),
-        
+
               const SizedBox(height: 10),
               Container(height: 15),
               SizedBox(
@@ -436,7 +454,8 @@ class ResultPageState extends State<ResultPage> {
                   ),
                   child: Text(
                     "Print".tr(),
-                    style: MyText.subhead(context)!.copyWith(color: Colors.white),
+                    style:
+                        MyText.subhead(context)!.copyWith(color: Colors.white),
                   ),
                   onPressed: () async {
                     SharedPreferences prefs =
@@ -459,24 +478,30 @@ class ResultPageState extends State<ResultPage> {
                           generateUniqueCounter(today, numberOfTickets + i + 1);
                       print('$i = ticket printed');
                       double commission = widget.ticket.tariff * 0.02;
-        
+
                       // Get the previous commission value from SharedPreferences
                       double previousCommission =
                           prefs.getDouble('dailyReport') ?? 0.0;
+                      int previousTicketCount = prefs.getInt('totalTicket') ?? 0;
                       // Increment the commission by adding the new commission to the previous value
-                      double updatedCommission = previousCommission + commission;
-        
+                      double updatedCommission =
+                          previousCommission + commission;
+                      
+                      // Increment the ticket count by adding the new ticket to the previous value
+                      int updatedTicketCount = previousTicketCount + 1;
+
                       // Update the commission value in SharedPreferences
                       prefs.setDouble('dailyReport', updatedCommission);
+                      prefs.setInt('totalTicket', updatedTicketCount);
                       //
                       // print ticket
                       await printMultipleTickets(
                         uniqueCounter,
                         widget.totalCapacity,
+                        i + 1,
                       );
                     }
                     // Navigator.pop(context);
-                    
                   },
                 ),
               )
@@ -487,14 +512,15 @@ class ResultPageState extends State<ResultPage> {
     );
   }
 
-
   Future<Uint8List> _getImageFromAsset(String iconPath) async {
     return await readFileBytes(iconPath);
   }
 
- Future<void> printMultipleTickets(String ticketCode, int seat) async {
+  Future<void> printMultipleTickets(
+      String ticketCode, int seat, int seatNumber) async {
     await SunmiPrinter.initPrinter();
-    Uint8List dalex = await _getImageFromAsset('assets/images/Untitled-2@3x.jpg');
+    Uint8List dalex =
+        await _getImageFromAsset('assets/images/Untitled-2@3x.jpg');
     await SunmiPrinter.startTransactionPrint(true);
 
     await SunmiPrinter.setAlignment(SunmiPrintAlign.CENTER);
@@ -516,8 +542,7 @@ class ResultPageState extends State<ResultPage> {
         "Gahunsaa ------------------${widget.ticket.destination}",
         style: SunmiStyle(fontSize: SunmiFontSize.SM));
     await SunmiPrinter.bold();
-    await SunmiPrinter.printText(
-        "Tikeetii Lakk --------------${ticketCode}",
+    await SunmiPrinter.printText("Tikeetii Lakk --------------${ticketCode}",
         style: SunmiStyle(fontSize: SunmiFontSize.SM));
     await SunmiPrinter.bold();
     await SunmiPrinter.printText(
@@ -528,7 +553,7 @@ class ResultPageState extends State<ResultPage> {
         "Sadarkaa ------------------${widget.ticket.level}",
         style: SunmiStyle(fontSize: SunmiFontSize.SM));
     await SunmiPrinter.bold();
-    await SunmiPrinter.printText("Teessoo ------------------${seat}",
+    await SunmiPrinter.printText("Teessoo ------------------$seatNumber",
         style: SunmiStyle(fontSize: SunmiFontSize.SM));
     await SunmiPrinter.bold();
     await SunmiPrinter.printText(
@@ -547,7 +572,8 @@ class ResultPageState extends State<ResultPage> {
         "Fageenya ------------------${widget.ticket.distance.toString()} km",
         style: SunmiStyle(fontSize: SunmiFontSize.SM));
     await SunmiPrinter.bold();
-    await SunmiPrinter.printText("Taarifa --------------${widget.ticket.tariff} Birr",
+    await SunmiPrinter.printText(
+        "Taarifa --------------${widget.ticket.tariff} Birr",
         style: SunmiStyle(fontSize: SunmiFontSize.SM));
     await SunmiPrinter.bold();
     await SunmiPrinter.printText(

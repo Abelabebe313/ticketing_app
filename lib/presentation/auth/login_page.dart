@@ -119,7 +119,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<UserBloc, UserState>(listener: (context, state) {
-      if (state is LoadedUserState) {
+      if (state is LoadedLoginState) {
         setState(() {
           _isLoading = false;
         });
@@ -135,11 +135,11 @@ class _LoginPageState extends State<LoginPage> {
           context,
           MaterialPageRoute(builder: (context) => Home()),
         );
-      } else if (state is UserLoading) {
+      } else if (state is LoginLoading) {
         setState(() {
           _isLoading = true;
         });
-      } else if (state is UserError) {
+      } else if (state is LoginError) {
         // Show error message
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
