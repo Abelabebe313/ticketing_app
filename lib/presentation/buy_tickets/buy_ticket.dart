@@ -643,7 +643,9 @@ class BuyTicketState extends State<BuyTicket> {
                               alignment: Alignment.topLeft,
                               padding:
                                   const EdgeInsets.symmetric(horizontal: 20),
-                              child: TextField(
+                              child: TextFormField(
+                                validator: (value) =>
+                                    validateDistance(value, context),
                                 enabled: false,
                                 maxLines: 1,
                                 controller: distance,
@@ -784,7 +786,9 @@ class BuyTicketState extends State<BuyTicket> {
                       height: 50,
                       alignment: Alignment.centerLeft,
                       padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: TextField(
+                      child: TextFormField(
+                        validator: (value) =>
+                            validateAssociation(value, context),
                         enabled: false,
                         maxLines: 1,
                         controller: association,
@@ -859,7 +863,36 @@ class BuyTicketState extends State<BuyTicket> {
       ),
     );
   }
+    String? validateDistance(String? value, BuildContext context) {
+    if (value == null || value.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Please enter the distance"),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return 'Please enter distance';
+    }
 
+    // Return null if validation passes
+    return null;
+  }
+  String? validateAssociation(String? value, BuildContext context) {
+    if (value == null || value.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Please enter the Association name"),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return 'Please enter Association name';
+    }
+
+    // Return null if validation passes
+    return null;
+  }
   Future<void> _refreshPage() async {
     // Dispatch GetAllDataEvent to DataBloc
     print('Refreshing...');
