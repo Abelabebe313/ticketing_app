@@ -7,26 +7,26 @@ abstract class UserState extends Equatable {
   List<Object> get props => [];
 }
 
-class UserInitial extends UserState {}
+class LoginInitial extends UserState {}
 
-class UserLoading extends UserState {}
+class LoginLoading extends UserState {}
 
 // class UserLoaded extends UserState {}
 
-class UserError extends UserState {
+class LoginError extends UserState {
   final String errorMessage;
 
-  const UserError(this.errorMessage);
+  const LoginError(this.errorMessage);
   @override
   List<Object> get props => [errorMessage];
 }
 
 
-class LoadedUserState extends UserState {
+class LoadedLoginState extends UserState {
   final String phoneNumber;
   final String password;
 
-  const LoadedUserState(this.phoneNumber, this.password);
+  const LoadedLoginState(this.phoneNumber, this.password);
 
   @override
   List<Object> get props => [phoneNumber, password];

@@ -4,6 +4,7 @@ import 'package:barcode_widget/barcode_widget.dart' as Bbar;
 import 'package:ethiopian_calendar/ethiopian_date_converter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sunmi_printer_plus/column_maker.dart';
 import 'package:sunmi_printer_plus/enums.dart';
 import 'package:sunmi_printer_plus/sunmi_printer_plus.dart';
@@ -57,9 +58,19 @@ class _SunmiPrinterPageState extends State<SunmiPrinterPage> {
   void initState() {
     super.initState();
     setState(() {
-      totalMoney =
-          int.parse(widget.totalCapacity) * double.parse(widget.tariff);
-      totalMoney = double.parse(totalMoney.toStringAsFixed(2));
+      setState(() {
+        try {
+          if (widget.totalCapacity.isNotEmpty && widget.tariff.isNotEmpty) {
+            totalMoney =
+                int.parse(widget.totalCapacity) * double.parse(widget.tariff);
+            totalMoney = double.parse(totalMoney.toStringAsFixed(3));
+          } else {
+            print("totalCapacity or tariff is empty");
+          }
+        } catch (e) {
+          print("Error parsing totalCapacity or tariff: $e");
+        }
+      });
     });
 
     _bindingPrinter().then((bool? isBind) async {
@@ -88,17 +99,24 @@ class _SunmiPrinterPageState extends State<SunmiPrinterPage> {
   }
 
   void _saveReport(String agent, String amount, String plate) async {
+    print(agent);
+    print(amount);
+    print(plate);
     DateTime today = DateTime.now();
     ReportLocalDataSource dataSource = ReportLocalDataSource();
-    int amountInt = int.parse(amount);
-    // Calculate the totalServiceFee as 2% of the amount
+
+    // Parse amount as double
     double amountValue = double.parse(amount);
+    // Convert double to int
+    int amountInt = amountValue.toInt();
+    // Calculate the totalServiceFee as 2% of the amount
     double serviceFee = amountValue * 0.02;
+    print('report save func pressed');
 
     // Create a ReportModel instance
     ReportModel report = ReportModel(
       name: agent,
-      amount: amountInt, // Convert amount to int
+      amount: amountInt, // Use amountInt instead of amountValue
       totalServiceFee: serviceFee,
       date: today.toString(),
       plate: plate,
@@ -106,6 +124,30 @@ class _SunmiPrinterPageState extends State<SunmiPrinterPage> {
 
     await dataSource.setReport(report); // Save the report to the database
   }
+
+  // void _saveReport(String agent, String amount, String plate) async {
+  //   print(agent);
+  //   print(amount);
+  //   print(plate);
+  //   DateTime today = DateTime.now();
+  //   ReportLocalDataSource dataSource = ReportLocalDataSource();
+  //   int amountInt = int.parse(amount);
+  //   // Calculate the totalServiceFee as 2% of the amount
+  //   double amountValue = double.parse(amount);
+  //   double serviceFee = amountValue * 0.02;
+  //   print('report save func pressed');
+
+  //   // Create a ReportModel instance
+  //   ReportModel report = ReportModel(
+  //     name: agent,
+  //     amount: amountInt, // Convert amount to int
+  //     totalServiceFee: serviceFee,
+  //     date: today.toString(),
+  //     plate: plate,
+  //   );
+
+  //   await dataSource.setReport(report); // Save the report to the database
+  // }
 
   /// must binding ur printer at first init in app
   Future<bool?> _bindingPrinter() async {
@@ -341,171 +383,21 @@ class _SunmiPrinterPageState extends State<SunmiPrinterPage> {
                   children: [
                     ElevatedButton(
                         onPressed: () async {
-                          final DateTime today = DateTime.now();
-                          String uniqueCounter = generateUniqueCounter(
-                              today, widget.plateNo[0].codeUnitAt(0));
-                          print('print pressed');
+                          SharedPreferences prefs =
+                              await SharedPreferences.getInstance();
+                          int previousCarCount =
+                              prefs.getInt('totalCars') ?? 0;
+                          int updatedCarCount = previousCarCount + 1;
+
+                          // Update the commission value in SharedPreferences
+                          prefs.setInt('totalCars', updatedCarCount);
                           // Save the report to the database
-                          _saveReport(widget.agent, totalMoney.toString(),
-                              widget.plateNo);
-
-                          await SunmiPrinter.initPrinter();
-                          await SunmiPrinter.startTransactionPrint(true);
-                          Uint8List dalex = await _getImageFromAsset(
-                              'assets/images/Untitled-2.jpg');
-
-                          await SunmiPrinter.startTransactionPrint(true);
-                          await SunmiPrinter.setAlignment(
-                              SunmiPrintAlign.CENTER);
-                          await SunmiPrinter.printImage(dalex);
-                          await SunmiPrinter.lineWrap(1);
-                          await SunmiPrinter.setAlignment(
-                              SunmiPrintAlign.CENTER);
-                          await SunmiPrinter.bold();
-                          await SunmiPrinter.printText('Tikeetii Bahumsaa!');
-                          await SunmiPrinter.line();
-                          await SunmiPrinter.setAlignment(
-                              SunmiPrintAlign.CENTER);
-
-                          await SunmiPrinter.printRow(cols: [
-                            ColumnMaker(
-                                text: "Sa'aatii itti bahe: ",
-                                width: 18,
-                                align: SunmiPrintAlign.LEFT),
-                            ColumnMaker(
-                                text:
-                                    '${ethio_date.day.toString()}/${ethio_date.month.toString()}/${ethio_date.year.toString()}:-${ethio_date.hour.toString()}:${ethio_date.minute.toString()}:${ethio_date.second.toString()}', // time goes here
-                                width: 12,
-                                align: SunmiPrintAlign.RIGHT),
-                          ]);
-
-                          await SunmiPrinter.printRow(cols: [
-                            ColumnMaker(
-                                text: "Agent Name:",
-                                width: 18,
-                                align: SunmiPrintAlign.LEFT),
-                            ColumnMaker(
-                                text: widget.agent,
-                                width: 12,
-                                align: SunmiPrintAlign.RIGHT),
-                          ]);
-
-                          await SunmiPrinter.printRow(cols: [
-                            ColumnMaker(
-                                text: "Lakkoofsa gabatee",
-                                width: 18,
-                                align: SunmiPrintAlign.LEFT),
-                            ColumnMaker(
-                                text: widget.plateNo,
-                                width: 12,
-                                align: SunmiPrintAlign.RIGHT),
-                          ]);
-
-                          await SunmiPrinter.printRow(cols: [
-                            ColumnMaker(
-                                text: "Sadarkaa",
-                                width: 18,
-                                align: SunmiPrintAlign.LEFT),
-                            ColumnMaker(
-                                text: widget.level,
-                                width: 12,
-                                align: SunmiPrintAlign.RIGHT),
-                          ]);
-
-                          await SunmiPrinter.printRow(cols: [
-                            ColumnMaker(
-                              text: "Ka'umsaa:",
-                              width: 18,
-                              align: SunmiPrintAlign.LEFT,
-                            ),
-                            ColumnMaker(
-                                text: widget.station,
-                                width: 12,
-                                align: SunmiPrintAlign.RIGHT),
-                          ]);
-
-                          await SunmiPrinter.printRow(cols: [
-                            ColumnMaker(
-                              text: "Magaalaa Gahumsaa",
-                              width: 18,
-                              align: SunmiPrintAlign.LEFT,
-                            ),
-                            ColumnMaker(
-                              text: widget.destination,
-                              width: 12,
-                              align: SunmiPrintAlign.RIGHT,
-                            ),
-                          ]);
-                          await SunmiPrinter.printRow(cols: [
-                            ColumnMaker(
-                              text: "Fageenya",
-                              width: 18,
-                              align: SunmiPrintAlign.LEFT,
-                            ),
-                            ColumnMaker(
-                              text: "${widget.distance} km",
-                              width: 12,
-                              align: SunmiPrintAlign.RIGHT,
-                            ),
-                          ]);
-                          await SunmiPrinter.printRow(cols: [
-                            ColumnMaker(
-                              text: "Dhaabbata",
-                              width: 18,
-                              align: SunmiPrintAlign.LEFT,
-                            ),
-                            ColumnMaker(
-                              text: widget.association,
-                              width: 12,
-                              align: SunmiPrintAlign.RIGHT,
-                            ),
-                          ]);
-                          await SunmiPrinter.printRow(cols: [
-                            ColumnMaker(
-                              text: "Tessoo",
-                              width: 18,
-                              align: SunmiPrintAlign.LEFT,
-                            ),
-                            ColumnMaker(
-                              text: widget.totalCapacity,
-                              width: 12,
-                              align: SunmiPrintAlign.RIGHT,
-                            ),
-                          ]);
-                          await SunmiPrinter.printRow(cols: [
-                            ColumnMaker(
-                              text: "Total birr",
-                              width: 18,
-                              align: SunmiPrintAlign.LEFT,
-                            ),
-                            ColumnMaker(
-                              text: '$totalMoney',
-                              width: 12,
-                              align: SunmiPrintAlign.RIGHT,
-                            ),
-                          ]);
-
-                          await SunmiPrinter.setAlignment(
-                              SunmiPrintAlign.CENTER);
-                          await SunmiPrinter.printBarCode(uniqueCounter,
-                              height: 30);
-                          await SunmiPrinter.lineWrap(2);
-                          await SunmiPrinter.printText(
-                              'Huubachiisa: Tikeetiin kun emala yeroo');
-                          await SunmiPrinter.setAlignment(
-                              SunmiPrintAlign.CENTER);
-                          await SunmiPrinter.printText(
-                              'tokkoo qofaaf tajaajila!');
-                          await SunmiPrinter.setAlignment(
-                              SunmiPrintAlign.CENTER);
-                          await SunmiPrinter.printText('Inala gaarii!!');
-                          await SunmiPrinter.lineWrap(2);
-                          await SunmiPrinter.setAlignment(
-                              SunmiPrintAlign.CENTER);
-                          await SunmiPrinter.printText('Powered by: Dalex ',
-                              style: SunmiStyle(fontSize: SunmiFontSize.XS));
-
-                          await SunmiPrinter.exitTransactionPrint(true);
+                          _saveReport(
+                            widget.agent,
+                            totalMoney.toString(),
+                            widget.plateNo,
+                          );
+                          await printTickets();
                         },
                         child: const Text('Print Ticket')),
                   ],
@@ -514,6 +406,87 @@ class _SunmiPrinterPageState extends State<SunmiPrinterPage> {
             ],
           ),
         ));
+  }
+
+  Future<void> printTickets() async {
+    print('መውጫ ታትሟል');
+    final DateTime today = DateTime.now();
+    String uniqueCounter =
+        generateUniqueCounter(today, widget.plateNo[0].codeUnitAt(0));
+
+    // Save the report to the database
+
+    await SunmiPrinter.initPrinter();
+    await SunmiPrinter.startTransactionPrint(true);
+    Uint8List dalex = await _getImageFromAsset('assets/images/Untitled-2.jpg');
+
+    await SunmiPrinter.startTransactionPrint(true);
+    await SunmiPrinter.setAlignment(SunmiPrintAlign.CENTER);
+    await SunmiPrinter.printImage(dalex);
+    // await SunmiPrinter.lineWrap(1);
+    await SunmiPrinter.setAlignment(SunmiPrintAlign.CENTER);
+    await SunmiPrinter.bold();
+    await SunmiPrinter.printText('Tikeetii Bahumsaa!');
+    // await SunmiPrinter.line();
+    await SunmiPrinter.setAlignment(SunmiPrintAlign.CENTER);
+
+    await SunmiPrinter.bold();
+    await SunmiPrinter.printText(
+        "Guyyaa ------------------${ethio_date.day.toString()}/${ethio_date.month.toString()}/${ethio_date.year.toString()}:-${ethio_date.hour.toString()}:${ethio_date.minute.toString()}",
+        style: SunmiStyle(fontSize: SunmiFontSize.SM));
+
+    await SunmiPrinter.bold();
+    await SunmiPrinter.printText("Agent ------------------${widget.agent}",
+        style: SunmiStyle(fontSize: SunmiFontSize.SM));
+
+    await SunmiPrinter.bold();
+    await SunmiPrinter.printText(
+        "Lakkoofsa gabatee --------------${widget.plateNo}",
+        style: SunmiStyle(fontSize: SunmiFontSize.SM));
+
+    await SunmiPrinter.bold();
+    await SunmiPrinter.printText("Sadarkaa ------------------${widget.level}",
+        style: SunmiStyle(fontSize: SunmiFontSize.SM));
+
+    await SunmiPrinter.bold();
+    await SunmiPrinter.printText("Ka'umsaa ----------------${widget.station}",
+        style: SunmiStyle(fontSize: SunmiFontSize.SM));
+
+    await SunmiPrinter.bold();
+    await SunmiPrinter.printText(
+        "Gahunsaa ------------------${widget.destination}",
+        style: SunmiStyle(fontSize: SunmiFontSize.SM));
+    await SunmiPrinter.bold();
+    await SunmiPrinter.printText(
+        "Fageenya ------------------${widget.distance} km",
+        style: SunmiStyle(fontSize: SunmiFontSize.SM));
+    await SunmiPrinter.bold();
+    await SunmiPrinter.printText(
+        "Dhaabbata ------------------${widget.association}",
+        style: SunmiStyle(fontSize: SunmiFontSize.SM));
+    await SunmiPrinter.bold();
+    await SunmiPrinter.printText(
+        "Tessoo ------------------${widget.totalCapacity}",
+        style: SunmiStyle(fontSize: SunmiFontSize.SM));
+    await SunmiPrinter.bold();
+    await SunmiPrinter.printText(
+        "Total birr ------------------${totalMoney} birr",
+        style: SunmiStyle(fontSize: SunmiFontSize.SM));
+
+    await SunmiPrinter.setAlignment(SunmiPrintAlign.CENTER);
+    await SunmiPrinter.printBarCode(uniqueCounter, height: 30);
+    await SunmiPrinter.lineWrap(2);
+    await SunmiPrinter.printText('Huubachiisa: Tikeetiin kun emala yeroo');
+    await SunmiPrinter.setAlignment(SunmiPrintAlign.CENTER);
+    await SunmiPrinter.printText('tokkoo qofaaf tajaajila!');
+    await SunmiPrinter.setAlignment(SunmiPrintAlign.CENTER);
+    await SunmiPrinter.printText('Inala gaarii!!');
+    await SunmiPrinter.lineWrap(2);
+    await SunmiPrinter.setAlignment(SunmiPrintAlign.CENTER);
+    await SunmiPrinter.printText('Powered by: Dalex ',
+        style: SunmiStyle(fontSize: SunmiFontSize.XS));
+
+    await SunmiPrinter.exitTransactionPrint(true);
   }
 }
 

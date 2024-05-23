@@ -21,22 +21,15 @@ class UserRgistrationBloc extends Bloc<RegisterEvent, RegisterState> {
             password_confirmation: event.confirmPassword,
           ),
         );
-        emit(LoadedRegisterUserState(
-            event.name, event.phone, event.password, event.confirmPassword));
+        if (response) {
+          emit(LoadedRegisterUserState(
+              event.name, event.phone, event.password, event.confirmPassword));
+        } else {
+          emit(const RegisterUserError('Error in Registration'));
+        }
       } catch (e) {
-        emit(const RegisterUserError('Error logging in'));
+        emit(const RegisterUserError('Error in Registration catch block'));
       }
     });
-
-    on<FetchStationInfoEvent>((event, emit) async {
-      emit(RegisterUserLoading());
-      try {
-        final response = await userService.fetchStationInfo();
-        emit(LoadedStationState(response));
-      } catch (e) {
-        emit(const RegisterUserError('Error fetching station information'));
-      }
-    });
-
   }
 }

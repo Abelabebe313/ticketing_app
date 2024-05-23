@@ -22,4 +22,3 @@ class RegisterUserEvent extends RegisterEvent {
   });
 }
 
-class FetchStationInfoEvent extends RegisterEvent {}

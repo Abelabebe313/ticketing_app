@@ -4,9 +4,6 @@ import 'package:hive/hive.dart';
 import 'package:transport_app/bloc/login%20bloc/login_bloc.dart';
 import 'package:transport_app/bloc/login%20bloc/login_event.dart';
 import 'package:transport_app/bloc/login%20bloc/login_state.dart';
-import 'package:transport_app/bloc/registration%20bloc/register_bloc.dart';
-import 'package:transport_app/bloc/registration%20bloc/register_event.dart';
-import 'package:transport_app/bloc/registration%20bloc/register_state.dart';
 import 'package:transport_app/models/update_model.dart';
 import 'package:transport_app/presentation/auth/registration.dart';
 import 'package:transport_app/presentation/home.dart';
@@ -28,21 +25,16 @@ class _LoginPageState extends State<LoginPage> {
   bool _isPasswordVisible = false;
   bool result = false;
 
-  List<StationInfo>? station_Info;
-  StationInfo? l_SelectedStation;
-
   @override
   void initState() {
     super.initState();
-    context.read<UserRgistrationBloc>().add(FetchStationInfoEvent());
-    context.read<UserRgistrationBloc>().stream.listen((state) {
-      if (state is LoadedStationState) {
-        station_Info = state.stations;
-        setState(() {
-          _isLoading = false;
-        });
-      }
-    });
+  }
+
+  @override
+  void dispose() {
+    _controllerPassword.dispose();
+    _phoneController.dispose();
+    super.dispose();
   }
 
   Widget _errorMessage() {
@@ -70,8 +62,7 @@ class _LoginPageState extends State<LoginPage> {
                   password: _controllerPassword.text,
                 ),
               );
-          print('Station Info: =--------=${l_SelectedStation?.name}');
-          await saveStationToHive(l_SelectedStation!);
+          await saveStationToHive();
         },
         child: _isLoading
             ? const CircularProgressIndicator(
@@ -102,7 +93,13 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Future<void> saveStationToHive(StationInfo station) async {
+  Future<void> saveStationToHive() async {
+    StationInfo station = StationInfo(
+      id: "1",
+      name: "Asela Station",
+      location: "Asela",
+      departure: "Asela",
+    );
     try {
       // Open Hive box for station
       final box = await Hive.openBox<StationInfo>('station');
@@ -122,7 +119,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<UserBloc, UserState>(listener: (context, state) {
-      if (state is LoadedUserState) {
+      if (state is LoadedLoginState) {
         setState(() {
           _isLoading = false;
         });
@@ -138,11 +135,11 @@ class _LoginPageState extends State<LoginPage> {
           context,
           MaterialPageRoute(builder: (context) => Home()),
         );
-      } else if (state is UserLoading) {
+      } else if (state is LoginLoading) {
         setState(() {
           _isLoading = true;
         });
-      } else if (state is UserError) {
+      } else if (state is LoginError) {
         // Show error message
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -293,59 +290,6 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(40, 5, 40, 5),
-                child: (station_Info != null)
-                    ? SizedBox(
-                        child: DropdownButtonFormField<StationInfo>(
-                          value: l_SelectedStation,
-                          onChanged: (value) {
-                            setState(() {
-                              l_SelectedStation = value;
-                            });
-                          },
-                          items: station_Info!
-                              .map<DropdownMenuItem<StationInfo>>((station) {
-                            return DropdownMenuItem<StationInfo>(
-                              value: station,
-                              child: Padding(
-                                padding: const EdgeInsets.all(6),
-                                child: Text(
-                                  station.name!,
-                                  style: const TextStyle(
-                                    color: Colors.grey,
-                                    fontFamily: 'Poppins-Light',
-                                    fontSize: 14,
-                                  ),
-                                ),
-                              ),
-                            );
-                          }).toList(),
-                          decoration: const InputDecoration(
-                            contentPadding: EdgeInsets.fromLTRB(6, 6, 6, 6),
-                            enabledBorder: OutlineInputBorder(
-                              borderSide:
-                                  BorderSide(color: Colors.grey, width: 1),
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(10),
-                              ),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(
-                                color: Colors.blue,
-                                width: 1,
-                              ),
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(10),
-                              ),
-                            ),
-                          ),
-                          isExpanded: true,
-                          style: const TextStyle(color: Colors.grey),
-                        ),
-                      )
-                    : Container(),
               ),
               const SizedBox(
                 height: 20,

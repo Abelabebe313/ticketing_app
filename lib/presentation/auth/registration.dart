@@ -29,21 +29,9 @@ class _RegistrationState extends State<Registration> {
   bool result = false;
   bool _isLoading = false;
 
-  List<StationInfo>? station_Info;
-  StationInfo? selectedStation;
-
   @override
   void initState() {
     super.initState();
-    context.read<UserRgistrationBloc>().add(FetchStationInfoEvent());
-    // listen to state
-    context.read<UserRgistrationBloc>().stream.listen((state) {
-      if (state is LoadedStationState) {
-        setState(() {
-          station_Info = state.stations;
-        });
-      }
-    });
   }
 
   Widget _errorMessage() {
@@ -67,16 +55,23 @@ class _RegistrationState extends State<Registration> {
           context.read<UserRgistrationBloc>().add(
                 RegisterUserEvent(
                   name: _fullNameController.text,
-                  phone: _controllerPhone.text,
+                  phone: '+251'+_controllerPhone.text,
                   password: _controllerPassword.text,
                   confirmPassword: _confirmPasswordController.text,
                 ),
               );
-          print('Station Info: =--------=${selectedStation?.name}');
-          await saveStationToHive(selectedStation!);
+          await saveStationToHive();
         },
-        child:
-            _isLoading ? const CircularProgressIndicator() : Text('Register'),
+        child: _isLoading
+            ? const CircularProgressIndicator(
+                color: Colors.white,
+              )
+            : const Text(
+                'Register',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
       ),
     );
   }
@@ -100,13 +95,6 @@ class _RegistrationState extends State<Registration> {
   Widget build(BuildContext context) {
     return BlocConsumer<UserRgistrationBloc, RegisterState>(
       listener: (context, state) {
-        if (state is LoadedStationState) {
-          station_Info = state.stations;
-
-          setState(() {
-            _isLoading = false;
-          });
-        }
         if (state is LoadedRegisterUserState) {
           setState(() {
             _isLoading = false;
@@ -352,64 +340,6 @@ class _RegistrationState extends State<Registration> {
                           Radius.circular(10),
                         ),
                       ),
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  height: 60,
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(25, 5, 25, 5),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        if (station_Info != null)
-                          DropdownButtonFormField<StationInfo>(
-                            value: selectedStation,
-                            onChanged: (value) {
-                              setState(() {
-                                selectedStation = value;
-                              });
-                            },
-                            items: station_Info!
-                                .map<DropdownMenuItem<StationInfo>>((station) {
-                              return DropdownMenuItem<StationInfo>(
-                                value: station,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(6),
-                                  child: Text(
-                                    station.name!,
-                                    style: const TextStyle(
-                                      color: Colors.grey,
-                                      fontFamily: 'Poppins-Light',
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                ),
-                              );
-                            }).toList(),
-                            decoration: const InputDecoration(
-                              contentPadding: EdgeInsets.fromLTRB(6, 6, 6, 6),
-                              enabledBorder: OutlineInputBorder(
-                                borderSide:
-                                    BorderSide(color: Colors.grey, width: 1),
-                                borderRadius: BorderRadius.all(
-                                  Radius.circular(10),
-                                ),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: Colors.blue,
-                                  width: 1,
-                                ),
-                                borderRadius: BorderRadius.all(
-                                  Radius.circular(10),
-                                ),
-                              ),
-                            ),
-                            isExpanded: true,
-                            style: const TextStyle(color: Colors.grey),
-                          ),
-                      ],
                     ),
                   ),
                 ),

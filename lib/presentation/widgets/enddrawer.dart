@@ -1,5 +1,8 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:restart_app/restart_app.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:transport_app/presentation/auth/login_page.dart';
 import 'package:transport_app/utils/clear_hive.dart';
@@ -23,7 +26,7 @@ class _EndDrawersState extends State<EndDrawers> {
     return Drawer(
       child: ListView(
         children: [
-          SizedBox(
+          const SizedBox(
             height: 130,
           ),
           ListTile(
@@ -90,8 +93,8 @@ class _EndDrawersState extends State<EndDrawers> {
                 fontSize: 16,
               ),
             ),
-            onTap: () async {
-              await clearPreference('bus_info');
+            onTap: ()  {
+              // await clearPreference('bus_info');
               clearAuthToken();
               clearAllHiveData();
               // clear Hive.box<String>(pin_code) ('pin');
@@ -101,7 +104,7 @@ class _EndDrawersState extends State<EndDrawers> {
               // ignore: use_build_context_synchronously
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => LoginPage()),
+                MaterialPageRoute(builder: (context) => const LoginPage()),
               );
               // exit(0);
               // Restart.restartApp();

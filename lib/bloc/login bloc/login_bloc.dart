@@ -5,23 +5,24 @@ import 'package:transport_app/bloc/login%20bloc/login_state.dart';
 import 'package:transport_app/services/loginService.dart';
 
 class UserBloc extends Bloc<UserEvent, UserState> {
-  UserBloc(UserState initialState) : super(UserInitial()) {
+  UserBloc(UserState initialState) : super(LoginInitial()) {
     final userService = UserLogin();
 
     on<LoginUserEvent>((event, emit) async {
-      emit(UserLoading());
+      emit(LoginLoading());
+        print('========> inside try bloc');
       try {
-        // print('========> inside try bloc');
         final response = await userService.login(event.phone, event.password);
         // print('response: $response');
         
         if (response) {
-          emit(LoadedUserState(event.phone, event.password));
+          emit(LoadedLoginState(event.phone, event.password));
         } else {
-          emit(const UserError('Error when registering user'));
+          emit(const LoginError('Error when logging in user'));
         }
       } catch (e) {
-        emit(const UserError('Error LOGGING in'));
+        print('Login error: $e');
+        emit(const LoginError('Error LOGGING in'));
       }
     });
   }

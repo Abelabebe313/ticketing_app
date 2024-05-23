@@ -1,9 +1,8 @@
-import 'dart:convert';
-
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:ionicons/ionicons.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:transport_app/bloc/upload/upload_bloc.dart';
 import 'package:transport_app/bloc/upload/upload_event.dart';
 import 'package:transport_app/bloc/upload/upload_state.dart';
@@ -13,7 +12,7 @@ import 'package:transport_app/models/report.dart';
 import '../../data/report.dart';
 
 class SoldTickets extends StatefulWidget {
-  const SoldTickets({Key? key});
+  const SoldTickets({Key? key}) : super(key: key);
 
   @override
   SoldTicketsState createState() => SoldTicketsState();
@@ -21,22 +20,45 @@ class SoldTickets extends StatefulWidget {
 
 class SoldTicketsState extends State<SoldTickets> {
   double totalCommission = 0.0;
+  int totalticket = 0;
+  int totalCars = 0;
   bool _isLoading = false;
   List<ReportModel> _reportList = [];
+  bool _isUploading = false;
+
   @override
   void initState() {
     super.initState();
     _loadTotalCommission();
     _loadReportList();
-    print('=================${_reportList}===================');
+  }
+
+  Future<void> _uploadReports() async {
+    setState(() {
+      _isUploading = true;
+    });
+
+    try {
+      for (ReportModel report in _reportList) {
+        BlocProvider.of<UploadBloc>(context)
+            .add(UploadReportEvent(report: report));
+      }
+
+      await ReportLocalDataSource().clearReports();
+      _loadReportList(); // Reload the list after clearing
+    } catch (e) {
+      // Handle any errors here
+      print('Error uploading reports: $e');
+    } finally {
+      setState(() {
+        _isUploading = false;
+      });
+    }
   }
 
   Future<void> _loadReportList() async {
     try {
-      // Retrieve the list of reports from the local database
       List<ReportModel> reports = await ReportLocalDataSource().getAllReport();
-
-      // Update the _reportList with the retrieved reports
       setState(() {
         _reportList = reports;
       });
@@ -50,14 +72,20 @@ class SoldTicketsState extends State<SoldTickets> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       totalCommission = prefs.getDouble('dailyReport') ?? 0.0;
+      totalticket = prefs.getInt('totalTicket') ?? 0;
+      totalCars = prefs.getInt('totalCars') ?? 0;
     });
   }
 
   Future<void> _clearCommission() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.remove('dailyReport');
+    await prefs.remove('totalTicket');
+    await prefs.remove('totalCars');
     setState(() {
       totalCommission = 0.0;
+      totalticket = 0;
+      totalCars = 0;
     });
   }
 
@@ -75,7 +103,7 @@ class SoldTicketsState extends State<SoldTickets> {
           });
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text("Report Uplaoded"),
+              content: Text("Report Uploaded"),
               backgroundColor: Colors.green,
               duration: Duration(seconds: 2),
             ),
@@ -102,6 +130,7 @@ class SoldTicketsState extends State<SoldTickets> {
               style: const TextStyle(
                 fontSize: 18,
                 fontFamily: 'Poppins-Regular',
+                fontWeight: FontWeight.bold,
               ),
             ),
             actions: [
@@ -111,6 +140,7 @@ class SoldTicketsState extends State<SoldTickets> {
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                       backgroundColor: MyColors.primary, elevation: 0),
+                  onPressed: _isUploading ? null : _uploadReports,
                   child: _isLoading
                       ? const CircularProgressIndicator(
                           color: Colors.white,
@@ -124,18 +154,6 @@ class SoldTicketsState extends State<SoldTickets> {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                  onPressed: () async {
-                    // ReportService reportService = ReportService();
-
-                    for (ReportModel report in _reportList) {
-                      BlocProvider.of<UploadBloc>(context)
-                          .add(UploadReportEvent(report: report));
-                      // bool isUploaded = await reportService.upload(report);
-                    }
-                    await ReportLocalDataSource().clearReports();
-                    await _loadReportList();
-                    setState(() {});
-                  },
                 ),
               ),
               const SizedBox(
@@ -144,62 +162,145 @@ class SoldTicketsState extends State<SoldTickets> {
             ],
           ),
           body: Column(
-            // mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Container(
-                  child: Text(
-                    'Waliigala tikkeettii gurgurame: ',
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontFamily: 'Poppins-Regular',
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(
-                height: 10,
-              ),
+              const SizedBox(height: 10),
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  const SizedBox(width: 5),
-                  Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: Container(
-                      child: Text(
-                        '${double.parse(totalCommission.toStringAsFixed(3))} birr',
-                        style: const TextStyle(
-                          fontSize: 24,
-                          fontFamily: 'Poppins-Regular',
+                  const SizedBox(width: 10),
+                  Container(
+                    width: 100,
+                    height: 120,
+                    decoration: BoxDecoration(
+                      color: MyColors.primary,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        SizedBox(height: 10),
+                        Text(
+                          'Cars',
+                          style: const TextStyle(
+                            fontSize: 10,
+                            color: Colors.white,
+                            fontFamily: 'Poppins-Regular',
+                          ),
                         ),
-                      ),
+                        Text(
+                          totalCars.toString(),
+                          style: const TextStyle(
+                            fontSize: 22,
+                            color: Colors.white,
+                            fontFamily: 'Poppins-Regular',
+                          ),
+                        ),
+                        Icon(
+                          Icons.directions_car,
+                          color: Colors.white,
+                          size: 40,
+                        ),
+                      ],
                     ),
                   ),
-                  Spacer(),
+                  Container(
+                    width: 100,
+                    height: 120,
+                    decoration: BoxDecoration(
+                      color: MyColors.primary,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 10),
+                        Text(
+                          'Tickets',
+                          style: const TextStyle(
+                            fontSize: 10,
+                            color: Colors.white,
+                            fontFamily: 'Poppins-Regular',
+                          ),
+                        ),
+                        Text(
+                          totalticket.toString(),
+                          style: const TextStyle(
+                            fontSize: 22,
+                            color: Colors.white,
+                            fontFamily: 'Poppins-Regular',
+                          ),
+                        ),
+                        Icon(
+                          Ionicons.ticket,
+                          color: Colors.white,
+                          size: 40,
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    width: 100,
+                    height: 120,
+                    decoration: BoxDecoration(
+                      color: MyColors.primary,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 10),
+                        Text(
+                          'Commission',
+                          style: const TextStyle(
+                            fontSize: 10,
+                            color: Colors.white,
+                            fontFamily: 'Poppins-Regular',
+                          ),
+                        ),
+                        Text(
+                          totalCommission.toStringAsFixed(3),
+                          style: const TextStyle(
+                            fontSize: 20,
+                            color: Colors.white,
+                            fontFamily: 'Poppins-Regular',
+                          ),
+                        ),
+                        Icon(
+                          Ionicons.cash,
+                          color: Colors.white,
+                          size: 40,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                ],
+              ),
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
                   SizedBox(
-                    width: 150,
+                    width: 85,
                     height: 40,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                           backgroundColor: MyColors.primary, elevation: 0),
                       child: const Text(
-                        "Ifaa",
+                        "Clear",
                         style: TextStyle(
                           color: Colors.white,
-                          fontSize: 14,
+                          fontSize: 12,
                           fontFamily: 'Poppins-Regular',
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w400,
                         ),
                       ),
                       onPressed: () async {
-                        // Show confirmation dialog
                         bool clearConfirmed = await showDialog(
                           context: context,
                           builder: (context) => AlertDialog(
                             title: const Text('Clear Commission'),
                             content: const Text(
-                                'Kaffaltii tajaajilaa qulqulleessuu akka barbaaddu mirkaneeffatteettaa?'),
+                                'Are you sure you want to clear the commission?'),
                             actions: [
                               TextButton(
                                 onPressed: () =>
@@ -215,14 +316,13 @@ class SoldTicketsState extends State<SoldTickets> {
                           ),
                         );
 
-                        // Clear commission if user confirmed
                         if (clearConfirmed == true) {
                           await _clearCommission();
                         }
                       },
                     ),
                   ),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 40),
                 ],
               ),
               const SizedBox(
@@ -232,7 +332,7 @@ class SoldTicketsState extends State<SoldTickets> {
                 padding: const EdgeInsets.all(10.0),
                 child: Container(
                   child: const Text(
-                    'report list: ',
+                    'Report List: ',
                     style: TextStyle(
                       fontSize: 14,
                       fontFamily: 'Poppins-Regular',
@@ -248,14 +348,10 @@ class SoldTicketsState extends State<SoldTickets> {
                   itemCount: _reportList.length,
                   itemBuilder: (context, index) {
                     ReportModel report = _reportList[index];
-                    return Container(
-                      child: ListTile(
-                        title: Text('Name: ${report.name}'),
-                        subtitle: Text('Plate: ${report.plate}'),
-                        trailing: Text('date: ${report.date}'),
-
-                        // Add more details here if needed
-                      ),
+                    return ListTile(
+                      title: Text('Name: ${report.name}'),
+                      subtitle: Text('Plate: ${report.plate}'),
+                      trailing: Text('Date: ${report.date}'),
                     );
                   },
                 ),

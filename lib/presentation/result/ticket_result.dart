@@ -400,6 +400,24 @@ class ResultPageState extends State<ResultPage> {
                         ),
                       ],
                     ),
+                    Row(
+                      children: [
+                        Text(
+                          "Total Passenger: ".tr(),
+                          style: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          '${widget.totalCapacity}',
+                          style: const TextStyle(
+                              color: Colors.black,
+                              fontSize: 16,
+                              fontWeight: FontWeight.normal),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               ),
@@ -464,19 +482,26 @@ class ResultPageState extends State<ResultPage> {
                       // Get the previous commission value from SharedPreferences
                       double previousCommission =
                           prefs.getDouble('dailyReport') ?? 0.0;
+                      int previousTicketCount = prefs.getInt('totalTicket') ?? 0;
                       // Increment the commission by adding the new commission to the previous value
                       double updatedCommission =
                           previousCommission + commission;
+                      
+                      // Increment the ticket count by adding the new ticket to the previous value
+                      int updatedTicketCount = previousTicketCount + 1;
 
                       // Update the commission value in SharedPreferences
                       prefs.setDouble('dailyReport', updatedCommission);
+                      prefs.setInt('totalTicket', updatedTicketCount);
                       //
                       // print ticket
                       await printMultipleTickets(
                         uniqueCounter,
                         widget.totalCapacity,
+                        i + 1,
                       );
                     }
+                    // Navigator.pop(context);
                   },
                 ),
               )
@@ -491,9 +516,11 @@ class ResultPageState extends State<ResultPage> {
     return await readFileBytes(iconPath);
   }
 
-  Future<void> printMultipleTickets(String ticketCode, int seat) async {
+  Future<void> printMultipleTickets(
+      String ticketCode, int seat, int seatNumber) async {
     await SunmiPrinter.initPrinter();
-    Uint8List dalex = await _getImageFromAsset('assets/images/Untitled-2@3x.jpg');
+    Uint8List dalex =
+        await _getImageFromAsset('assets/images/Untitled-2@3x.jpg');
     await SunmiPrinter.startTransactionPrint(true);
 
     await SunmiPrinter.setAlignment(SunmiPrintAlign.CENTER);
@@ -515,8 +542,7 @@ class ResultPageState extends State<ResultPage> {
         "Gahunsaa ------------------${widget.ticket.destination}",
         style: SunmiStyle(fontSize: SunmiFontSize.SM));
     await SunmiPrinter.bold();
-    await SunmiPrinter.printText(
-        "Tikeetii Lakk --------------${ticketCode}",
+    await SunmiPrinter.printText("Tikeetii Lakk --------------${ticketCode}",
         style: SunmiStyle(fontSize: SunmiFontSize.SM));
     await SunmiPrinter.bold();
     await SunmiPrinter.printText(
@@ -527,7 +553,7 @@ class ResultPageState extends State<ResultPage> {
         "Sadarkaa ------------------${widget.ticket.level}",
         style: SunmiStyle(fontSize: SunmiFontSize.SM));
     await SunmiPrinter.bold();
-    await SunmiPrinter.printText("Teessoo ------------------${seat}",
+    await SunmiPrinter.printText("Teessoo ------------------$seatNumber",
         style: SunmiStyle(fontSize: SunmiFontSize.SM));
     await SunmiPrinter.bold();
     await SunmiPrinter.printText(
@@ -546,7 +572,8 @@ class ResultPageState extends State<ResultPage> {
         "Fageenya ------------------${widget.ticket.distance.toString()} km",
         style: SunmiStyle(fontSize: SunmiFontSize.SM));
     await SunmiPrinter.bold();
-    await SunmiPrinter.printText("Taarifa --------------${widget.ticket.tariff} Birr",
+    await SunmiPrinter.printText(
+        "Taarifa --------------${widget.ticket.tariff} Birr",
         style: SunmiStyle(fontSize: SunmiFontSize.SM));
     await SunmiPrinter.bold();
     await SunmiPrinter.printText(
@@ -576,171 +603,4 @@ class ResultPageState extends State<ResultPage> {
 
     await SunmiPrinter.exitTransactionPrint(true);
   }
-
-  // Future<void> printMultipleTickets(String ticketCode, int seat) async {
-  //   await SunmiPrinter.initPrinter();
-  //   Uint8List dalex = await _getImageFromAsset('assets/images/Untitled-2.jpg');
-  //   await SunmiPrinter.startTransactionPrint(true);
-
-  //   await SunmiPrinter.setAlignment(SunmiPrintAlign.CENTER);
-  //   await SunmiPrinter.printImage(dalex);
-  //   // await SunmiPrinter.lineWrap(1);
-
-  //   // await SunmiPrinter.bold();
-  //   await SunmiPrinter.setAlignment(SunmiPrintAlign.CENTER);
-  //   await SunmiPrinter.printText('Tikeetii imaltootaa!');
-
-  //   // await SunmiPrinter.line();
-  //   await SunmiPrinter.setAlignment(SunmiPrintAlign.CENTER);
-
-  //   await SunmiPrinter.printRow(cols: [
-  //     ColumnMaker(
-  //       text: "Ka'umsaa",
-  //       width: 14,
-  //       align: SunmiPrintAlign.LEFT,
-  //     ),
-  //     ColumnMaker(
-  //         text: widget.ticket.departure,
-  //         width: 16,
-  //         align: SunmiPrintAlign.RIGHT),
-  //   ]);
-
-  //   await SunmiPrinter.printRow(cols: [
-  //     ColumnMaker(text: "Gahunsaa", width: 18, align: SunmiPrintAlign.LEFT),
-  //     ColumnMaker(
-  //         text: widget.ticket.destination,
-  //         width: 12,
-  //         align: SunmiPrintAlign.RIGHT),
-  //   ]);
-
-  //   await SunmiPrinter.printRow(cols: [
-  //     ColumnMaker(
-  //         text: "Tikeetii Lakk", width: 18, align: SunmiPrintAlign.LEFT),
-  //     ColumnMaker(text: '$ticketCode', width: 12, align: SunmiPrintAlign.RIGHT),
-  //   ]);
-
-  //   await SunmiPrinter.printRow(cols: [
-  //     ColumnMaker(
-  //         text: "Lakkoofsa gabatee", width: 18, align: SunmiPrintAlign.LEFT),
-  //     ColumnMaker(
-  //         text: widget.ticket.plate, width: 12, align: SunmiPrintAlign.RIGHT),
-  //   ]);
-
-  //   await SunmiPrinter.printRow(cols: [
-  //     ColumnMaker(text: "Sadarkaa", width: 18, align: SunmiPrintAlign.LEFT),
-  //     ColumnMaker(
-  //         text: widget.ticket.level, width: 12, align: SunmiPrintAlign.RIGHT),
-  //   ]);
-
-  //   await SunmiPrinter.printRow(cols: [
-  //     ColumnMaker(text: "Teessoo", width: 18, align: SunmiPrintAlign.LEFT),
-  //     ColumnMaker(text: '${seat}', width: 12, align: SunmiPrintAlign.RIGHT),
-  //   ]);
-
-  //   await SunmiPrinter.printRow(cols: [
-  //     ColumnMaker(
-  //       text: "Guyyaa",
-  //       width: 13,
-  //       align: SunmiPrintAlign.LEFT,
-  //     ),
-  //     ColumnMaker(
-  //         text:
-  //             '${ethio_date.day.toString()}/${ethio_date.month.toString()}/${ethio_date.year.toString()}:-${ethio_date.hour.toString()}:${ethio_date.minute.toString()}',
-  //         width: 17,
-  //         align: SunmiPrintAlign.RIGHT),
-  //   ]);
-
-  //   await SunmiPrinter.printRow(cols: [
-  //     ColumnMaker(
-  //       text: "Agent",
-  //       width: 18,
-  //       align: SunmiPrintAlign.LEFT,
-  //     ),
-  //     ColumnMaker(
-  //         text: widget.ticket.tailure, width: 12, align: SunmiPrintAlign.RIGHT),
-  //   ]);
-
-  //   await SunmiPrinter.printRow(cols: [
-  //     ColumnMaker(
-  //       text: "Waldaa",
-  //       width: 18,
-  //       align: SunmiPrintAlign.LEFT,
-  //     ),
-  //     ColumnMaker(
-  //         text: widget.ticket.association,
-  //         width: 12,
-  //         align: SunmiPrintAlign.RIGHT),
-  //   ]);
-
-  //   await SunmiPrinter.printRow(cols: [
-  //     ColumnMaker(
-  //       text: "fageenya",
-  //       width: 18,
-  //       align: SunmiPrintAlign.LEFT,
-  //     ),
-  //     ColumnMaker(
-  //       text: '${widget.ticket.distance.toString()} km',
-  //       width: 12,
-  //       align: SunmiPrintAlign.RIGHT,
-  //     ),
-  //   ]);
-
-  //   await SunmiPrinter.printRow(cols: [
-  //     ColumnMaker(
-  //       text: "Taarifa",
-  //       width: 18,
-  //       align: SunmiPrintAlign.LEFT,
-  //     ),
-  //     ColumnMaker(
-  //         text: '${widget.ticket.tariff} Birr',
-  //         width: 12,
-  //         align: SunmiPrintAlign.RIGHT),
-  //   ]);
-
-  //   await SunmiPrinter.printRow(cols: [
-  //     ColumnMaker(
-  //       text: "Kaffaltii tajaajilaa",
-  //       width: 20,
-  //       align: SunmiPrintAlign.LEFT,
-  //     ),
-  //     ColumnMaker(
-  //       text: '${double.parse(widget.ticket.charge.toStringAsFixed(3))} Birr',
-  //       width: 10,
-  //       align: SunmiPrintAlign.RIGHT,
-  //     ),
-  //   ]);
-
-  //   await SunmiPrinter.printRow(cols: [
-  //     ColumnMaker(
-  //       text: "Ida'ama",
-  //       width: 18,
-  //       align: SunmiPrintAlign.LEFT,
-  //     ),
-  //     ColumnMaker(
-  //       text:
-  //           '${double.parse((widget.ticket.tariff + widget.ticket.charge).toStringAsFixed(3))} Birr',
-  //       width: 12,
-  //       align: SunmiPrintAlign.RIGHT,
-  //     ),
-  //   ]);
-
-  //   await SunmiPrinter.setAlignment(SunmiPrintAlign.CENTER);
-
-  //   await SunmiPrinter.bold();
-
-  //   await SunmiPrinter.resetBold();
-  //   await SunmiPrinter.printBarCode(ticketCode, height: 20);
-  //   await SunmiPrinter.printText('Nagahee dijitaalaa wajjiraan');
-  //   await SunmiPrinter.setAlignment(SunmiPrintAlign.CENTER);
-  //   await SunmiPrinter.printText('Alatti Hin Kafalinaa');
-  //   await SunmiPrinter.setAlignment(SunmiPrintAlign.CENTER);
-  //   await SunmiPrinter.printText('Inala gaarii!!');
-  //   // await SunmiPrinter.lineWrap(1);
-  //   await SunmiPrinter.setAlignment(SunmiPrintAlign.CENTER);
-  //   await SunmiPrinter.printText('Powered by: Dalex ',
-  //       style: SunmiStyle(fontSize: SunmiFontSize.XS));
-  //   // await SunmiPrinter.lineWrap(3);
-
-  //   await SunmiPrinter.exitTransactionPrint(true);
-  // }
 }

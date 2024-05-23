@@ -47,6 +47,7 @@ class BuyTicketState extends State<BuyTicket> {
   void initState() {
     String currentDate = DateTime.now().toLocal().toString().split(' ')[0];
     super.initState();
+    _refreshPage();
     // BlocProvider.of<DataBloc>(context).add(GetAllDataEvent());
     fetchStationFromHive();
     getUser();
@@ -181,24 +182,65 @@ class BuyTicketState extends State<BuyTicket> {
 
   Future<void> getTariffByDestinationId(String destinationId) async {
     // Search for the tariff information with the given destination ID
-    for (TariffInfo  tariffInfo in tariffList) {
-      if (tariffInfo.destinationId == destinationId) {
-        print('============> Tariff id: ${tariffInfo!.destinationId}');
-        print('============> Tariff found: ${tariffInfo.tariff}');
-
-        print('============> Tariff found: ${tariffInfo.level_1}');
-        print('============> Selected destination ID: $destinationId');
-        print('============> selectedVehicle: ${selectedVehicle!.level!}');
+    for (TariffInfo tariffInfo in tariffList) {
+      if (tariffInfo.is_lessthan_16 == "yes" &&
+          tariffInfo.destinationId == destinationId) {
+        print('ኢፍ ውስጥ');
+        print(
+            '============> Selected level 1 mini ID: ${tariffInfo.level_1_mini}');
+        print(
+            '============> Selected level 2 mini ID: ${tariffInfo.level_2_mini}');
+        print(
+            '============> Selected level 3 mini ID: ${tariffInfo.level_3_mini}');
         setState(() {
           if (selectedVehicle != null) {
+            int.parse(selectedVehicle!.capacity!);
+            // level 1
+            if (selectedVehicle!.level == 'Level 1') {
+              tariff.text = tariffInfo.level_1_mini ?? '';
+              serviceCharge.text =
+                  (double.parse(tariffInfo.level_1_mini!) * 0.02).toString();
+
+              // level 2
+            } else if (selectedVehicle!.level == 'Level 2') {
+              tariff.text = tariffInfo.level_2_mini ?? '';
+              serviceCharge.text =
+                  (double.parse(tariffInfo.level_2_mini!) * 0.02).toString();
+
+              // level 3
+            } else if (selectedVehicle!.level == 'Level 3') {
+              tariff.text = tariffInfo.level_3_mini ?? '';
+              serviceCharge.text =
+                  (double.parse(tariffInfo.level_3_mini!) * 0.02).toString();
+            } else {
+              tariff.text = tariffInfo.tariff ?? '';
+              serviceCharge.text =
+                  (double.parse(tariffInfo.tariff!) * 0.02).toString();
+            }
+          }
+        });
+        break;
+      } else if (tariffInfo.is_lessthan_16 == "no" &&
+          tariffInfo.destinationId == destinationId) {
+        print('ኤልስ ውስጥ');
+        print('============> Selected level 1 ID: ${tariffInfo.level_1}');
+        print('============> Selected level 2 ID: ${tariffInfo.level_2}');
+        print('============> Selected level 3 ID: ${tariffInfo.level_3}');
+        setState(() {
+          if (selectedVehicle != null) {
+            // level 1
             if (selectedVehicle!.level == 'Level 1') {
               tariff.text = tariffInfo.level_1 ?? '';
               serviceCharge.text =
                   (double.parse(tariffInfo.level_1!) * 0.02).toString();
+
+              // level 2
             } else if (selectedVehicle!.level == 'Level 2') {
               tariff.text = tariffInfo.level_2 ?? '';
               serviceCharge.text =
                   (double.parse(tariffInfo.level_2!) * 0.02).toString();
+
+              // level 3
             } else if (selectedVehicle!.level == 'Level 3') {
               tariff.text = tariffInfo.level_3 ?? '';
               serviceCharge.text =
@@ -210,6 +252,7 @@ class BuyTicketState extends State<BuyTicket> {
             }
           }
         });
+        break;
       }
     }
   }
@@ -229,8 +272,6 @@ class BuyTicketState extends State<BuyTicket> {
       date.text = formattedDate;
     }
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -304,8 +345,7 @@ class BuyTicketState extends State<BuyTicket> {
                         child: Container(
                           height: 50,
                           alignment: Alignment.topRight,
-                          padding:
-                              const EdgeInsets.symmetric(horizontal: 20),
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
                           child: TextField(
                             maxLines: 1,
                             controller: Tailure,
@@ -643,7 +683,9 @@ class BuyTicketState extends State<BuyTicket> {
                               alignment: Alignment.topLeft,
                               padding:
                                   const EdgeInsets.symmetric(horizontal: 20),
-                              child: TextField(
+                              child: TextFormField(
+                                validator: (value) =>
+                                    validateDistance(value, context),
                                 enabled: false,
                                 maxLines: 1,
                                 controller: distance,
@@ -784,7 +826,9 @@ class BuyTicketState extends State<BuyTicket> {
                       height: 50,
                       alignment: Alignment.centerLeft,
                       padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: TextField(
+                      child: TextFormField(
+                        validator: (value) =>
+                            validateAssociation(value, context),
                         enabled: false,
                         maxLines: 1,
                         controller: association,
@@ -858,6 +902,38 @@ class BuyTicketState extends State<BuyTicket> {
         ),
       ),
     );
+  }
+
+  String? validateDistance(String? value, BuildContext context) {
+    if (value == null || value.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Please enter the distance"),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return 'Please enter distance';
+    }
+
+    // Return null if validation passes
+    return null;
+  }
+
+  String? validateAssociation(String? value, BuildContext context) {
+    if (value == null || value.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Please enter the Association name"),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return 'Please enter Association name';
+    }
+
+    // Return null if validation passes
+    return null;
   }
 
   Future<void> _refreshPage() async {
