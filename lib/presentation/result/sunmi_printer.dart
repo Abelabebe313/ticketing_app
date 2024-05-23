@@ -4,6 +4,7 @@ import 'package:barcode_widget/barcode_widget.dart' as Bbar;
 import 'package:ethiopian_calendar/ethiopian_date_converter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sunmi_printer_plus/column_maker.dart';
 import 'package:sunmi_printer_plus/enums.dart';
 import 'package:sunmi_printer_plus/sunmi_printer_plus.dart';
@@ -382,6 +383,15 @@ class _SunmiPrinterPageState extends State<SunmiPrinterPage> {
                   children: [
                     ElevatedButton(
                         onPressed: () async {
+                          SharedPreferences prefs =
+                              await SharedPreferences.getInstance();
+                          int previousCarCount =
+                              prefs.getInt('totalCars') ?? 0;
+                          int updatedCarCount = previousCarCount + 1;
+
+                          // Update the commission value in SharedPreferences
+                          prefs.setInt('totalCars', updatedCarCount);
+                          // Save the report to the database
                           _saveReport(
                             widget.agent,
                             totalMoney.toString(),

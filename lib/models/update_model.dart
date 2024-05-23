@@ -151,6 +151,10 @@ class TariffInfo {
   String? level_1;
   String? level_2;
   String? level_3;
+  String? is_lessthan_16;
+  String? level_1_mini;
+  String? level_2_mini;
+  String? level_3_mini;
   String? updatedDate;
 
   TariffInfo({
@@ -160,6 +164,10 @@ class TariffInfo {
     this.level_1,
     this.level_2,
     this.level_3,
+    this.is_lessthan_16,
+    this.level_1_mini,
+    this.level_2_mini,
+    this.level_3_mini,
     this.updatedDate,
   });
 
@@ -170,6 +178,10 @@ class TariffInfo {
     level_1 = json['level_1'];
     level_2 = json['level_2'];
     level_3 = json['level_3'];
+    is_lessthan_16 = json['is_lessthan_16'];
+    level_1_mini = json['level_1_mini'];
+    level_2_mini = json['level_2_mini'];
+    level_3_mini = json['level_3_mini'];
     updatedDate = json['updated_date'];
   }
 
@@ -181,6 +193,10 @@ class TariffInfo {
     data['level_1'] = this.level_1;
     data['level_2'] = this.level_2;
     data['level_3'] = this.level_3;
+    data['is_lessthan_16'] = this.is_lessthan_16;
+    data['level_1_mini'] = this.level_1_mini;
+    data['level_2_mini'] = this.level_2_mini;
+    data['level_3_mini'] = this.level_3_mini;
     data['updated_date'] = this.updatedDate;
     return data;
   }

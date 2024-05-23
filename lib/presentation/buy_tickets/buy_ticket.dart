@@ -47,6 +47,7 @@ class BuyTicketState extends State<BuyTicket> {
   void initState() {
     String currentDate = DateTime.now().toLocal().toString().split(' ')[0];
     super.initState();
+    _refreshPage();
     // BlocProvider.of<DataBloc>(context).add(GetAllDataEvent());
     fetchStationFromHive();
     getUser();
@@ -181,7 +182,7 @@ class BuyTicketState extends State<BuyTicket> {
 
   Future<void> getTariffByDestinationId(String destinationId) async {
     // Search for the tariff information with the given destination ID
-    for (TariffInfo  tariffInfo in tariffList) {
+    for (TariffInfo tariffInfo in tariffList) {
       if (tariffInfo.destinationId == destinationId) {
         print('============> Tariff id: ${tariffInfo!.destinationId}');
         print('============> Tariff found: ${tariffInfo.tariff}');
@@ -191,18 +192,40 @@ class BuyTicketState extends State<BuyTicket> {
         print('============> selectedVehicle: ${selectedVehicle!.level!}');
         setState(() {
           if (selectedVehicle != null) {
+            int capacity = int.parse(selectedVehicle!.capacity!);
+            // level 1
             if (selectedVehicle!.level == 'Level 1') {
-              tariff.text = tariffInfo.level_1 ?? '';
-              serviceCharge.text =
-                  (double.parse(tariffInfo.level_1!) * 0.02).toString();
+              if (tariffInfo!.is_lessthan_16 == 'yes') {
+                tariff.text = tariffInfo.level_1_mini ?? '';
+                serviceCharge.text =
+                    (double.parse(tariffInfo.level_1_mini!) * 0.02).toString();
+              } else {
+                tariff.text = tariffInfo.level_1 ?? '';
+                serviceCharge.text =
+                    (double.parse(tariffInfo.level_1!) * 0.02).toString();
+              }
+              // level 2
             } else if (selectedVehicle!.level == 'Level 2') {
-              tariff.text = tariffInfo.level_2 ?? '';
-              serviceCharge.text =
-                  (double.parse(tariffInfo.level_2!) * 0.02).toString();
+              if (tariffInfo!.is_lessthan_16 == 'yes') {
+                tariff.text = tariffInfo.level_2_mini ?? '';
+                serviceCharge.text =
+                    (double.parse(tariffInfo.level_2_mini!) * 0.02).toString();
+              } else {
+                tariff.text = tariffInfo.level_2 ?? '';
+                serviceCharge.text =
+                    (double.parse(tariffInfo.level_2!) * 0.02).toString();
+              }
+              // level 3
             } else if (selectedVehicle!.level == 'Level 3') {
-              tariff.text = tariffInfo.level_3 ?? '';
-              serviceCharge.text =
-                  (double.parse(tariffInfo.level_3!) * 0.02).toString();
+              if (tariffInfo!.is_lessthan_16 == 'yes') {
+                tariff.text = tariffInfo.level_3_mini ?? '';
+                serviceCharge.text =
+                    (double.parse(tariffInfo.level_3_mini!) * 0.02).toString();
+              } else {
+                tariff.text = tariffInfo.level_3 ?? '';
+                serviceCharge.text =
+                    (double.parse(tariffInfo.level_3!) * 0.02).toString();
+              }
             } else {
               tariff.text = tariffInfo.tariff ?? '';
               serviceCharge.text =
@@ -229,8 +252,6 @@ class BuyTicketState extends State<BuyTicket> {
       date.text = formattedDate;
     }
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -304,8 +325,7 @@ class BuyTicketState extends State<BuyTicket> {
                         child: Container(
                           height: 50,
                           alignment: Alignment.topRight,
-                          padding:
-                              const EdgeInsets.symmetric(horizontal: 20),
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
                           child: TextField(
                             maxLines: 1,
                             controller: Tailure,
@@ -863,7 +883,8 @@ class BuyTicketState extends State<BuyTicket> {
       ),
     );
   }
-    String? validateDistance(String? value, BuildContext context) {
+
+  String? validateDistance(String? value, BuildContext context) {
     if (value == null || value.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -878,6 +899,7 @@ class BuyTicketState extends State<BuyTicket> {
     // Return null if validation passes
     return null;
   }
+
   String? validateAssociation(String? value, BuildContext context) {
     if (value == null || value.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -893,6 +915,7 @@ class BuyTicketState extends State<BuyTicket> {
     // Return null if validation passes
     return null;
   }
+
   Future<void> _refreshPage() async {
     // Dispatch GetAllDataEvent to DataBloc
     print('Refreshing...');

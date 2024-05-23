@@ -16,6 +16,10 @@ class TariffInfoAdapter extends TypeAdapter<TariffInfo> {
         level_1: reader.readString(),
         level_2: reader.readString(),
         level_3: reader.readString(),
+        is_lessthan_16: reader.readString(),
+        level_1_mini: reader.readString(),
+        level_2_mini: reader.readString(),
+        level_3_mini: reader.readString(),
         updatedDate: reader.readString(),
       );
     } catch (e) {
@@ -35,6 +39,10 @@ class TariffInfoAdapter extends TypeAdapter<TariffInfo> {
       writer.writeString(obj.level_1 ?? '');
       writer.writeString(obj.level_2 ?? '');
       writer.writeString(obj.level_3 ?? '');
+      writer.writeString(obj.is_lessthan_16 ?? '');
+      writer.writeString(obj.level_1_mini ?? '');
+      writer.writeString(obj.level_2_mini ?? '');
+      writer.writeString(obj.level_3_mini ?? '');
       writer.writeString(obj.updatedDate ?? '');
     } catch (e) {
       print('Error writing TariffInfo: $e');
