@@ -194,7 +194,6 @@ class BuyTicketState extends State<BuyTicket> {
             '============> Selected level 3 mini ID: ${tariffInfo.level_3_mini}');
         setState(() {
           if (selectedVehicle != null) {
-            int.parse(selectedVehicle!.capacity!);
             // level 1
             if (selectedVehicle!.level == 'Level 1') {
               tariff.text = tariffInfo.level_1_mini ?? '';
