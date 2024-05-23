@@ -181,80 +181,137 @@ class BuyTicketState extends State<BuyTicket> {
   }
 
   Future<void> getTariffByDestinationId(String destinationId) async {
-    // Search for the tariff information with the given destination ID
-    for (TariffInfo tariffInfo in tariffList) {
-      if (tariffInfo.is_lessthan_16 == "yes" &&
-          tariffInfo.destinationId == destinationId) {
+  // Assume selectedVehicle.capacity is already defined and contains the vehicle's capacity
+  int vehicleCapacity = int.parse(selectedVehicle!.capacity!);
+
+  for (TariffInfo tariffInfo in tariffList) {
+    if (tariffInfo.destinationId == destinationId) {
+      if (vehicleCapacity < 16 && tariffInfo.is_lessthan_16 == "yes") {
         print('ኢፍ ውስጥ');
-        print(
-            '============> Selected level 1 mini ID: ${tariffInfo.level_1_mini}');
-        print(
-            '============> Selected level 2 mini ID: ${tariffInfo.level_2_mini}');
-        print(
-            '============> Selected level 3 mini ID: ${tariffInfo.level_3_mini}');
+        print('============> Selected level 1 mini ID: ${tariffInfo.level_1_mini}');
+        print('============> Selected level 2 mini ID: ${tariffInfo.level_2_mini}');
+        print('============> Selected level 3 mini ID: ${tariffInfo.level_3_mini}');
         setState(() {
           if (selectedVehicle != null) {
-            // level 1
             if (selectedVehicle!.level == 'Level 1') {
               tariff.text = tariffInfo.level_1_mini ?? '';
-              serviceCharge.text =
-                  (double.parse(tariffInfo.level_1_mini!) * 0.02).toString();
-
-              // level 2
+              serviceCharge.text = (double.parse(tariffInfo.level_1_mini!) * 0.02).toString();
             } else if (selectedVehicle!.level == 'Level 2') {
               tariff.text = tariffInfo.level_2_mini ?? '';
-              serviceCharge.text =
-                  (double.parse(tariffInfo.level_2_mini!) * 0.02).toString();
-
-              // level 3
+              serviceCharge.text = (double.parse(tariffInfo.level_2_mini!) * 0.02).toString();
             } else if (selectedVehicle!.level == 'Level 3') {
               tariff.text = tariffInfo.level_3_mini ?? '';
-              serviceCharge.text =
-                  (double.parse(tariffInfo.level_3_mini!) * 0.02).toString();
+              serviceCharge.text = (double.parse(tariffInfo.level_3_mini!) * 0.02).toString();
             } else {
               tariff.text = tariffInfo.tariff ?? '';
-              serviceCharge.text =
-                  (double.parse(tariffInfo.tariff!) * 0.02).toString();
+              serviceCharge.text = (double.parse(tariffInfo.tariff!) * 0.02).toString();
             }
           }
         });
-        break;
-      } else if (tariffInfo.is_lessthan_16 == "no" &&
-          tariffInfo.destinationId == destinationId) {
+        break; // Exit the loop after processing the first matching entry
+      } else if (vehicleCapacity >= 16 && tariffInfo.is_lessthan_16 == "no") {
         print('ኤልስ ውስጥ');
         print('============> Selected level 1 ID: ${tariffInfo.level_1}');
         print('============> Selected level 2 ID: ${tariffInfo.level_2}');
         print('============> Selected level 3 ID: ${tariffInfo.level_3}');
         setState(() {
           if (selectedVehicle != null) {
-            // level 1
             if (selectedVehicle!.level == 'Level 1') {
               tariff.text = tariffInfo.level_1 ?? '';
-              serviceCharge.text =
-                  (double.parse(tariffInfo.level_1!) * 0.02).toString();
-
-              // level 2
+              serviceCharge.text = (double.parse(tariffInfo.level_1!) * 0.02).toString();
             } else if (selectedVehicle!.level == 'Level 2') {
               tariff.text = tariffInfo.level_2 ?? '';
-              serviceCharge.text =
-                  (double.parse(tariffInfo.level_2!) * 0.02).toString();
-
-              // level 3
+              serviceCharge.text = (double.parse(tariffInfo.level_2!) * 0.02).toString();
             } else if (selectedVehicle!.level == 'Level 3') {
               tariff.text = tariffInfo.level_3 ?? '';
-              serviceCharge.text =
-                  (double.parse(tariffInfo.level_3!) * 0.02).toString();
+              serviceCharge.text = (double.parse(tariffInfo.level_3!) * 0.02).toString();
             } else {
               tariff.text = tariffInfo.tariff ?? '';
-              serviceCharge.text =
-                  (double.parse(tariffInfo.tariff!) * 0.02).toString();
+              serviceCharge.text = (double.parse(tariffInfo.tariff!) * 0.02).toString();
             }
           }
         });
-        break;
+        break; // Exit the loop after processing the first matching entry
       }
     }
   }
+}
+
+
+  // Future<void> getTariffByDestinationId(String destinationId) async {
+  //   // Search for the tariff information with the given destination ID
+    
+  //   for (TariffInfo tariffInfo in tariffList) {
+  //     if (tariffInfo.is_lessthan_16 == "yes" &&
+  //         tariffInfo.destinationId == destinationId) {
+  //       print('ኢፍ ውስጥ');
+  //       print(
+  //           '============> Selected level 1 mini ID: ${tariffInfo.level_1_mini}');
+  //       print(
+  //           '============> Selected level 2 mini ID: ${tariffInfo.level_2_mini}');
+  //       print(
+  //           '============> Selected level 3 mini ID: ${tariffInfo.level_3_mini}');
+  //       setState(() {
+  //         if (selectedVehicle != null) {
+  //           // level 1
+  //           if (selectedVehicle!.level == 'Level 1') {
+  //             tariff.text = tariffInfo.level_1_mini ?? '';
+  //             serviceCharge.text =
+  //                 (double.parse(tariffInfo.level_1_mini!) * 0.02).toString();
+
+  //             // level 2
+  //           } else if (selectedVehicle!.level == 'Level 2') {
+  //             tariff.text = tariffInfo.level_2_mini ?? '';
+  //             serviceCharge.text =
+  //                 (double.parse(tariffInfo.level_2_mini!) * 0.02).toString();
+
+  //             // level 3
+  //           } else if (selectedVehicle!.level == 'Level 3') {
+  //             tariff.text = tariffInfo.level_3_mini ?? '';
+  //             serviceCharge.text =
+  //                 (double.parse(tariffInfo.level_3_mini!) * 0.02).toString();
+  //           } else {
+  //             tariff.text = tariffInfo.tariff ?? '';
+  //             serviceCharge.text =
+  //                 (double.parse(tariffInfo.tariff!) * 0.02).toString();
+  //           }
+  //         }
+  //       });
+  //     } else if (tariffInfo.is_lessthan_16 == "no" &&
+  //         tariffInfo.destinationId == destinationId) {
+  //       print('ኤልስ ውስጥ');
+  //       print('============> Selected level 1 ID: ${tariffInfo.level_1}');
+  //       print('============> Selected level 2 ID: ${tariffInfo.level_2}');
+  //       print('============> Selected level 3 ID: ${tariffInfo.level_3}');
+  //       setState(() {
+  //         if (selectedVehicle != null) {
+  //           // level 1
+  //           if (selectedVehicle!.level == 'Level 1') {
+  //             tariff.text = tariffInfo.level_1 ?? '';
+  //             serviceCharge.text =
+  //                 (double.parse(tariffInfo.level_1!) * 0.02).toString();
+
+  //             // level 2
+  //           } else if (selectedVehicle!.level == 'Level 2') {
+  //             tariff.text = tariffInfo.level_2 ?? '';
+  //             serviceCharge.text =
+  //                 (double.parse(tariffInfo.level_2!) * 0.02).toString();
+
+  //             // level 3
+  //           } else if (selectedVehicle!.level == 'Level 3') {
+  //             tariff.text = tariffInfo.level_3 ?? '';
+  //             serviceCharge.text =
+  //                 (double.parse(tariffInfo.level_3!) * 0.02).toString();
+  //           } else {
+  //             tariff.text = tariffInfo.tariff ?? '';
+  //             serviceCharge.text =
+  //                 (double.parse(tariffInfo.tariff!) * 0.02).toString();
+  //           }
+  //         }
+  //       });
+  //     }
+  //   }
+  // }
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
