@@ -42,10 +42,10 @@ class SoldTicketsState extends State<SoldTickets> {
     });
 
     try {
-      for (ReportModel report in _reportList) {
+      
         BlocProvider.of<UploadBloc>(context)
-            .add(UploadReportEvent(report: report));
-      }
+            .add(UploadReportEvent(report: _reportList));
+      
 
       await ReportLocalDataSource().clearReports();
       _loadReportList(); // Reload the list after clearing

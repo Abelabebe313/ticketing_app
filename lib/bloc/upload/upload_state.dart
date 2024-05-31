@@ -23,7 +23,7 @@ class UploadError extends UploadState {
 }
 
 class UploadedReportState extends UploadState {
-  final ReportModel report;
+  final List<ReportModel> report;
 
   const UploadedReportState(this.report);
 
