@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sunmi_printer_plus/enums.dart';
 import 'package:sunmi_printer_plus/sunmi_printer_plus.dart';
 import 'package:sunmi_printer_plus/sunmi_style.dart';
+import 'package:transport_app/presentation/home.dart';
 
 import '../../data/report.dart';
 import '../../models/report.dart';
@@ -97,7 +98,8 @@ class _SunmiPrinterPageState extends State<SunmiPrinterPage> {
     });
   }
 
-  void _saveReport(String agent, String amount, String plate, int num_of_ticket,String level) async {
+  void _saveReport(String agent, String amount, String plate, int num_of_ticket,
+      String level) async {
     print(agent);
     print(amount);
     print(plate);
@@ -114,14 +116,13 @@ class _SunmiPrinterPageState extends State<SunmiPrinterPage> {
 
     // Create a ReportModel instance
     ReportModel report = ReportModel(
-      name: agent,
-      total_amount: amountValue, // Use amountInt instead of amountValue
-      totalServiceFee: serviceFee,
-      no_of_ticket: num_of_ticket,
-      date: today.toString(),
-      plate: plate,
-      level: level
-    );
+        name: agent,
+        total_amount: amountValue, // Use amountInt instead of amountValue
+        totalServiceFee: serviceFee,
+        no_of_ticket: num_of_ticket,
+        date: today.toString(),
+        plate: plate,
+        level: level);
 
     await dataSource.setReport(report); // Save the report to the database
   }
@@ -160,7 +161,16 @@ class _SunmiPrinterPageState extends State<SunmiPrinterPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text('መውጫ ቲኬት ማተሚያ'),
+          leading: IconButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => Home()),
+              );
+            },
+            icon: Icon(Icons.arrow_back),
+          ),
+          title: const Text("Maxxansaa tikkeettii keessaa ba'i"),
         ),
         body: SingleChildScrollView(
           child: Column(
@@ -386,21 +396,15 @@ class _SunmiPrinterPageState extends State<SunmiPrinterPage> {
                         onPressed: () async {
                           SharedPreferences prefs =
                               await SharedPreferences.getInstance();
-                          int previousCarCount =
-                              prefs.getInt('totalCars') ?? 0;
+                          int previousCarCount = prefs.getInt('totalCars') ?? 0;
                           int updatedCarCount = previousCarCount + 1;
 
                           // Update the commission value in SharedPreferences
                           prefs.setInt('totalCars', updatedCarCount);
                           // Save the report to the database
                           int num_ticket = int.parse(widget.totalCapacity);
-                          _saveReport(
-                            widget.agent,
-                            totalMoney.toString(),
-                            widget.plateNo,
-                            num_ticket,
-                            widget.level
-                          );
+                          _saveReport(widget.agent, totalMoney.toString(),
+                              widget.plateNo, num_ticket, widget.level);
                           await printTickets();
                         },
                         child: const Text('Print Ticket')),
