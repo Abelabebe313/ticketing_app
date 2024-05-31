@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
 import 'package:transport_app/models/report.dart';
@@ -9,10 +10,16 @@ class ReportService {
       "https://api.noraticket.com/v1/public/api/tickets";
   static const String tokenHive = "token";
 
-  Future<bool> upload(List<ReportModel> reportList) async {
+  Future<void> upload(List<ReportModel> reportList) async {
     try {
       // Open Hive box for token
       await Hive.openBox<String>(tokenHive);
+
+      // Print all reports in the model as strings by iterating
+      print("==========> Number of Available Reports: ${reportList.length}");
+      for (var report in reportList) {
+        print("==========> All Available Reports: $report");
+      }
 
       final String? token = Hive.box<String>(tokenHive).get('token');
       await Hive.close();
@@ -55,12 +62,9 @@ class ReportService {
         } else {
           print('Failed to upload: $responseData');
         }
-        return responseData['status'];
       }
     } catch (e) {
       throw Exception('An error occurred: $e');
-      
     }
-    return false;
   }
 }

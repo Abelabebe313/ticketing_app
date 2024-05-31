@@ -9,9 +9,10 @@ abstract class UploadEvent extends Equatable {
 }
 
 class UploadReportEvent extends UploadEvent {
-  final List<ReportModel> report;
+  final List<ReportModel> reportList;
 
-  const UploadReportEvent({
-    required this.report,
-  });
+  const UploadReportEvent(this.reportList);
+
+  @override
+  List<Object> get props => [reportList];
 }

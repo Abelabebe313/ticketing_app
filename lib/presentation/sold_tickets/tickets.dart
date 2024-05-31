@@ -1,10 +1,10 @@
 import 'dart:async';
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:transport_app/bloc/upload/upload_bloc.dart';
 import 'package:transport_app/bloc/upload/upload_event.dart';
 import 'package:transport_app/bloc/upload/upload_state.dart';
@@ -35,17 +35,13 @@ class SoldTicketsState extends State<SoldTickets> {
     _loadReportList();
   }
 
- 
   Future<void> _uploadReports() async {
     setState(() {
       _isUploading = true;
     });
 
     try {
-      
-        BlocProvider.of<UploadBloc>(context)
-            .add(UploadReportEvent(report: _reportList));
-      
+      BlocProvider.of<UploadBloc>(context).add(UploadReportEvent(_reportList));
 
       await ReportLocalDataSource().clearReports();
       _loadReportList(); // Reload the list after clearing
