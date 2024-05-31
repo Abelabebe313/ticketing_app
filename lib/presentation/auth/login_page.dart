@@ -8,6 +8,8 @@ import 'package:transport_app/models/update_model.dart';
 import 'package:transport_app/presentation/auth/registration.dart';
 import 'package:transport_app/presentation/home.dart';
 
+import '../widgets/station_dropdowns.dart';
+
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
 
@@ -62,7 +64,7 @@ class _LoginPageState extends State<LoginPage> {
                   password: _controllerPassword.text,
                 ),
               );
-          await saveStationToHive();
+          
         },
         child: _isLoading
             ? const CircularProgressIndicator(
@@ -93,28 +95,7 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Future<void> saveStationToHive() async {
-    StationInfo station = StationInfo(
-      id: "1",
-      name: "Asela Station",
-      location: "Asela",
-      departure: "Asela",
-    );
-    try {
-      // Open Hive box for station
-      final box = await Hive.openBox<StationInfo>('station');
-
-      // Clear existing data
-      await box.clear();
-
-      // Put the station into the box
-      await box.put('station', station);
-
-      print('Station saved to Hive successfully');
-    } catch (e) {
-      print('Error saving station to Hive: $e');
-    }
-  }
+ 
 
   @override
   Widget build(BuildContext context) {
@@ -155,13 +136,19 @@ class _LoginPageState extends State<LoginPage> {
     }, builder: (context, state) {
       return Scaffold(
         backgroundColor: Colors.white,
+        appBar: AppBar(
+          actions: [
+            StationDropdown(),
+            const SizedBox(width: 20)
+          ],
+        ),
         body: SingleChildScrollView(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               SizedBox(
-                height: MediaQuery.of(context).size.height * 0.35,
+                height: MediaQuery.of(context).size.height * 0.25,
               ),
               const Text(
                 "Ticket Managment App",
