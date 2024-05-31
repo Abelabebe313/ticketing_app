@@ -68,47 +68,118 @@ class BusQueueState extends State<BusQueue> {
       print('No username found in the box.');
     }
   }
-
   Future<void> getTariffByDestinationId(String destinationId) async {
-    // Search for the tariff information with the given destination ID
-    for (TariffInfo tariffInfo in tariffList) {
-      if (tariffInfo.destinationId == destinationId) {
-        print('============> Tariff id: ${tariffInfo!.destinationId}');
-        print('============> Tariff found: ${tariffInfo.tariff}');
+  // Assume selectedVehicle.capacity is already defined and contains the vehicle's capacity
+  int vehicleCapacity = int.parse(selectedVehicle!.capacity!);
 
-        print('============> Tariff found: ${tariffInfo.level_1}');
-        print('============> Selected destination ID: $destinationId');
-        print('============> selectedVehicle: ${selectedVehicle!.level!}');
+  for (TariffInfo tariffInfo in tariffList) {
+    if (tariffInfo.destinationId == destinationId) {
+      if (vehicleCapacity < 16 && tariffInfo.is_lessthan_16 == "yes") {
+        print('ኢፍ ውስጥ');
+        print('============> Selected level 1 mini ID: ${tariffInfo.level_1_mini}');
+        print('============> Selected level 2 mini ID: ${tariffInfo.level_2_mini}');
+        print('============> Selected level 3 mini ID: ${tariffInfo.level_3_mini}');
+        setState(() {
+          if (selectedVehicle != null) {
+            if (selectedVehicle!.level == 'Level 1') {
+              tariff.text = tariffInfo.level_1_mini ?? '';
+              serviceCharge.text = (double.parse(tariffInfo.level_1_mini!) * 0.02).toString();
+              total_seat.text = selectedVehicle?.capacity.toString() ?? '1';
+              association.text = selectedVehicle?.associationName ?? '';
+            } else if (selectedVehicle!.level == 'Level 2') {
+              tariff.text = tariffInfo.level_2_mini ?? '';
+              serviceCharge.text = (double.parse(tariffInfo.level_2_mini!) * 0.02).toString();
+              total_seat.text = selectedVehicle?.capacity.toString() ?? '1';
+              association.text = selectedVehicle?.associationName ?? '';
+            } else if (selectedVehicle!.level == 'Level 3') {
+              tariff.text = tariffInfo.level_3_mini ?? '';
+              serviceCharge.text = (double.parse(tariffInfo.level_3_mini!) * 0.02).toString();
+              total_seat.text = selectedVehicle?.capacity.toString() ?? '1';
+              association.text = selectedVehicle?.associationName ?? '';
+            } else {
+              tariff.text = tariffInfo.tariff ?? '';
+              serviceCharge.text = (double.parse(tariffInfo.tariff!) * 0.02).toString();
+              total_seat.text = selectedVehicle?.capacity.toString() ?? '1';
+              association.text = selectedVehicle?.associationName ?? '';
+            }
+          }
+        });
+        break; // Exit the loop after processing the first matching entry
+      } else if (vehicleCapacity >= 16 && tariffInfo.is_lessthan_16 == "no") {
+        print('ኤልስ ውስጥ');
+        print('============> Selected level 1 ID: ${tariffInfo.level_1}');
+        print('============> Selected level 2 ID: ${tariffInfo.level_2}');
+        print('============> Selected level 3 ID: ${tariffInfo.level_3}');
         setState(() {
           if (selectedVehicle != null) {
             if (selectedVehicle!.level == 'Level 1') {
               tariff.text = tariffInfo.level_1 ?? '';
-              serviceCharge.text =
-                  (double.parse(tariffInfo.level_1!) * 0.02).toString();
+              serviceCharge.text = (double.parse(tariffInfo.level_1!) * 0.02).toString();
+              total_seat.text = selectedVehicle?.capacity.toString() ?? '1';
+              association.text = selectedVehicle?.associationName ?? '';
             } else if (selectedVehicle!.level == 'Level 2') {
               tariff.text = tariffInfo.level_2 ?? '';
-              serviceCharge.text =
-                  (double.parse(tariffInfo.level_2!) * 0.02).toString();
+              serviceCharge.text = (double.parse(tariffInfo.level_2!) * 0.02).toString();
+              total_seat.text = selectedVehicle?.capacity.toString() ?? '1';
+              association.text = selectedVehicle?.associationName ?? '';
             } else if (selectedVehicle!.level == 'Level 3') {
               tariff.text = tariffInfo.level_3 ?? '';
-              serviceCharge.text =
-                  (double.parse(tariffInfo.level_3!) * 0.02).toString();
+              serviceCharge.text = (double.parse(tariffInfo.level_3!) * 0.02).toString();
+              total_seat.text = selectedVehicle?.capacity.toString() ?? '1';
+              association.text = selectedVehicle?.associationName ?? '';
             } else {
-              tariff.text = tariffInfo.level_1 ?? '';
+              tariff.text = tariffInfo.tariff ?? '';
+              serviceCharge.text = (double.parse(tariffInfo.tariff!) * 0.02).toString();
+              total_seat.text = selectedVehicle?.capacity.toString() ?? '1';
+              association.text = selectedVehicle?.associationName ?? '';
             }
-            total_seat.text = selectedVehicle?.capacity.toString() ?? '1';
-            association.text = selectedVehicle?.associationName ?? '';
-          } else {
-            tariff.text = tariffInfo.level_1 ?? '';
-            serviceCharge.text =
-                (double.parse(tariffInfo.level_1!) * 0.02).toString();
-            total_seat.text = selectedVehicle?.capacity.toString() ?? '1';
-            association.text = selectedVehicle?.associationName ?? '';
           }
         });
+        break; // Exit the loop after processing the first matching entry
       }
     }
   }
+}
+  // Future<void> getTariffByDestinationId(String destinationId) async {
+  //   // Search for the tariff information with the given destination ID
+  //   for (TariffInfo tariffInfo in tariffList) {
+  //     if (tariffInfo.destinationId == destinationId) {
+  //       print('============> Tariff id: ${tariffInfo!.destinationId}');
+  //       print('============> Tariff found: ${tariffInfo.tariff}');
+
+  //       print('============> Tariff found: ${tariffInfo.level_1}');
+  //       print('============> Selected destination ID: $destinationId');
+  //       print('============> selectedVehicle: ${selectedVehicle!.level!}');
+  //       setState(() {
+  //         if (selectedVehicle != null) {
+  //           if (selectedVehicle!.level == 'Level 1') {
+  //             tariff.text = tariffInfo.level_1 ?? '';
+  //             serviceCharge.text =
+  //                 (double.parse(tariffInfo.level_1!) * 0.02).toString();
+  //           } else if (selectedVehicle!.level == 'Level 2') {
+  //             tariff.text = tariffInfo.level_2 ?? '';
+  //             serviceCharge.text =
+  //                 (double.parse(tariffInfo.level_2!) * 0.02).toString();
+  //           } else if (selectedVehicle!.level == 'Level 3') {
+  //             tariff.text = tariffInfo.level_3 ?? '';
+  //             serviceCharge.text =
+  //                 (double.parse(tariffInfo.level_3!) * 0.02).toString();
+  //           } else {
+  //             tariff.text = tariffInfo.level_1 ?? '';
+  //           }
+  //           total_seat.text = selectedVehicle?.capacity.toString() ?? '1';
+  //           association.text = selectedVehicle?.associationName ?? '';
+  //         } else {
+  //           tariff.text = tariffInfo.level_1 ?? '';
+  //           serviceCharge.text =
+  //               (double.parse(tariffInfo.level_1!) * 0.02).toString();
+  //           total_seat.text = selectedVehicle?.capacity.toString() ?? '1';
+  //           association.text = selectedVehicle?.associationName ?? '';
+  //         }
+  //       });
+  //     }
+  //   }
+  // }
 
   Future<void> getTariffFromHive() async {
     try {
@@ -670,23 +741,4 @@ class BusQueueState extends State<BusQueue> {
     return null;
   }
 
-  Future<void> _saveReport(String agent, String amount, String plate) async {
-    DateTime today = DateTime.now();
-    ReportLocalDataSource dataSource = ReportLocalDataSource();
-    int amountInt = int.parse(amount);
-    // Calculate the totalServiceFee as 2% of the amount
-    double amountValue = double.parse(amount);
-    double serviceFee = amountValue * 0.02;
-
-    // Create a ReportModel instance
-    ReportModel report = ReportModel(
-      name: agent,
-      amount: amountInt, // Convert amount to int
-      totalServiceFee: serviceFee,
-      date: today.toString(),
-      plate: plate,
-    );
-
-    await dataSource.setReport(report); // Save the report to the database
-  }
 }

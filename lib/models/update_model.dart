@@ -1,7 +1,7 @@
 class Updates {
   bool? status;
   String? message;
-  Null? errors;
+  Null errors;
   Data? data;
 
   Updates({this.status, this.message, this.errors, this.data});

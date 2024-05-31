@@ -31,10 +31,12 @@ class ReportService {
       Map<String, dynamic> data = {
         "station_id": stationId,
         "uploaded_by": report.name,
-        "no_of_ticket": report.amount,
-        "total_service_fee": report.totalServiceFee,
-        "date": report.date,
-        "plate_no": report.plate,
+        "tota_price": report.total_amount,
+        "service_fee": report.totalServiceFee,
+        "no_of_ticket": report.no_of_ticket,
+        "vehicle_plate_no": report.plate,
+        "vehicle_level": report.level,
+        "uplaoded_date": report.date,
         "validate": "ok"
       };
 

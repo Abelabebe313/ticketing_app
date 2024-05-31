@@ -25,10 +25,12 @@ class DatabaseHelper {
   await db.execute('''
     CREATE TABLE IF NOT EXISTS report (
       name TEXT NOT NULL,
-      amount INTEGER NOT NULL,
+      total_amount REAL NOT NULL,
       totalServiceFee REAL NOT NULL,
+      no_of_ticket INT NOT NULL,
       date TEXT NOT NULL,
-      plate TEXT NOT NULL
+      plate TEXT NOT NULL,
+      level TEXT NOT NULL
     )
   ''');
 }

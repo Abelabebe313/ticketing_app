@@ -5,7 +5,6 @@ import 'package:ethiopian_calendar/ethiopian_date_converter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sunmi_printer_plus/column_maker.dart';
 import 'package:sunmi_printer_plus/enums.dart';
 import 'package:sunmi_printer_plus/sunmi_printer_plus.dart';
 import 'package:sunmi_printer_plus/sunmi_style.dart';
@@ -98,7 +97,7 @@ class _SunmiPrinterPageState extends State<SunmiPrinterPage> {
     });
   }
 
-  void _saveReport(String agent, String amount, String plate) async {
+  void _saveReport(String agent, String amount, String plate, int num_of_ticket,String level) async {
     print(agent);
     print(amount);
     print(plate);
@@ -108,7 +107,7 @@ class _SunmiPrinterPageState extends State<SunmiPrinterPage> {
     // Parse amount as double
     double amountValue = double.parse(amount);
     // Convert double to int
-    int amountInt = amountValue.toInt();
+    // int amountInt = amountValue.toInt();
     // Calculate the totalServiceFee as 2% of the amount
     double serviceFee = amountValue * 0.02;
     print('report save func pressed');
@@ -116,10 +115,12 @@ class _SunmiPrinterPageState extends State<SunmiPrinterPage> {
     // Create a ReportModel instance
     ReportModel report = ReportModel(
       name: agent,
-      amount: amountInt, // Use amountInt instead of amountValue
+      total_amount: amountValue, // Use amountInt instead of amountValue
       totalServiceFee: serviceFee,
+      no_of_ticket: num_of_ticket,
       date: today.toString(),
       plate: plate,
+      level: level
     );
 
     await dataSource.setReport(report); // Save the report to the database
@@ -392,10 +393,13 @@ class _SunmiPrinterPageState extends State<SunmiPrinterPage> {
                           // Update the commission value in SharedPreferences
                           prefs.setInt('totalCars', updatedCarCount);
                           // Save the report to the database
+                          int num_ticket = int.parse(widget.totalCapacity);
                           _saveReport(
                             widget.agent,
                             totalMoney.toString(),
                             widget.plateNo,
+                            num_ticket,
+                            widget.level
                           );
                           await printTickets();
                         },
