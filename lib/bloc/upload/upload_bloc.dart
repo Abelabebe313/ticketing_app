@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:transport_app/bloc/upload/upload_event.dart';
 import 'package:transport_app/bloc/upload/upload_state.dart';
@@ -11,14 +10,12 @@ class UploadBloc extends Bloc<UploadEvent, UploadState> {
     on<UploadReportEvent>((event, emit) async {
       emit(UploadLoading());
       try {
-        final response = await uploadService.upload(event.report);
-        if (response != null) {
-          emit(UploadedReportState(event.report));
-        } else {
-          emit(const UploadError('Error when registering user'));
-        }
+        print("=======> Uploading reports");
+        await uploadService.upload(event.reportList);
+        emit(UploadedReportState(event.reportList));
       } catch (e) {
-        emit(const UploadError('Error logging in'));
+        print("=======> Error uploading reports" + e.toString());
+        emit(const UploadError('Error uploading reports'));
       }
     });
   }
