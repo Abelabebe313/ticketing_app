@@ -6,6 +6,7 @@ class ReportModel {
   String date;
   String plate;
   String level;
+  String destination;
 
   ReportModel({
     required this.name,
@@ -14,7 +15,8 @@ class ReportModel {
     required this.no_of_ticket,
     required this.date,
     required this.plate,
-    required this.level
+    required this.level,
+    required this.destination
   });
 
   Map<String, dynamic> toJson() {
@@ -25,7 +27,8 @@ class ReportModel {
       'no_of_ticket':no_of_ticket,
       'date': date,
       'plate': plate,
-      'level': level
+      'level': level,
+      'destination': destination
     };
   }
 
@@ -37,7 +40,8 @@ class ReportModel {
       no_of_ticket: json['no_of_ticket'] ?? 0,
       date: json['date'] ?? '',
       plate: json['plate'] ?? '',
-      level: json['level'] ?? ''
+      level: json['level'] ?? '',
+      destination: json['destination'] ?? ''
     );
   }
 }

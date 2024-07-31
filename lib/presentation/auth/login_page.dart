@@ -8,6 +8,7 @@ import 'package:transport_app/models/update_model.dart';
 import 'package:transport_app/presentation/auth/registration.dart';
 import 'package:transport_app/presentation/home.dart';
 
+import '../../utils/save_station.dart';
 import '../widgets/station_dropdowns.dart';
 
 class LoginPage extends StatefulWidget {
@@ -64,7 +65,7 @@ class _LoginPageState extends State<LoginPage> {
                   password: _controllerPassword.text,
                 ),
               );
-          
+          await saveStationToHive();
         },
         child: _isLoading
             ? const CircularProgressIndicator(
@@ -136,19 +137,14 @@ class _LoginPageState extends State<LoginPage> {
     }, builder: (context, state) {
       return Scaffold(
         backgroundColor: Colors.white,
-        appBar: AppBar(
-          actions: [
-            StationDropdown(),
-            const SizedBox(width: 20)
-          ],
-        ),
+        
         body: SingleChildScrollView(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               SizedBox(
-                height: MediaQuery.of(context).size.height * 0.25,
+                height: MediaQuery.of(context).size.height * 0.35,
               ),
               const Text(
                 "Ticket Managment App",

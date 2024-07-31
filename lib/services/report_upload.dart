@@ -33,13 +33,14 @@ class ReportService {
 
       for (var report in reportList) {
         Map<String, dynamic> data = {
-          "station_id": stationId,
+          "station_id": 1,
           "uploaded_by": report.name,
           "tota_price": report.total_amount,
           "service_fee": report.totalServiceFee,
           "no_of_ticket": report.no_of_ticket,
           "vehicle_plate_no": report.plate,
           "vehicle_level": report.level,
+          "destination": report.destination,
           "uplaoded_date": report.date,
           "validate": "ok"
         };

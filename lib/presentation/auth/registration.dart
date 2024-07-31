@@ -9,8 +9,6 @@ import 'package:transport_app/presentation/home.dart';
 import 'package:transport_app/services/registrationService.dart';
 import 'package:transport_app/utils/save_station.dart';
 
-import '../widgets/station_dropdowns.dart';
-
 class Registration extends StatefulWidget {
   const Registration({super.key});
 
@@ -62,7 +60,7 @@ class _RegistrationState extends State<Registration> {
                   confirmPassword: _confirmPasswordController.text,
                 ),
               );
-          
+          await saveStationToHive();
         },
         child: _isLoading
             ? const CircularProgressIndicator(
@@ -133,19 +131,13 @@ class _RegistrationState extends State<Registration> {
       },
       builder: (context, state) {
         return Scaffold(
-          appBar: AppBar(
-          actions: [
-            StationDropdown(),
-            const SizedBox(width: 20)
-          ],
-        ),
           body: SingleChildScrollView(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.15,
+                  height: MediaQuery.of(context).size.height * 0.2,
                 ),
                 const Text(
                   "Registration",

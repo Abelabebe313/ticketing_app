@@ -3,10 +3,10 @@ import 'package:transport_app/models/update_model.dart'; // Import your StationI
 
 Future<void> saveStationToHive() async {
   StationInfo station = StationInfo(
-    id: "6",
-    name: "Gindhiir",
-    location: "Gindhiir",
-    departure: "Gindhiir",
+    id: "1",
+    name: "Asela Station",
+    location: "Asela",
+    departure: "Asela",
   );
   try {
     // Open Hive box for station
