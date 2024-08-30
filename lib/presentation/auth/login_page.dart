@@ -65,7 +65,7 @@ class _LoginPageState extends State<LoginPage> {
                   password: _controllerPassword.text,
                 ),
               );
-          await saveStationToHive();
+          // await saveStationToHive();
         },
         child: _isLoading
             ? const CircularProgressIndicator(
@@ -117,7 +117,8 @@ class _LoginPageState extends State<LoginPage> {
           context,
           MaterialPageRoute(builder: (context) => Home()),
         );
-      } else if (state is LoginLoading) {
+      } 
+      else if (state is LoginLoading) {
         setState(() {
           _isLoading = true;
         });

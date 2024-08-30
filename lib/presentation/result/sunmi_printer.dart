@@ -485,11 +485,11 @@ class _SunmiPrinterPageState extends State<SunmiPrinterPage> {
         style: SunmiStyle(fontSize: SunmiFontSize.SM));
     // await SunmiPrinter.setAlignment(SunmiPrintAlign.CENTER);
     await SunmiPrinter.printText(
-        'Bilbila bilisaa -->8556 Biiroo Geejjiba Oromiyaa YKN',
+        'Bilbila bilisaa --> 8556 Biiroo Geejjiba Oromiyaa YKN',
         style: SunmiStyle(fontSize: SunmiFontSize.MD));
     // await SunmiPrinter.setAlignment(SunmiPrintAlign.CENTER);
-    await SunmiPrinter.printText('Buufata Asella:--> 0911705178 / 0986182364',
-        style: SunmiStyle(fontSize: SunmiFontSize.MD));
+    // await SunmiPrinter.printText('Buufata Asella:--> 0911705178 / 0986182364',
+    //     style: SunmiStyle(fontSize: SunmiFontSize.MD));
     await SunmiPrinter.lineWrap(3);
     await SunmiPrinter.exitTransactionPrint(true);
   }

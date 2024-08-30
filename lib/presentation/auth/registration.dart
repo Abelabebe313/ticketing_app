@@ -60,7 +60,7 @@ class _RegistrationState extends State<Registration> {
                   confirmPassword: _confirmPasswordController.text,
                 ),
               );
-          await saveStationToHive();
+          // await saveStationToHive();
         },
         child: _isLoading
             ? const CircularProgressIndicator(
