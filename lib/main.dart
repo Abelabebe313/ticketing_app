@@ -20,6 +20,7 @@ import 'package:transport_app/services/fetch_data.dart';
 import 'bloc/login bloc/login_bloc.dart';
 import 'bloc/station bloc/station_bloc.dart';
 import 'bloc/station bloc/station_state.dart';
+import 'presentation/splash/starter_page.dart';
 
 const vehiclesList = 'vehicle_list';
 const busList = 'bus_queue';
@@ -114,7 +115,7 @@ class MyApp extends StatelessWidget {
                 return (accessToken?.isNotEmpty == true &&
                         pin?.isNotEmpty == true)
                     ? const Pininput()
-                    : const LoginPage();
+                    : const Starter();
               }
             } else {
               return const CircularProgressIndicator();

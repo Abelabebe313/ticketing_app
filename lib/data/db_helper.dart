@@ -30,7 +30,8 @@ class DatabaseHelper {
       no_of_ticket INT NOT NULL,
       date TEXT NOT NULL,
       plate TEXT NOT NULL,
-      level TEXT NOT NULL
+      level TEXT NOT NULL,
+      destination TEXT NOT NULL
     )
   ''');
 }

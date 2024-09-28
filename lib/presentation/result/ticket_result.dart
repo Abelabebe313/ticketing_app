@@ -1,9 +1,10 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:abushakir/abushakir.dart';
+import 'package:ethiopian_calendar/ethiopian_date_converter.dart';
 import 'package:barcode_widget/barcode_widget.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:ethiopian_calendar/ethiopian_date_converter.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sunmi_printer_plus/column_maker.dart';
@@ -32,8 +33,8 @@ class ResultPageState extends State<ResultPage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController no_of_ticket = TextEditingController();
   bool printBinded = false;
-  DateTime ethio_date =
-      EthiopianDateConverter.convertToEthiopianDate(DateTime.now());
+  EtDatetime ethio_date = new EtDatetime.now();
+  DateTime ethio_time = EthiopianDateConverter.convertToEthiopianDate(DateTime.now());
   @override
   void initState() {
     super.initState();
@@ -392,7 +393,7 @@ class ResultPageState extends State<ResultPage> {
                               fontWeight: FontWeight.bold),
                         ),
                         Text(
-                          '${ethio_date.day.toString()}/${ethio_date.month.toString()}/${ethio_date.year.toString()}-${ethio_date.hour.toString()}:${ethio_date.minute.toString()}:${ethio_date.second.toString()}', // time goes here
+                          '${ethio_date.day.toString()}/${ethio_date.month.toString()}/${ethio_date.year.toString()}-${ethio_time.hour.toString()}:${ethio_time.minute.toString()}:${ethio_time.second.toString()}', // time goes here
                           style: const TextStyle(
                               color: Colors.black,
                               fontSize: 16,
@@ -482,11 +483,12 @@ class ResultPageState extends State<ResultPage> {
                       // Get the previous commission value from SharedPreferences
                       double previousCommission =
                           prefs.getDouble('dailyReport') ?? 0.0;
-                      int previousTicketCount = prefs.getInt('totalTicket') ?? 0;
+                      int previousTicketCount =
+                          prefs.getInt('totalTicket') ?? 0;
                       // Increment the commission by adding the new commission to the previous value
                       double updatedCommission =
                           previousCommission + commission;
-                      
+
                       // Increment the ticket count by adding the new ticket to the previous value
                       int updatedTicketCount = previousTicketCount + 1;
 
@@ -535,54 +537,54 @@ class ResultPageState extends State<ResultPage> {
     await SunmiPrinter.setAlignment(SunmiPrintAlign.CENTER);
     await SunmiPrinter.bold();
     await SunmiPrinter.printText(
-        "Ka'umsaa ----------------${widget.ticket.departure}",
-        style: SunmiStyle(fontSize: SunmiFontSize.SM));
+        "Ka'umsaa -------${widget.ticket.departure}",
+        style: SunmiStyle(fontSize: SunmiFontSize.MD));
     await SunmiPrinter.bold();
     await SunmiPrinter.printText(
-        "Gahunsaa ------------------${widget.ticket.destination}",
-        style: SunmiStyle(fontSize: SunmiFontSize.SM));
+        "Gahumsaa -------${widget.ticket.destination}",
+        style: SunmiStyle(fontSize: SunmiFontSize.MD));
     await SunmiPrinter.bold();
-    await SunmiPrinter.printText("Tikeetii Lakk --------------${ticketCode}",
-        style: SunmiStyle(fontSize: SunmiFontSize.SM));
-    await SunmiPrinter.bold();
-    await SunmiPrinter.printText(
-        "Lakkoofsa gabatee --------------${widget.ticket.plate}",
-        style: SunmiStyle(fontSize: SunmiFontSize.SM));
+    await SunmiPrinter.printText("Tikeetii Lakk -------${ticketCode}",
+        style: SunmiStyle(fontSize: SunmiFontSize.MD));
     await SunmiPrinter.bold();
     await SunmiPrinter.printText(
-        "Sadarkaa ------------------${widget.ticket.level}",
-        style: SunmiStyle(fontSize: SunmiFontSize.SM));
+        "Lakkoofsa gabatee ------${widget.ticket.plate}",
+        style: SunmiStyle(fontSize: SunmiFontSize.MD));
+    await SunmiPrinter.bold();
+    await SunmiPrinter.printText(
+        "Sadarkaa --------------${widget.ticket.level}",
+        style: SunmiStyle(fontSize: SunmiFontSize.MD));
     await SunmiPrinter.bold();
     await SunmiPrinter.printText("Teessoo ------------------$seatNumber",
-        style: SunmiStyle(fontSize: SunmiFontSize.SM));
+        style: SunmiStyle(fontSize: SunmiFontSize.MD));
     await SunmiPrinter.bold();
     await SunmiPrinter.printText(
-        "Guyyaa ------------------${ethio_date.day.toString()}/${ethio_date.month.toString()}/${ethio_date.year.toString()}:-${ethio_date.hour.toString()}:${ethio_date.minute.toString()}",
-        style: SunmiStyle(fontSize: SunmiFontSize.SM));
+        "Guyyaa ----${ethio_date.day.toString()}/${ethio_date.month.toString()}/${ethio_date.year.toString()}:${ethio_time.hour.toString()}:${ethio_time.minute.toString()}:${ethio_time.second.toString()}",
+        style: SunmiStyle(fontSize: SunmiFontSize.MD));
     await SunmiPrinter.bold();
     await SunmiPrinter.printText(
-        "Agent ------------------${widget.ticket.tailure}",
-        style: SunmiStyle(fontSize: SunmiFontSize.SM));
+        "Agent -------${widget.ticket.tailure}",
+        style: SunmiStyle(fontSize: SunmiFontSize.MD));
     await SunmiPrinter.bold();
     await SunmiPrinter.printText(
-        "Waldaa ------------------${widget.ticket.association}",
-        style: SunmiStyle(fontSize: SunmiFontSize.SM));
+        "Waldaa -------${widget.ticket.association}",
+        style: SunmiStyle(fontSize: SunmiFontSize.MD));
     await SunmiPrinter.bold();
     await SunmiPrinter.printText(
-        "Fageenya ------------------${widget.ticket.distance.toString()} km",
-        style: SunmiStyle(fontSize: SunmiFontSize.SM));
+        "Fageenya ---------${widget.ticket.distance.toString()} km",
+        style: SunmiStyle(fontSize: SunmiFontSize.MD));
     await SunmiPrinter.bold();
     await SunmiPrinter.printText(
-        "Taarifa --------------${widget.ticket.tariff} Birr",
-        style: SunmiStyle(fontSize: SunmiFontSize.SM));
+        "Taarifa ---------${widget.ticket.tariff} Birr",
+        style: SunmiStyle(fontSize: SunmiFontSize.MD));
     await SunmiPrinter.bold();
     await SunmiPrinter.printText(
-        "Kaffaltii tajaajilaa --------${double.parse(widget.ticket.charge.toStringAsFixed(3))} Birr",
-        style: SunmiStyle(fontSize: SunmiFontSize.SM));
+        "Kaffaltii tajaajilaa--${double.parse(widget.ticket.charge.toStringAsFixed(3))}Birr",
+        style: SunmiStyle(fontSize: SunmiFontSize.MD));
     await SunmiPrinter.bold();
     await SunmiPrinter.printText(
-        "Ida'ama ---------------------${double.parse((widget.ticket.tariff + widget.ticket.charge).toStringAsFixed(3))} Birr",
-        style: SunmiStyle(fontSize: SunmiFontSize.SM));
+        "Ida'ama --------${double.parse((widget.ticket.tariff + widget.ticket.charge).toStringAsFixed(3))} Birr",
+        style: SunmiStyle(fontSize: SunmiFontSize.MD));
 
     await SunmiPrinter.setAlignment(SunmiPrintAlign.CENTER);
 
@@ -590,12 +592,18 @@ class ResultPageState extends State<ResultPage> {
 
     await SunmiPrinter.resetBold();
     await SunmiPrinter.printBarCode(ticketCode, height: 20);
-    await SunmiPrinter.printText('Nagahee dijitaalaa wajjiraan');
-    await SunmiPrinter.setAlignment(SunmiPrintAlign.CENTER);
-    await SunmiPrinter.printText('Alatti Hin Kafalinaa');
-    await SunmiPrinter.setAlignment(SunmiPrintAlign.CENTER);
-    await SunmiPrinter.printText('Inala gaarii!!');
-    await SunmiPrinter.lineWrap(2);
+    //
+    //line
+    await SunmiPrinter.printText('==============================',
+        style: SunmiStyle(fontSize: SunmiFontSize.SM));
+    // await SunmiPrinter.setAlignment(SunmiPrintAlign.CENTER);
+    await SunmiPrinter.printText(
+        'Bilbila bilisaa --> 8556 Biiroo Geejjiba Oromiyaa YKN',
+        style: SunmiStyle(fontSize: SunmiFontSize.MD));
+    // await SunmiPrinter.setAlignment(SunmiPrintAlign.CENTER);
+    // await SunmiPrinter.printText('Buufata Asella:--> 0911705178 / 0986182364',
+    //     style: SunmiStyle(fontSize: SunmiFontSize.MD));
+    await SunmiPrinter.lineWrap(3);
     // await SunmiPrinter.setAlignment(SunmiPrintAlign.CENTER);
     // await SunmiPrinter.printText('Powered by: Dalex ',
     //     style: SunmiStyle(fontSize: SunmiFontSize.XS));

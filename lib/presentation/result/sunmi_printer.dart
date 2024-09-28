@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:barcode_widget/barcode_widget.dart' as Bbar;
 import 'package:ethiopian_calendar/ethiopian_date_converter.dart';
+import 'package:abushakir/abushakir.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -51,8 +52,8 @@ class _SunmiPrinterPageState extends State<SunmiPrinterPage> {
   String serialNumber = "";
   String printerVersion = "";
   final now = DateTime.now();
-  DateTime ethio_date =
-      EthiopianDateConverter.convertToEthiopianDate(DateTime.now());
+  EtDatetime ethio_date = new EtDatetime.now();
+  DateTime ethio_time = EthiopianDateConverter.convertToEthiopianDate(DateTime.now());
   double totalMoney = 0.0;
   @override
   void initState() {
@@ -98,58 +99,56 @@ class _SunmiPrinterPageState extends State<SunmiPrinterPage> {
     });
   }
 
-  void _saveReport(String agent, String amount, String plate, int num_of_ticket,
-      String level) async {
-    print(agent);
-    print(amount);
-    print(plate);
+  void _saveReport(
+    String agent,
+    String amount,
+    String plate,
+    int num_of_ticket,
+    String level,
+    String destination,
+  ) async {
+    // Check for invalid data
+    if (agent == null ||
+        agent.isEmpty ||
+        amount == null ||
+        amount.isEmpty ||
+        plate == null ||
+        plate.isEmpty ||
+        num_of_ticket == null ||
+        level == null ||
+        level.isEmpty ||
+        destination == null ||
+        destination.isEmpty) {
+      print('Validation failed: One or more fields are empty.');
+      return; // Exit the function if validation fails
+    }
     DateTime today = DateTime.now();
     ReportLocalDataSource dataSource = ReportLocalDataSource();
+    SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    // Parse amount as double
     double amountValue = double.parse(amount);
-    // Convert double to int
-    // int amountInt = amountValue.toInt();
-    // Calculate the totalServiceFee as 2% of the amount
     double serviceFee = amountValue * 0.02;
     print('report save func pressed');
 
     // Create a ReportModel instance
     ReportModel report = ReportModel(
-        name: agent,
-        total_amount: amountValue, // Use amountInt instead of amountValue
-        totalServiceFee: serviceFee,
-        no_of_ticket: num_of_ticket,
-        date: today.toString(),
-        plate: plate,
-        level: level);
+      name: agent,
+      total_amount: amountValue,
+      totalServiceFee: serviceFee,
+      no_of_ticket: num_of_ticket,
+      date: today.toString(),
+      plate: plate,
+      level: level,
+      destination: destination,
+    );
 
-    await dataSource.setReport(report); // Save the report to the database
+    int previousCarCount = prefs.getInt('totalCars') ?? 0;
+    int updatedCarCount = previousCarCount + 1;
+    // Save the totalcars to the dashboard
+    prefs.setInt('totalCars', updatedCarCount);
+    // Save the report to the database
+    await dataSource.setReport(report);
   }
-
-  // void _saveReport(String agent, String amount, String plate) async {
-  //   print(agent);
-  //   print(amount);
-  //   print(plate);
-  //   DateTime today = DateTime.now();
-  //   ReportLocalDataSource dataSource = ReportLocalDataSource();
-  //   int amountInt = int.parse(amount);
-  //   // Calculate the totalServiceFee as 2% of the amount
-  //   double amountValue = double.parse(amount);
-  //   double serviceFee = amountValue * 0.02;
-  //   print('report save func pressed');
-
-  //   // Create a ReportModel instance
-  //   ReportModel report = ReportModel(
-  //     name: agent,
-  //     amount: amountInt, // Convert amount to int
-  //     totalServiceFee: serviceFee,
-  //     date: today.toString(),
-  //     plate: plate,
-  //   );
-
-  //   await dataSource.setReport(report); // Save the report to the database
-  // }
 
   /// must binding ur printer at first init in app
   Future<bool?> _bindingPrinter() async {
@@ -206,7 +205,7 @@ class _SunmiPrinterPageState extends State<SunmiPrinterPage> {
                               fontWeight: FontWeight.bold),
                         ),
                         Text(
-                          '${ethio_date.day.toString()}/${ethio_date.month.toString()}/${ethio_date.year.toString()}-${ethio_date.hour.toString()}:${ethio_date.minute.toString()}:${ethio_date.second.toString()}', // time goes here
+                          '${ethio_date.day.toString()}/${ethio_date.month.toString()}/${ethio_date.year.toString()}-${ethio_time.hour.toString()}:${ethio_time.minute.toString()}:${ethio_time.second.toString()}', // time goes here
                           style: const TextStyle(
                               color: Colors.black,
                               fontSize: 16,
@@ -394,17 +393,16 @@ class _SunmiPrinterPageState extends State<SunmiPrinterPage> {
                   children: [
                     ElevatedButton(
                         onPressed: () async {
-                          SharedPreferences prefs =
-                              await SharedPreferences.getInstance();
-                          int previousCarCount = prefs.getInt('totalCars') ?? 0;
-                          int updatedCarCount = previousCarCount + 1;
-
-                          // Update the commission value in SharedPreferences
-                          prefs.setInt('totalCars', updatedCarCount);
                           // Save the report to the database
                           int num_ticket = int.parse(widget.totalCapacity);
-                          _saveReport(widget.agent, totalMoney.toString(),
-                              widget.plateNo, num_ticket, widget.level);
+                          _saveReport(
+                            widget.agent,
+                            totalMoney.toString(),
+                            widget.plateNo,
+                            num_ticket,
+                            widget.level,
+                            widget.destination,
+                          );
                           await printTickets();
                         },
                         child: const Text('Print Ticket')),
@@ -426,7 +424,8 @@ class _SunmiPrinterPageState extends State<SunmiPrinterPage> {
 
     await SunmiPrinter.initPrinter();
     await SunmiPrinter.startTransactionPrint(true);
-    Uint8List dalex = await _getImageFromAsset('assets/images/Untitled-2.jpg');
+    Uint8List dalex =
+        await _getImageFromAsset('assets/images/Untitled-2@3x.jpg');
 
     await SunmiPrinter.startTransactionPrint(true);
     await SunmiPrinter.setAlignment(SunmiPrintAlign.CENTER);
@@ -440,60 +439,59 @@ class _SunmiPrinterPageState extends State<SunmiPrinterPage> {
 
     await SunmiPrinter.bold();
     await SunmiPrinter.printText(
-        "Guyyaa ------------------${ethio_date.day.toString()}/${ethio_date.month.toString()}/${ethio_date.year.toString()}:-${ethio_date.hour.toString()}:${ethio_date.minute.toString()}",
-        style: SunmiStyle(fontSize: SunmiFontSize.SM));
+        "Guyyaa ----${ethio_date.day.toString()}/${ethio_date.month.toString()}/${ethio_date.year.toString()}:${ethio_time.hour.toString()}:${ethio_time.minute.toString()}:${ethio_time.second.toString()}",
+        style: SunmiStyle(fontSize: SunmiFontSize.MD));
 
     await SunmiPrinter.bold();
-    await SunmiPrinter.printText("Agent ------------------${widget.agent}",
-        style: SunmiStyle(fontSize: SunmiFontSize.SM));
-
-    await SunmiPrinter.bold();
-    await SunmiPrinter.printText(
-        "Lakkoofsa gabatee --------------${widget.plateNo}",
-        style: SunmiStyle(fontSize: SunmiFontSize.SM));
-
-    await SunmiPrinter.bold();
-    await SunmiPrinter.printText("Sadarkaa ------------------${widget.level}",
-        style: SunmiStyle(fontSize: SunmiFontSize.SM));
-
-    await SunmiPrinter.bold();
-    await SunmiPrinter.printText("Ka'umsaa ----------------${widget.station}",
-        style: SunmiStyle(fontSize: SunmiFontSize.SM));
+    await SunmiPrinter.printText("Agent -------${widget.agent}",
+        style: SunmiStyle(fontSize: SunmiFontSize.MD));
 
     await SunmiPrinter.bold();
     await SunmiPrinter.printText(
-        "Gahunsaa ------------------${widget.destination}",
-        style: SunmiStyle(fontSize: SunmiFontSize.SM));
+        "Lakkoofsa gabatee -----${widget.plateNo}",
+        style: SunmiStyle(fontSize: SunmiFontSize.MD));
+
+    await SunmiPrinter.bold();
+    await SunmiPrinter.printText("Sadarkaa -------${widget.level}",
+        style: SunmiStyle(fontSize: SunmiFontSize.MD));
+
+    await SunmiPrinter.bold();
+    await SunmiPrinter.printText("Ka'umsaa ------${widget.station}",
+        style: SunmiStyle(fontSize: SunmiFontSize.MD));
+
     await SunmiPrinter.bold();
     await SunmiPrinter.printText(
-        "Fageenya ------------------${widget.distance} km",
-        style: SunmiStyle(fontSize: SunmiFontSize.SM));
+        "Gahumsaa -------${widget.destination}",
+        style: SunmiStyle(fontSize: SunmiFontSize.MD));
     await SunmiPrinter.bold();
     await SunmiPrinter.printText(
-        "Dhaabbata ------------------${widget.association}",
-        style: SunmiStyle(fontSize: SunmiFontSize.SM));
+        "Fageenya -------${widget.distance} km",
+        style: SunmiStyle(fontSize: SunmiFontSize.MD));
     await SunmiPrinter.bold();
     await SunmiPrinter.printText(
-        "Tessoo ------------------${widget.totalCapacity}",
-        style: SunmiStyle(fontSize: SunmiFontSize.SM));
+        "Dhaabbata -------${widget.association}",
+        style: SunmiStyle(fontSize: SunmiFontSize.MD));
     await SunmiPrinter.bold();
     await SunmiPrinter.printText(
-        "Total birr ------------------${totalMoney} birr",
-        style: SunmiStyle(fontSize: SunmiFontSize.SM));
+        "Tessoo --------${widget.totalCapacity}",
+        style: SunmiStyle(fontSize: SunmiFontSize.MD));
+    await SunmiPrinter.bold();
+    await SunmiPrinter.printText(
+        "Total birr ------${totalMoney} birr",
+        style: SunmiStyle(fontSize: SunmiFontSize.MD));
 
     await SunmiPrinter.setAlignment(SunmiPrintAlign.CENTER);
     await SunmiPrinter.printBarCode(uniqueCounter, height: 30);
-    await SunmiPrinter.lineWrap(2);
-    await SunmiPrinter.printText('Huubachiisa: Tikeetiin kun emala yeroo');
-    await SunmiPrinter.setAlignment(SunmiPrintAlign.CENTER);
-    await SunmiPrinter.printText('tokkoo qofaaf tajaajila!');
-    await SunmiPrinter.setAlignment(SunmiPrintAlign.CENTER);
-    await SunmiPrinter.printText('Inala gaarii!!');
-    await SunmiPrinter.lineWrap(2);
-    await SunmiPrinter.setAlignment(SunmiPrintAlign.CENTER);
-    await SunmiPrinter.printText('Powered by: Dalex ',
-        style: SunmiStyle(fontSize: SunmiFontSize.XS));
-
+    await SunmiPrinter.printText('==============================',
+        style: SunmiStyle(fontSize: SunmiFontSize.SM));
+    // await SunmiPrinter.setAlignment(SunmiPrintAlign.CENTER);
+    await SunmiPrinter.printText(
+        'Bilbila bilisaa --> 8556 Biiroo Geejjiba Oromiyaa YKN',
+        style: SunmiStyle(fontSize: SunmiFontSize.MD));
+    // await SunmiPrinter.setAlignment(SunmiPrintAlign.CENTER);
+    // await SunmiPrinter.printText('Buufata Asella:--> 0911705178 / 0986182364',
+    //     style: SunmiStyle(fontSize: SunmiFontSize.MD));
+    await SunmiPrinter.lineWrap(3);
     await SunmiPrinter.exitTransactionPrint(true);
   }
 }
