@@ -59,14 +59,11 @@ class BuyTicketState extends State<BuyTicket> {
 
   Future<void> fetchStationFromHive() async {
     try {
-      // Open Hive box for station
       final box = await Hive.openBox<StationInfo>('station');
-
       // Check if the box is open
       if (!box.isOpen) {
         throw 'Hive box is not open';
       }
-
       // Get the station from the box
       final station = box.get('station');
 
@@ -78,7 +75,8 @@ class BuyTicketState extends State<BuyTicket> {
       if (station_info != null) {
         setState(() {
           departure.text = station_info!.name!;
-          print('=station_info=> ${station_info!.name}');
+          print('=station_info_name=> ${station_info!.name}');
+          print('=station_info_id=> ${station_info!.id}');
         });
       } else {
         print('Station data is null');
@@ -181,66 +179,76 @@ class BuyTicketState extends State<BuyTicket> {
   }
 
   Future<void> getTariffByDestinationId(String destinationId) async {
-  // Assume selectedVehicle.capacity is already defined and contains the vehicle's capacity
-  int vehicleCapacity = int.parse(selectedVehicle!.capacity!);
+    // Assume selectedVehicle.capacity is already defined and contains the vehicle's capacity
+    int vehicleCapacity = int.parse(selectedVehicle!.capacity!);
 
-  for (TariffInfo tariffInfo in tariffList) {
-    if (tariffInfo.destinationId == destinationId) {
-      if (vehicleCapacity < 16 && tariffInfo.is_lessthan_16 == "yes") {
-        print('ኢፍ ውስጥ');
-        print('============> Selected level 1 mini ID: ${tariffInfo.level_1_mini}');
-        print('============> Selected level 2 mini ID: ${tariffInfo.level_2_mini}');
-        print('============> Selected level 3 mini ID: ${tariffInfo.level_3_mini}');
-        setState(() {
-          if (selectedVehicle != null) {
-            if (selectedVehicle!.level == 'Level 1') {
-              tariff.text = tariffInfo.level_1_mini ?? '';
-              serviceCharge.text = (double.parse(tariffInfo.level_1_mini!) * 0.02).toString();
-            } else if (selectedVehicle!.level == 'Level 2') {
-              tariff.text = tariffInfo.level_2_mini ?? '';
-              serviceCharge.text = (double.parse(tariffInfo.level_2_mini!) * 0.02).toString();
-            } else if (selectedVehicle!.level == 'Level 3') {
-              tariff.text = tariffInfo.level_3_mini ?? '';
-              serviceCharge.text = (double.parse(tariffInfo.level_3_mini!) * 0.02).toString();
-            } else {
-              tariff.text = tariffInfo.tariff ?? '';
-              serviceCharge.text = (double.parse(tariffInfo.tariff!) * 0.02).toString();
+    for (TariffInfo tariffInfo in tariffList) {
+      if (tariffInfo.destinationId == destinationId) {
+        if (vehicleCapacity < 16 && tariffInfo.is_lessthan_16 == "yes") {
+          print('ኢፍ ውስጥ');
+          print(
+              '============> Selected level 1 mini ID: ${tariffInfo.level_1_mini}');
+          print(
+              '============> Selected level 2 mini ID: ${tariffInfo.level_2_mini}');
+          print(
+              '============> Selected level 3 mini ID: ${tariffInfo.level_3_mini}');
+          setState(() {
+            if (selectedVehicle != null) {
+              if (selectedVehicle!.level == 'Level 1') {
+                tariff.text = tariffInfo.level_1_mini ?? '';
+                serviceCharge.text =
+                    (double.parse(tariffInfo.level_1_mini!) * 0.02).toString();
+              } else if (selectedVehicle!.level == 'Level 2') {
+                tariff.text = tariffInfo.level_2_mini ?? '';
+                serviceCharge.text =
+                    (double.parse(tariffInfo.level_2_mini!) * 0.02).toString();
+              } else if (selectedVehicle!.level == 'Level 3') {
+                tariff.text = tariffInfo.level_3_mini ?? '';
+                serviceCharge.text =
+                    (double.parse(tariffInfo.level_3_mini!) * 0.02).toString();
+              } else {
+                tariff.text = tariffInfo.tariff ?? '';
+                serviceCharge.text =
+                    (double.parse(tariffInfo.tariff!) * 0.02).toString();
+              }
             }
-          }
-        });
-        break; // Exit the loop after processing the first matching entry
-      } else if (vehicleCapacity >= 16 && tariffInfo.is_lessthan_16 == "no") {
-        print('ኤልስ ውስጥ');
-        print('============> Selected level 1 ID: ${tariffInfo.level_1}');
-        print('============> Selected level 2 ID: ${tariffInfo.level_2}');
-        print('============> Selected level 3 ID: ${tariffInfo.level_3}');
-        setState(() {
-          if (selectedVehicle != null) {
-            if (selectedVehicle!.level == 'Level 1') {
-              tariff.text = tariffInfo.level_1 ?? '';
-              serviceCharge.text = (double.parse(tariffInfo.level_1!) * 0.02).toString();
-            } else if (selectedVehicle!.level == 'Level 2') {
-              tariff.text = tariffInfo.level_2 ?? '';
-              serviceCharge.text = (double.parse(tariffInfo.level_2!) * 0.02).toString();
-            } else if (selectedVehicle!.level == 'Level 3') {
-              tariff.text = tariffInfo.level_3 ?? '';
-              serviceCharge.text = (double.parse(tariffInfo.level_3!) * 0.02).toString();
-            } else {
-              tariff.text = tariffInfo.tariff ?? '';
-              serviceCharge.text = (double.parse(tariffInfo.tariff!) * 0.02).toString();
+          });
+          break; // Exit the loop after processing the first matching entry
+        } else if (vehicleCapacity >= 16 && tariffInfo.is_lessthan_16 == "no") {
+          print('ኤልስ ውስጥ');
+          print('============> Selected level 1 ID: ${tariffInfo.level_1}');
+          print('============> Selected level 2 ID: ${tariffInfo.level_2}');
+          print('============> Selected level 3 ID: ${tariffInfo.level_3}');
+          setState(() {
+            if (selectedVehicle != null) {
+              if (selectedVehicle!.level == 'Level 1') {
+                tariff.text = tariffInfo.level_1 ?? '';
+                serviceCharge.text =
+                    (double.parse(tariffInfo.level_1!) * 0.02).toString();
+              } else if (selectedVehicle!.level == 'Level 2') {
+                tariff.text = tariffInfo.level_2 ?? '';
+                serviceCharge.text =
+                    (double.parse(tariffInfo.level_2!) * 0.02).toString();
+              } else if (selectedVehicle!.level == 'Level 3') {
+                tariff.text = tariffInfo.level_3 ?? '';
+                serviceCharge.text =
+                    (double.parse(tariffInfo.level_3!) * 0.02).toString();
+              } else {
+                tariff.text = tariffInfo.tariff ?? '';
+                serviceCharge.text =
+                    (double.parse(tariffInfo.tariff!) * 0.02).toString();
+              }
             }
-          }
-        });
-        break; // Exit the loop after processing the first matching entry
+          });
+          break; // Exit the loop after processing the first matching entry
+        }
       }
     }
   }
-}
-
 
   // Future<void> getTariffByDestinationId(String destinationId) async {
   //   // Search for the tariff information with the given destination ID
-    
+
   //   for (TariffInfo tariffInfo in tariffList) {
   //     if (tariffInfo.is_lessthan_16 == "yes" &&
   //         tariffInfo.destinationId == destinationId) {

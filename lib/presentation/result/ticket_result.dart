@@ -1,9 +1,10 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:abushakir/abushakir.dart';
+import 'package:ethiopian_calendar/ethiopian_date_converter.dart';
 import 'package:barcode_widget/barcode_widget.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:ethiopian_calendar/ethiopian_date_converter.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sunmi_printer_plus/column_maker.dart';
@@ -32,8 +33,8 @@ class ResultPageState extends State<ResultPage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController no_of_ticket = TextEditingController();
   bool printBinded = false;
-  DateTime ethio_date =
-      EthiopianDateConverter.convertToEthiopianDate(DateTime.now());
+  EtDatetime ethio_date = new EtDatetime.now();
+  DateTime ethio_time = EthiopianDateConverter.convertToEthiopianDate(DateTime.now());
   @override
   void initState() {
     super.initState();
@@ -392,7 +393,7 @@ class ResultPageState extends State<ResultPage> {
                               fontWeight: FontWeight.bold),
                         ),
                         Text(
-                          '${ethio_date.day.toString()}/${ethio_date.month.toString()}/${ethio_date.year.toString()}-${ethio_date.hour.toString()}:${ethio_date.minute.toString()}:${ethio_date.second.toString()}', // time goes here
+                          '${ethio_date.day.toString()}/${ethio_date.month.toString()}/${ethio_date.year.toString()}-${ethio_time.hour.toString()}:${ethio_time.minute.toString()}:${ethio_time.second.toString()}', // time goes here
                           style: const TextStyle(
                               color: Colors.black,
                               fontSize: 16,
@@ -558,7 +559,7 @@ class ResultPageState extends State<ResultPage> {
         style: SunmiStyle(fontSize: SunmiFontSize.MD));
     await SunmiPrinter.bold();
     await SunmiPrinter.printText(
-        "Guyyaa --------${ethio_date.day.toString()}/${ethio_date.month.toString()}/${ethio_date.year.toString()}:-${ethio_date.hour.toString()}:${ethio_date.minute.toString()}",
+        "Guyyaa ----${ethio_date.day.toString()}/${ethio_date.month.toString()}/${ethio_date.year.toString()}:${ethio_time.hour.toString()}:${ethio_time.minute.toString()}:${ethio_time.second.toString()}",
         style: SunmiStyle(fontSize: SunmiFontSize.MD));
     await SunmiPrinter.bold();
     await SunmiPrinter.printText(

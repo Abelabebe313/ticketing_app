@@ -14,6 +14,7 @@ class ReportService {
     try {
       // Open Hive box for token
       await Hive.openBox<String>(tokenHive);
+      final stationBox = await Hive.openBox<StationInfo>('station');
 
       // Print all reports in the model as strings by iterating
       print("==========> Number of Available Reports: ${reportList.length}");
@@ -22,18 +23,17 @@ class ReportService {
       }
 
       final String? token = Hive.box<String>(tokenHive).get('token');
-      await Hive.close();
 
       // Open Hive box for station info
-      final stationBox = await Hive.openBox<StationInfo>('station');
-      final String? stationId = stationBox.get('station_id')?.id ?? '1';
+      StationInfo? savedStation = stationBox.get('station');
+      final String? stationId = savedStation!.id;
 
       print('Token: $token');
       print('Station ID: $stationId');
 
       for (var report in reportList) {
         Map<String, dynamic> data = {
-          "station_id": 1,
+          "station_id": stationId,
           "uploaded_by": report.name,
           "tota_price": report.total_amount,
           "service_fee": report.totalServiceFee,
@@ -64,6 +64,7 @@ class ReportService {
           print('Failed to upload: $responseData');
         }
       }
+      await Hive.close();
     } catch (e) {
       throw Exception('An error occurred: $e');
     }
