@@ -22,7 +22,7 @@ class DataService {
 
     final String? token = Hive.box<String>(tokenHive).get('token');
 
-    print('ቶክኑ:- $token');
+    // print('ቶክኑ:- $token');
     try {
       final response = await http.get(
         Uri.parse('$baseUrl'),
@@ -53,6 +53,7 @@ class DataService {
                 .toList();
         // Save destination list to Hive
         await saveDestinationListToHive(destinationList);
+        print('Destination List: $destinationList');
 
         /// ==== Tariff List ==== ///
         /// Extract Tariff list
@@ -62,6 +63,7 @@ class DataService {
                 .toList();
         // Save Tariff list to Hive
         await saveTariffListToHive(tariffList);
+        print('Tariff List: $tariffList');
       }
     } catch (e) {
       print("error::++++++++++> $e");
