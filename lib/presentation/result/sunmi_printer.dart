@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:barcode_widget/barcode_widget.dart' as Bbar;
-import 'package:ethiopian_calendar/ethiopian_date_converter.dart';
 import 'package:abushakir/abushakir.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -52,8 +51,8 @@ class _SunmiPrinterPageState extends State<SunmiPrinterPage> {
   String serialNumber = "";
   String printerVersion = "";
   final now = DateTime.now();
-  EtDatetime ethio_date = new EtDatetime.now();
-  DateTime ethio_time = EthiopianDateConverter.convertToEthiopianDate(DateTime.now());
+  EtDatetime ethio_date = EtDatetime.now();
+  DateTime ethio_time = DateTime.now();
   double totalMoney = 0.0;
   @override
   void initState() {
@@ -443,7 +442,8 @@ class _SunmiPrinterPageState extends State<SunmiPrinterPage> {
         style: SunmiStyle(fontSize: SunmiFontSize.MD));
 
     await SunmiPrinter.bold();
-    await SunmiPrinter.printText("Agent -------${widget.agent}",
+    await SunmiPrinter.printText(
+        "Agent -------${widget.agent}",
         style: SunmiStyle(fontSize: SunmiFontSize.MD));
 
     await SunmiPrinter.bold();
@@ -452,11 +452,13 @@ class _SunmiPrinterPageState extends State<SunmiPrinterPage> {
         style: SunmiStyle(fontSize: SunmiFontSize.MD));
 
     await SunmiPrinter.bold();
-    await SunmiPrinter.printText("Sadarkaa -------${widget.level}",
+    await SunmiPrinter.printText(
+        "Sadarkaa -------${widget.level}",
         style: SunmiStyle(fontSize: SunmiFontSize.MD));
 
     await SunmiPrinter.bold();
-    await SunmiPrinter.printText("Ka'umsaa ------${widget.station}",
+    await SunmiPrinter.printText(
+        "Ka'umsaa ------${widget.station}",
         style: SunmiStyle(fontSize: SunmiFontSize.MD));
 
     await SunmiPrinter.bold();
@@ -489,7 +491,7 @@ class _SunmiPrinterPageState extends State<SunmiPrinterPage> {
         'Bilbila bilisaa --> 8556 Biiroo Geejjiba Oromiyaa YKN',
         style: SunmiStyle(fontSize: SunmiFontSize.MD));
     // await SunmiPrinter.setAlignment(SunmiPrintAlign.CENTER);
-    // await SunmiPrinter.printText('Buufata Asella:--> 0911705178 / 0986182364',
+    // await SunmiPrinter.printText('0901878871 / 0912289830',
     //     style: SunmiStyle(fontSize: SunmiFontSize.MD));
     await SunmiPrinter.lineWrap(3);
     await SunmiPrinter.exitTransactionPrint(true);

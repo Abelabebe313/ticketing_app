@@ -32,7 +32,7 @@ class _SoldTicketPininputState extends State<SoldTicketPininput> {
   Future<void> _loadPinCode() async {
     // final prefs = await SharedPreferences.getInstance();
     // final pin = prefs.getString('pin');
-    final String? pin = '6958';
+    final String? pin = '2986';
     setState(() {
       pinCode = pin!;
     });

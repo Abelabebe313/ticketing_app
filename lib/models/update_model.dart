@@ -94,7 +94,7 @@ class StationInfo {
       {this.id, this.name, this.location, this.departure, this.defaultLang});
 
   StationInfo.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
+    id = json['id']?.toString();
     name = json['name'];
     location = json['location'];
     departure = json['departure'];
@@ -127,8 +127,8 @@ class DestinationList {
 
   factory DestinationList.fromJson(Map<String, dynamic> json) {
     return DestinationList(
-      id: json['id'],
-      stationId: json['station_id'],
+      id: json['id']?.toString(),
+      stationId: json['station_id']?.toString(),
       destination: json['destination'],
       distance: json['distance'],
     );
@@ -172,16 +172,16 @@ class TariffInfo {
   });
 
   TariffInfo.fromJson(Map<String, dynamic> json) {
-    stationId = json['station_id'];
-    destinationId = json['destination_id'];
-    tariff = json['tariff'];
-    level_1 = json['level_1'];
-    level_2 = json['level_2'];
-    level_3 = json['level_3'];
+    stationId = json['station_id']?.toString();
+    destinationId = json['destination_id']?.toString();
+    tariff = json['tariff']?.toString();
+    level_1 = json['level_1']?.toString();
+    level_2 = json['level_2']?.toString();
+    level_3 = json['level_3']?.toString();
     is_lessthan_16 = json['is_lessthan_16'];
-    level_1_mini = json['level_1_mini'];
-    level_2_mini = json['level_2_mini'];
-    level_3_mini = json['level_3_mini'];
+    level_1_mini = json['level_1_mini']?.toString();
+    level_2_mini = json['level_2_mini']?.toString();
+    level_3_mini = json['level_3_mini']?.toString();
     updatedDate = json['updated_date'];
   }
 
@@ -224,13 +224,13 @@ class VehicleList {
 
   factory VehicleList.fromJson(Map<String, dynamic> json) {
     return VehicleList(
-      id: json['id'],
-      stationId: json['station_id'],
+      id: json['id']?.toString(),
+      stationId: json['station_id']?.toString(),
       associationName: json['association_name'],
       level: json['level'],
       plateNo: json['plate_no'],
       type: json['type'],
-      capacity: json['capacity'],
+      capacity: json['capacity']?.toString(),
       date: json['date'],
     );
   }

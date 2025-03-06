@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:abushakir/abushakir.dart';
-import 'package:ethiopian_calendar/ethiopian_date_converter.dart';
 import 'package:barcode_widget/barcode_widget.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -33,8 +32,8 @@ class ResultPageState extends State<ResultPage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController no_of_ticket = TextEditingController();
   bool printBinded = false;
-  EtDatetime ethio_date = new EtDatetime.now();
-  DateTime ethio_time = EthiopianDateConverter.convertToEthiopianDate(DateTime.now());
+  EtDatetime ethio_date = EtDatetime.now();
+  DateTime ethio_time = DateTime.now();
   @override
   void initState() {
     super.initState();
@@ -601,7 +600,7 @@ class ResultPageState extends State<ResultPage> {
         'Bilbila bilisaa --> 8556 Biiroo Geejjiba Oromiyaa YKN',
         style: SunmiStyle(fontSize: SunmiFontSize.MD));
     // await SunmiPrinter.setAlignment(SunmiPrintAlign.CENTER);
-    // await SunmiPrinter.printText('Buufata Asella:--> 0911705178 / 0986182364',
+    // await SunmiPrinter.printText('0901878871 / 0912289830',
     //     style: SunmiStyle(fontSize: SunmiFontSize.MD));
     await SunmiPrinter.lineWrap(3);
     // await SunmiPrinter.setAlignment(SunmiPrintAlign.CENTER);

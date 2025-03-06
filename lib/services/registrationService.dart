@@ -80,6 +80,8 @@ class UserRegistration {
         final stationInfoList = (data['data']['station_info'] as List)
             .map((stationJson) => StationInfo.fromJson(stationJson))
             .toList();
+
+        print("===> Stations List: ${response.data['data']['station_info']}");
         return stationInfoList;
       } else {
         throw Exception('Failed to load station information');
