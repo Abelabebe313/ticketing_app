@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:barcode_widget/barcode_widget.dart' as Bbar;
-import 'package:ethiopian_calendar/ethiopian_date_converter.dart';
 import 'package:abushakir/abushakir.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -52,8 +51,8 @@ class _SunmiPrinterPageState extends State<SunmiPrinterPage> {
   String serialNumber = "";
   String printerVersion = "";
   final now = DateTime.now();
-  EtDatetime ethio_date = new EtDatetime.now();
-  DateTime ethio_time = EthiopianDateConverter.convertToEthiopianDate(DateTime.now());
+  EtDatetime ethio_date = EtDatetime.now();
+  DateTime gregorianDate = DateTime.now();
   double totalMoney = 0.0;
   @override
   void initState() {
@@ -205,7 +204,7 @@ class _SunmiPrinterPageState extends State<SunmiPrinterPage> {
                               fontWeight: FontWeight.bold),
                         ),
                         Text(
-                          '${ethio_date.day.toString()}/${ethio_date.month.toString()}/${ethio_date.year.toString()}-${ethio_time.hour.toString()}:${ethio_time.minute.toString()}:${ethio_time.second.toString()}', // time goes here
+                          '${ethio_date.day.toString()}/${ethio_date.month.toString()}/${ethio_date.year.toString()}-${gregorianDate.hour.toString()}:${gregorianDate.minute.toString()}:${gregorianDate.second.toString()}', // time goes here
                           style: const TextStyle(
                               color: Colors.black,
                               fontSize: 16,
@@ -439,7 +438,7 @@ class _SunmiPrinterPageState extends State<SunmiPrinterPage> {
 
     await SunmiPrinter.bold();
     await SunmiPrinter.printText(
-        "Guyyaa ----${ethio_date.day.toString()}/${ethio_date.month.toString()}/${ethio_date.year.toString()}:${ethio_time.hour.toString()}:${ethio_time.minute.toString()}:${ethio_time.second.toString()}",
+        "Guyyaa ----${ethio_date.day.toString()}/${ethio_date.month.toString()}/${ethio_date.year.toString()}:${gregorianDate.hour.toString()}:${gregorianDate.minute.toString()}:${gregorianDate.second.toString()}",
         style: SunmiStyle(fontSize: SunmiFontSize.MD));
 
     await SunmiPrinter.bold();

@@ -27,7 +27,7 @@ class Ticket {
   Map<String, dynamic> toJson() {
     return {
       'tailure': tailure,
-      'lastName': level,
+      'level': level,
       'plate': plate,
       'date': date.toIso8601String(),
       'destination': destination,
@@ -45,12 +45,12 @@ class Ticket {
       tailure: json['tailure'] ?? '',
       level: json['level'] ?? '',
       plate: json['plate'] ?? '',
-      date: DateTime.parse(json['date'] ?? ''),
+      date: json['date'] is String ? DateTime.parse(json['date']) : DateTime.now(),
       destination: json['destination'] ?? '',
       departure: json['departure'] ?? '',
-      uniqueId: json['uniqueId'] ?? 0,
-      tariff: json['tariff'] ?? 0.0,
-      charge: json['charge'] ?? 0.0,
+      uniqueId: json['uniqueId'] ?? '',
+      tariff: (json['tariff'] is num) ? json['tariff'].toDouble() : 0.0,
+      charge: (json['charge'] is num) ? json['charge'].toDouble() : 0.0,
       association: json['association'] ?? '',
       distance: json['distance'] ?? '',
     );
