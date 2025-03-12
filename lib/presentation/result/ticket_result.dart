@@ -34,7 +34,7 @@ class ResultPageState extends State<ResultPage> {
   final TextEditingController no_of_ticket = TextEditingController();
   bool printBinded = false;
   EtDatetime ethio_date = EtDatetime.now();
-  DateTime gregorianDate = DateTime.now();
+  DateTime ethio_time = DateTime.now();
   @override
   void initState() {
     super.initState();

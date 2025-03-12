@@ -53,6 +53,7 @@ class _SunmiPrinterPageState extends State<SunmiPrinterPage> {
   final now = DateTime.now();
   EtDatetime ethio_date = EtDatetime.now();
   DateTime gregorianDate = DateTime.now();
+  DateTime ethio_time = DateTime.now();
   double totalMoney = 0.0;
   @override
   void initState() {
@@ -442,7 +443,8 @@ class _SunmiPrinterPageState extends State<SunmiPrinterPage> {
         style: SunmiStyle(fontSize: SunmiFontSize.MD));
 
     await SunmiPrinter.bold();
-    await SunmiPrinter.printText("Agent -------${widget.agent}",
+    await SunmiPrinter.printText(
+        "Agent -------${widget.agent}",
         style: SunmiStyle(fontSize: SunmiFontSize.MD));
 
     await SunmiPrinter.bold();
@@ -451,11 +453,13 @@ class _SunmiPrinterPageState extends State<SunmiPrinterPage> {
         style: SunmiStyle(fontSize: SunmiFontSize.MD));
 
     await SunmiPrinter.bold();
-    await SunmiPrinter.printText("Sadarkaa -------${widget.level}",
+    await SunmiPrinter.printText(
+        "Sadarkaa -------${widget.level}",
         style: SunmiStyle(fontSize: SunmiFontSize.MD));
 
     await SunmiPrinter.bold();
-    await SunmiPrinter.printText("Ka'umsaa ------${widget.station}",
+    await SunmiPrinter.printText(
+        "Ka'umsaa ------${widget.station}",
         style: SunmiStyle(fontSize: SunmiFontSize.MD));
 
     await SunmiPrinter.bold();
