@@ -35,12 +35,16 @@ dependencies:
   esc_pos_utils: ^1.1.0
   barcode_widget: ^2.0.4
   dropdown_search: ^5.0.6
-  abushakir: ^1.0.0
-  sqflite: ^2.3.3
-  dio: ^5.4.0
+  ethiopian_calendar: ^0.0.2
+  abushakir: "^1.0.0"
+  sqflite: ^2.3.3+1
+  dio: ^5.4.3+1
   restart_app:
     git:
       url: https://github.com/VickySalunkhe/restart_app.git
+
+dependency_overrides:
+  intl: ^0.18.1
   
 flutter_launcher_icons:
   android: true

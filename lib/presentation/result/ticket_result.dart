@@ -17,6 +17,7 @@ import 'package:transport_app/utils/ticket_generator.dart';
 import '../../core/my_colors.dart';
 import '../../core/my_text.dart';
 import '../../models/ticket.dart';
+import '../../data/ticket_data_source.dart';
 
 class ResultPage extends StatefulWidget {
   final int totalCapacity;
@@ -392,7 +393,7 @@ class ResultPageState extends State<ResultPage> {
                               fontWeight: FontWeight.bold),
                         ),
                         Text(
-                          '${ethio_date.day.toString()}/${ethio_date.month.toString()}/${ethio_date.year.toString()}-${ethio_time.hour.toString()}:${ethio_time.minute.toString()}:${ethio_time.second.toString()}', // time goes here
+                          '${ethio_date.day.toString()}/${ethio_date.month.toString()}/${ethio_date.year.toString()}-${ethio_time.hour.toString()}:${ethio_time.minute.toString()}:${ethio_time.second.toString()}',
                           style: const TextStyle(
                               color: Colors.black,
                               fontSize: 16,
@@ -473,29 +474,45 @@ class ResultPageState extends State<ResultPage> {
                       );
                       return;
                     }
-                    for (int i = 0; i < numberOfTickets; i++) {
-                      String uniqueCounter =
-                          generateUniqueCounter(today, numberOfTickets + i + 1);
+
+                    final TicketDataSource ticketDataSource = TicketDataSource();
+                    
+                    // Calculate total commission for all tickets
+                    double commissionPerTicket = widget.ticket.tariff * 0.02;
+                    double totalNewCommission = commissionPerTicket * numberOfTickets;
+                    
+                    // Get current values from SharedPreferences
+                    double previousCommission = prefs.getDouble('dailyReport') ?? 0.0;
+                    int previousTicketCount = prefs.getInt('totalTicket') ?? 0;
+                    
+                    // Update SharedPreferences for all tickets
+                    await prefs.setDouble('dailyReport', previousCommission + totalNewCommission);
+                    await prefs.setInt('totalTicket', previousTicketCount + numberOfTickets);
+                    
+                    // Now handle ticket creation and printing
+                    for (int i = 0; i < numberOfTickets - 1; i++) {
+                      String uniqueCounter = generateUniqueCounter(today, i + 1);
                       print('$i = ticket printed');
-                      double commission = widget.ticket.tariff * 0.02;
 
-                      // Get the previous commission value from SharedPreferences
-                      double previousCommission =
-                          prefs.getDouble('dailyReport') ?? 0.0;
-                      int previousTicketCount =
-                          prefs.getInt('totalTicket') ?? 0;
-                      // Increment the commission by adding the new commission to the previous value
-                      double updatedCommission =
-                          previousCommission + commission;
-
-                      // Increment the ticket count by adding the new ticket to the previous value
-                      int updatedTicketCount = previousTicketCount + 1;
-
-                      // Update the commission value in SharedPreferences
-                      prefs.setDouble('dailyReport', updatedCommission);
-                      prefs.setInt('totalTicket', updatedTicketCount);
-                      //
-                      // print ticket
+                      // Create a new ticket for each print
+                      final newTicket = Ticket(
+                        uniqueId: uniqueCounter,
+                        departure: widget.ticket.departure,
+                        destination: widget.ticket.destination,
+                        plate: widget.ticket.plate,
+                        level: widget.ticket.level,
+                        tailure: widget.ticket.tailure,
+                        tariff: widget.ticket.tariff,
+                        charge: widget.ticket.charge,
+                        association: widget.ticket.association,
+                        distance: widget.ticket.distance,
+                        date: today,
+                      );
+                      
+                      // Save each ticket to database
+                      await ticketDataSource.saveTicket(newTicket);
+                      
+                      // Print the ticket
                       await printMultipleTickets(
                         uniqueCounter,
                         widget.totalCapacity,

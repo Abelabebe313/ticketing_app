@@ -24,7 +24,7 @@ if (flutterVersionName == null) {
 
 android {
     namespace "com.aman.transport_app"
-    compileSdkVersion flutter.compileSdkVersion
+    compileSdkVersion 34 // Updated to 34 to match plugin requirements
     ndkVersion flutter.ndkVersion
 
     compileOptions {
@@ -49,6 +49,8 @@ android {
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
+        // Set the output APK filename
+        project.archivesBaseName = "Transport App"
     }
 
     buildTypes {

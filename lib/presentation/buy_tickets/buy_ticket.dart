@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -5,6 +7,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive/hive.dart';
 import 'package:transport_app/bloc/data_bloc.dart';
 import 'package:transport_app/bloc/data_event.dart';
+import 'package:transport_app/data/db_helper.dart';
+import 'package:transport_app/data/ticket_data_source.dart'; 
 import 'package:transport_app/models/update_model.dart';
 
 import '../../core/my_colors.dart';
@@ -927,10 +931,9 @@ class BuyTicketState extends State<BuyTicket> {
                       ),
                       onPressed: () async {
                         if (_formKey.currentState!.validate()) {
-                          // DateTime today = DateTime.now();
-                          // String uniqueCounter =
-                          //     generateUniqueCounter(today, counter);
-                          // int counter = await CounterService.generateNextNumber();
+                          // Generate a truly unique ID with timestamp and random numbers
+                          String uniqueId = DateTime.now().millisecondsSinceEpoch.toString() + 
+                              (1000 + Random().nextInt(9000)).toString();
 
                           Ticket ticket = Ticket(
                             tailure: Tailure.text,
@@ -939,12 +942,25 @@ class BuyTicketState extends State<BuyTicket> {
                             date: DateTime.now(),
                             destination: destination.text,
                             departure: departure.text,
-                            uniqueId: '202431700',
+                            uniqueId: uniqueId, // Use the generated unique ID
                             tariff: double.parse(tariff.text),
                             charge: double.parse(serviceCharge.text),
                             association: association.text,
                             distance: distance.text,
                           );
+
+                          // Save the ticket to the database
+                          try {
+                            // First ensure the table exists with proper structure
+                            final dbHelper = DatabaseHelper();
+                            await dbHelper.ensureTicketsTable();
+                            
+                            final ticketDataSource = TicketDataSource();
+                            await ticketDataSource.saveTicket(ticket);
+                            print('Ticket saved successfully to database with uniqueId: $uniqueId');
+                          } catch (e) {
+                            print('Error saving ticket to database: $e');
+                          }
 
                           Navigator.pushReplacement(
                             context,

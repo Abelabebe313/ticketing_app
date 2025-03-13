@@ -1,0 +1,211 @@
+{
+	"info": {
+		"_postman_id": "random-uuid",
+		"name": "NoraTicket API Tests",
+		"description": "Test collection for NoraTicket API ticket upload functionality",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Upload Ticket - Success",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200 or 201\", function () {",
+							"    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+							"});",
+							"",
+							"pm.test(\"Response has correct structure\", function () {",
+							"    const responseData = pm.response.json();",
+							"    pm.expect(responseData).to.have.property('status');",
+							"    pm.expect(responseData.status).to.be.true;",
+							"});",
+							"",
+							"pm.test(\"Content-Type header is application/json\", function () {",
+							"    pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"station_id\": \"{{station_id}}\",\n    \"uploaded_by\": \"Test Agent\",\n    \"total_price\": 1000.00,\n    \"service_fee\": 20.00,\n    \"no_of_ticket\": 2,\n    \"vehicle_plate_no\": \"ABC123\",\n    \"vehicle_level\": \"VIP\",\n    \"destination\": \"Test Destination\",\n    \"uploaded_date\": \"{{$timestamp}}\",\n    \"validate\": \"ok\"\n}"
+				},
+				"url": {
+					"raw": "https://api.noraticket.com/v1/public/api/tickets",
+					"protocol": "https",
+					"host": ["api", "noraticket", "com"],
+					"path": ["v1", "public", "api", "tickets"]
+				},
+				"description": "Upload a single ticket with valid data"
+			}
+		},
+		{
+			"name": "Upload Ticket - Missing Token",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 401\", function () {",
+							"    pm.expect(pm.response.code).to.equal(401);",
+							"});",
+							"",
+							"pm.test(\"Response indicates authentication error\", function () {",
+							"    const responseData = pm.response.json();",
+							"    pm.expect(responseData).to.have.property('message');",
+							"    pm.expect(responseData.message).to.include('unauthorized');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"station_id\": \"{{station_id}}\",\n    \"uploaded_by\": \"Test Agent\",\n    \"total_price\": 1000.00,\n    \"service_fee\": 20.00,\n    \"no_of_ticket\": 2,\n    \"vehicle_plate_no\": \"ABC123\",\n    \"vehicle_level\": \"VIP\",\n    \"destination\": \"Test Destination\",\n    \"uploaded_date\": \"{{$timestamp}}\",\n    \"validate\": \"ok\"\n}"
+				},
+				"url": {
+					"raw": "https://api.noraticket.com/v1/public/api/tickets",
+					"protocol": "https",
+					"host": ["api", "noraticket", "com"],
+					"path": ["v1", "public", "api", "tickets"]
+				},
+				"description": "Attempt to upload a ticket without an authentication token"
+			}
+		},
+		{
+			"name": "Upload Ticket - Invalid Station ID",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", function () {",
+							"    pm.expect(pm.response.code).to.equal(400);",
+							"});",
+							"",
+							"pm.test(\"Response indicates invalid station ID\", function () {",
+							"    const responseData = pm.response.json();",
+							"    pm.expect(responseData).to.have.property('message');",
+							"    pm.expect(responseData.message).to.include('station');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"station_id\": \"invalid_station_id\",\n    \"uploaded_by\": \"Test Agent\",\n    \"total_price\": 1000.00,\n    \"service_fee\": 20.00,\n    \"no_of_ticket\": 2,\n    \"vehicle_plate_no\": \"ABC123\",\n    \"vehicle_level\": \"VIP\",\n    \"destination\": \"Test Destination\",\n    \"uploaded_date\": \"{{$timestamp}}\",\n    \"validate\": \"ok\"\n}"
+				},
+				"url": {
+					"raw": "https://api.noraticket.com/v1/public/api/tickets",
+					"protocol": "https",
+					"host": ["api", "noraticket", "com"],
+					"path": ["v1", "public", "api", "tickets"]
+				},
+				"description": "Attempt to upload a ticket with an invalid station ID"
+			}
+		},
+		{
+			"name": "Upload Ticket - Invalid Data",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400\", function () {",
+							"    pm.expect(pm.response.code).to.equal(400);",
+							"});",
+							"",
+							"pm.test(\"Response indicates validation error\", function () {",
+							"    const responseData = pm.response.json();",
+							"    pm.expect(responseData).to.have.property('message');",
+							"    pm.expect(responseData).to.have.property('errors');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"station_id\": \"{{station_id}}\",\n    \"uploaded_by\": \"\",\n    \"total_price\": \"invalid_price\",\n    \"service_fee\": -20.00,\n    \"no_of_ticket\": 0,\n    \"vehicle_plate_no\": \"\",\n    \"vehicle_level\": \"\",\n    \"destination\": \"\",\n    \"uploaded_date\": \"invalid_date\",\n    \"validate\": \"invalid\"\n}"
+				},
+				"url": {
+					"raw": "https://api.noraticket.com/v1/public/api/tickets",
+					"protocol": "https",
+					"host": ["api", "noraticket", "com"],
+					"path": ["v1", "public", "api", "tickets"]
+				},
+				"description": "Attempt to upload a ticket with invalid data"
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "token",
+			"value": "your_auth_token_here"
+		},
+		{
+			"key": "station_id",
+			"value": "your_station_id_here"
+		}
+	]
+}
