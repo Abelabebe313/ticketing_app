@@ -393,7 +393,7 @@ class ResultPageState extends State<ResultPage> {
                               fontWeight: FontWeight.bold),
                         ),
                         Text(
-                          '${ethio_date.day.toString()}/${ethio_date.month.toString()}/${ethio_date.year.toString()}-${gregorianDate.hour.toString()}:${gregorianDate.minute.toString()}:${gregorianDate.second.toString()}', // time goes here
+                          '${ethio_date.day.toString()}/${ethio_date.month.toString()}/${ethio_date.year.toString()}-${ethio_time.hour.toString()}:${ethio_time.minute.toString()}:${ethio_time.second.toString()}',
                           style: const TextStyle(
                               color: Colors.black,
                               fontSize: 16,
@@ -575,7 +575,7 @@ class ResultPageState extends State<ResultPage> {
         style: SunmiStyle(fontSize: SunmiFontSize.MD));
     await SunmiPrinter.bold();
     await SunmiPrinter.printText(
-        "Guyyaa ----${ethio_date.day.toString()}/${ethio_date.month.toString()}/${ethio_date.year.toString()}:${gregorianDate.hour.toString()}:${gregorianDate.minute.toString()}:${gregorianDate.second.toString()}",
+        "Guyyaa ----${ethio_date.day.toString()}/${ethio_date.month.toString()}/${ethio_date.year.toString()}:${ethio_time.hour.toString()}:${ethio_time.minute.toString()}:${ethio_time.second.toString()}",
         style: SunmiStyle(fontSize: SunmiFontSize.MD));
     await SunmiPrinter.bold();
     await SunmiPrinter.printText(

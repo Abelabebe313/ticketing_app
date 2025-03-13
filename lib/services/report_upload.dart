@@ -75,7 +75,7 @@ class ReportService {
           "vehicle_plate_no": reportModel.plate,
           "vehicle_level": reportModel.level,
           "destination": reportModel.destination,
-          "uplaoded_date": DateTime.now().toIso8601String(),
+          "uploaded_date": DateTime.now().toIso8601String(),
           "validate": "ok",  
         };
 
@@ -247,19 +247,20 @@ class ReportService {
       String token, 
       String? stationId,
       {required Function onSuccess}) async {
-    // Modify the data structure to match exactly what the API expects for reports
-    // The API error indicates we need to include uploaded_by, tota_price, and service_fee
     Map<String, dynamic> data = {
       "station_id": stationId,
-      "uploaded_by": ticket.tailure,         // Use tailure as uploaded_by 
-      "tota_price": ticket.tariff,          // Use tariff as total_price
-      "service_fee": ticket.charge,          // Use charge as service_fee
-      "no_of_ticket": 1,                    // Individual ticket counts as 1
+      "uploaded_by": ticket.tailure,
+      "total_price": ticket.tariff,          // Fixed typo in field name
+      "service_fee": ticket.charge,
+      "no_of_ticket": 1,
       "vehicle_plate_no": ticket.plate,
       "vehicle_level": ticket.level,
       "destination": ticket.destination,
-      "uplaoded_date": ticket.date.toIso8601String(), // Note the typo in field name is intentional to match API
-      "validate": "ok",                    // Add the validate field that the server expects
+      "departure": ticket.departure,         // Added departure
+      "association": ticket.association,     // Added association
+      "distance": ticket.distance,           // Added distance
+      "uploaded_date": ticket.date.toIso8601String(), // Fixed typo in field name
+      "validate": "ok",
     };
 
     try {
